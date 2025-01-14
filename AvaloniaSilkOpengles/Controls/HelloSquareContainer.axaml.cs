@@ -15,7 +15,7 @@ public partial class HelloSquareContainer : UserControl
     public HelloSquareContainer()
     {
         InitializeComponent();
-        Timer.Interval = TimeSpan.FromMilliseconds(40);
+        Timer.Interval = TimeSpan.FromMilliseconds(10);
         Timer.Tick += TimerOnTick;
         Timer.Start();
         Stopwatch.Start();
