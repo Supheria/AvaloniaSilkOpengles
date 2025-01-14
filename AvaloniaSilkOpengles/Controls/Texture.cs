@@ -10,18 +10,20 @@ namespace AvaloniaSilkOpengles.Controls;
 public class Texture
 {
     GL Gl { get; }
+    string UniformUniformName {get;}
     uint TextureHandler { get; set; }
 
-    public Texture(GlInterface gl)
+    public Texture(GlInterface gl, string uniformName)
     {
         Gl = GL.GetApi(gl.GetProcAddress);
+        UniformUniformName = uniformName;
     }
 
     public void Load(Stream source)
     {
-        TextureHandler = Gl.GenTexture();
+        // Gl.ActiveTexture(TextureUnit.Texture1);
         
-        Gl.ActiveTexture(TextureUnit.Texture0);
+        TextureHandler = Gl.GenTexture();
         Gl.BindTexture(TextureTarget.Texture2D, TextureHandler);
 
         Gl.TexParameterI(

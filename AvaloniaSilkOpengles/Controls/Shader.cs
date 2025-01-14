@@ -10,6 +10,7 @@ public unsafe class Shader
     string VertexCode { get; }
     string FragmentCode { get; }
     int ProgramHandler { get; set; }
+    public int Handler => ProgramHandler;
 
     public Shader(string vertexCode, string fragmentCode)
     {
