@@ -8,7 +8,10 @@ using Avalonia.OpenGL;
 using Avalonia.OpenGL.Controls;
 using Avalonia.Threading;
 using AvaloniaSilkOpengles.Assets.Shaders;
+using AvaloniaSilkOpengles.Assets.Textures;
 using Silk.NET.OpenGLES;
+using SkiaSharp;
+using StbImageSharp;
 using static Avalonia.OpenGL.GlConsts;
 
 namespace AvaloniaSilkOpengles.Controls;
@@ -21,16 +24,34 @@ public unsafe class HelloSquare : OpenGlControlBase
     Shader? Shader { get; set; }
     Camera2D? Camera { get; set; }
     PixelSize ViewPortSize { get; set; }
-    int TextureHandler {get;set;}
+    Texture? HappyTexture { get; set; }
 
     // csharpier-ignore
     float[] Vertices { get; } =
     [
-        -0.5f, 0.5f, 1f, 0f, 0f, // top left
-        0.5f, 0.5f, 0f, 1f, 0f, // top right
-        0.5f, -0.5f, 0f, 1f, 1f, // bottom right
-        -0.5f, -0.5f, 0f, 0f, 1f, // bottom left
+        -0.5f, 0.5f,    1f, 0f, 0f,     0f, 1f, // top left
+        0.5f, 0.5f,     0f, 1f, 0f,     1f, 1f, // top right
+        0.5f, -0.5f,    0f, 1f, 1f,     1f, 0f, // bottom right
+        -0.5f, -0.5f,   0f, 0f, 1f,     0f, 0f, // bottom left
     ];
+    
+    // // csharpier-ignore
+    // float[] Vertices { get; } =
+    // [
+    //     -0.5f, 0.5f,    1f, 0f, 0f,     0f, 0f, // top left
+    //     0.5f, 0.5f,     0f, 1f, 0f,     1f, 0f, // top right
+    //     0.5f, -0.5f,    0f, 1f, 1f,     1f, 1f, // bottom right
+    //     -0.5f, -0.5f,   0f, 0f, 1f,     0f, 1f, // bottom left
+    // ];
+
+    // // csharpier-ignore
+    // float[] TexCoords { get; } =
+    // [
+    //     0f, 1f, // top left
+    //     1f, 1f, // top right
+    //     1f, 0f, // bottom right
+    //     0f, 0f // bottom left
+    // ];
 
     // csharpier-ignore
     byte[] Indices { get; } =
@@ -51,6 +72,8 @@ public unsafe class HelloSquare : OpenGlControlBase
     protected override void OnOpenGlInit(GlInterface gl)
     {
         base.OnOpenGlInit(gl);
+
+        using var Gl = GL.GetApi(gl.GetProcAddress);
 
         Shader = new(ShaderRead.Read("simple.vert"), ShaderRead.Read("simple.frag"));
         Shader.Load(gl);
@@ -82,19 +105,22 @@ public unsafe class HelloSquare : OpenGlControlBase
             );
         }
 
-        gl.VertexAttribPointer(0, 2, GL_FLOAT, 0, sizeof(float) * 5, IntPtr.Zero);
+        gl.VertexAttribPointer(0, 2, GL_FLOAT, 0, sizeof(float) * 7, IntPtr.Zero);
         gl.EnableVertexAttribArray(0);
 
-        gl.VertexAttribPointer(1, 3, GL_FLOAT, 0, sizeof(float) * 5, sizeof(float) * 2);
+        gl.VertexAttribPointer(1, 3, GL_FLOAT, 0, sizeof(float) * 7, sizeof(float) * 2);
         gl.EnableVertexAttribArray(1);
+
+        gl.VertexAttribPointer(2, 2, GL_FLOAT, 0, sizeof(float) * 7, sizeof(float) * 5);
+        gl.EnableVertexAttribArray(2);
 
         gl.BindVertexArray(0);
         gl.BindBuffer(GL_ARRAY_BUFFER, 0);
         gl.BindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-        
-        //
-        TextureHandler = gl.GenTexture();
-        gl.ActiveTexture(GL_TEXTURE0);
+
+        HappyTexture = new(gl);
+        using var stream = TextureRead.Read("happy.jpg");
+        HappyTexture.Load(stream);
     }
 
     protected override void OnOpenGlDeinit(GlInterface gl)
@@ -104,6 +130,7 @@ public unsafe class HelloSquare : OpenGlControlBase
         gl.DeleteBuffer(VboHandler);
         gl.DeleteBuffer(EboHandler);
         Shader?.Delete(gl);
+        HappyTexture?.Delete();
     }
 
     Stopwatch St = Stopwatch.StartNew();
@@ -117,7 +144,7 @@ public unsafe class HelloSquare : OpenGlControlBase
 
         gl.ClearColor(0, 0, 0, 1);
         gl.Clear(GL_COLOR_BUFFER_BIT);
-        
+
         var position = Bounds.Center;
         var scale = new Vector2(150, 100);
         // var rotation = MathF.Sin(St.Elapsed.Milliseconds) * MathF.PI;
@@ -131,13 +158,16 @@ public unsafe class HelloSquare : OpenGlControlBase
         var projection = Camera.GetProjectionMatrix(Bounds);
         Shader.SetMatrix(gl, "projection", projection);
 
+        HappyTexture?.Bind();
+        
         gl.BindVertexArray(VaoHandler);
         gl.BindBuffer(GL_ELEMENT_ARRAY_BUFFER, EboHandler);
         // gl.DrawArrays(GL_TRIANGLES, 0, 3);
         gl.DrawElements(GL_TRIANGLES, Indices.Length, GL_UNSIGNED_BYTE, IntPtr.Zero);
-        
+
         gl.BindVertexArray(0);
         gl.BindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+        HappyTexture?.Unbind();
 
         // Dispatcher.UIThread.Post(RequestNextFrameRendering, DispatcherPriority.Background);
     }

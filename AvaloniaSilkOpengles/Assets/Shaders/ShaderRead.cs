@@ -4,13 +4,13 @@ using Avalonia.Platform;
 
 namespace AvaloniaSilkOpengles.Assets.Shaders;
 
-public class ShaderRead
+public sealed class ShaderRead : AssetsRead
 {
     public static string Read(string fileName)
     {
-        var uri = new Uri("avares://AvaloniaSilkOpengles/Assets/Shaders/" + fileName);
-        var stream = AssetLoader.Open(uri);
-        var reader = new StreamReader(stream);
+        var uri = GenerateUri("Shaders", fileName);
+        using var stream = AssetLoader.Open(uri);
+        using var reader = new StreamReader(stream);
         return reader.ReadToEnd();
     }
 }
