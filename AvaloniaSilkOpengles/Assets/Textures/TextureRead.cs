@@ -5,9 +5,9 @@ namespace AvaloniaSilkOpengles.Assets.Textures;
 
 public class TextureRead : AssetsRead
 {
-    public static Stream Read(string fileName)
+    public static Stream Read(string textureName)
     {
-        var uri = GenerateUri("Textures", fileName);
+        var uri = GenerateUri("Textures", textureName + ".tex");
         var stream = AssetLoader.Open(uri);
         return stream;
     }

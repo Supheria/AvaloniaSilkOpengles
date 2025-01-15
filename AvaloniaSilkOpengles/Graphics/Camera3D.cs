@@ -4,7 +4,7 @@ using System.Numerics;
 using Avalonia;
 using Avalonia.Input;
 
-namespace AvaloniaSilkOpengles.Controls;
+namespace AvaloniaSilkOpengles.Graphics;
 
 public sealed class Camera3D
 {

@@ -1,6 +1,6 @@
 using System.Numerics;
 
-namespace AvaloniaSilkOpengles.Controls;
+namespace AvaloniaSilkOpengles.World;
 
 public readonly struct Vertex
 {

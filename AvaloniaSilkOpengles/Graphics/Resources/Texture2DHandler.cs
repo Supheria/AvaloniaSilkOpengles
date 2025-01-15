@@ -1,55 +1,54 @@
-using System;
-using System.IO;
 using Avalonia.OpenGL;
 using AvaloniaSilkOpengles.Assets.Textures;
 using Silk.NET.OpenGLES;
 using StbImageSharp;
 
-namespace AvaloniaSilkOpengles.Controls;
+namespace AvaloniaSilkOpengles.Graphics.Resources;
 
-public class Texture
+public class Texture2DHandler : ResourceHandler
 {
-    GL Gl { get; }
-    string UniformUniformName {get;}
-    uint TextureHandler { get; set; }
+    public int Unit { get; }
+    public string TextureName { get; }
 
-    public Texture(GlInterface gl, string uniformName)
+    public Texture2DHandler(GL gl, string textureName, int unit) : base(gl)
     {
-        Gl = GL.GetApi(gl.GetProcAddress);
-        UniformUniformName = uniformName;
+        TextureName = textureName;
+        Unit = unit;
+        Handle = Load(gl, textureName, unit);
     }
 
-    public void Load(Stream source)
+    private static uint Load(GL gl, string textureName, int unit)
     {
-        // Gl.ActiveTexture(TextureUnit.Texture1);
-        
-        TextureHandler = Gl.GenTexture();
-        Gl.BindTexture(TextureTarget.Texture2D, TextureHandler);
+        gl.ActiveTexture(TextureUnit.Texture0 + unit);
 
-        Gl.TexParameterI(
+        var handle = gl.GenTexture();
+        gl.BindTexture(TextureTarget.Texture2D, handle);
+
+        gl.TexParameterI(
             TextureTarget.Texture2D,
             TextureParameterName.TextureWrapS,
             (int)TextureWrapMode.Repeat
         );
-        Gl.TexParameterI(
+        gl.TexParameterI(
             TextureTarget.Texture2D,
             TextureParameterName.TextureWrapT,
             (int)TextureWrapMode.Repeat
         );
-        Gl.TexParameterI(
+        gl.TexParameterI(
             TextureTarget.Texture2D,
             TextureParameterName.TextureMinFilter,
             (int)TextureMinFilter.Nearest
         );
-        Gl.TexParameterI(
+        gl.TexParameterI(
             TextureTarget.Texture2D,
             TextureParameterName.TextureMagFilter,
             (int)TextureMinFilter.Nearest
         );
 
+        using var source = TextureRead.Read(textureName);
         StbImage.stbi_set_flip_vertically_on_load(1);
         var texture = ImageResult.FromStream(source, ColorComponents.RedGreenBlueAlpha);
-        Gl.TexImage2D<byte>(
+        gl.TexImage2D<byte>(
             TextureTarget.Texture2D,
             0,
             InternalFormat.Rgba,
@@ -61,14 +60,16 @@ public class Texture
             texture.Data
         );
 
-        Gl.BindTexture(TextureTarget.Texture2D, 0);
+        gl.BindTexture(TextureTarget.Texture2D, 0);
+
+        return handle;
     }
-    
+
     public void Bind()
     {
-        Gl.BindTexture(TextureTarget.Texture2D, TextureHandler);
+        Gl.BindTexture(TextureTarget.Texture2D, Handle);
     }
-    
+
     public void Unbind()
     {
         Gl.BindTexture(TextureTarget.Texture2D, 0);
@@ -76,8 +77,7 @@ public class Texture
 
     public void Delete()
     {
-        if (TextureHandler is not 0)
-            Gl.DeleteTexture(TextureHandler);
+        Gl.DeleteTexture(Handle);
         Gl.Dispose();
     }
 }

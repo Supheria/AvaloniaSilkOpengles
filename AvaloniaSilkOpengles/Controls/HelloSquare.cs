@@ -1,54 +1,40 @@
-using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
+using System.Linq;
 using System.Numerics;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
-using Avalonia.Interactivity;
 using Avalonia.OpenGL;
 using Avalonia.OpenGL.Controls;
 using Avalonia.Rendering;
-using Avalonia.Threading;
-using AvaloniaSilkOpengles.Assets.Shaders;
-using AvaloniaSilkOpengles.Assets.Textures;
+using AvaloniaSilkOpengles.Graphics;
+using AvaloniaSilkOpengles.Graphics.Resources;
+using AvaloniaSilkOpengles.World;
 using Silk.NET.OpenGLES;
-using SkiaSharp;
-using StbImageSharp;
 using static Avalonia.OpenGL.GlConsts;
 
 namespace AvaloniaSilkOpengles.Controls;
 
 public unsafe class HelloSquare : OpenGlControlBase, ICustomHitTest
 {
-    int VaoHandler { get; set; }
-    int VboHandler { get; set; }
-
-    // int TexCoordVboHandler { get; set; }
-    int EboHandler { get; set; }
-    Shader? Shader { get; set; }
-
-    // Camera2D? Camera { get; set; }
+    GL? Gl {get;set;}
+    VaoHandler? Vao { get; set; }
+    VboHandler<Vector3>? PositionVbo { get; set; }
+    VboHandler<Vector4>? ColorVbo { get; set; }
+    VboHandler<Vector2>? TexCoordVbo { get; set; }
+    EboHandler? Ebo { get; set; }
+    ShaderHandler? Shader { get; set; }
     Camera3D? Camera { get; set; }
+    Texture2DHandler? HappyTexture { get; set; }
     PixelSize ViewPortSize { get; set; }
-    Texture? HappyTexture { get; set; }
     float RotationX { get; set; }
     float RotationY { get; set; }
     KeyEventArgs? KeyState { get; set; }
     Vector2 PointerPostionDiff {get;set;}
     Point LastPointerPostion { get; set; }
 
-    // csharpier-ignore
-    // float[] Vertices { get; } =
-    // [
-    //     -0.5f, 0.5f, 0f,    1f, 0f, 0f, 1f,     0f, 1f, // top left
-    //     0.5f, 0.5f, 0f,     0f, 1f, 0f, 1f,     1f, 1f, // top right
-    //     0.5f, -0.5f, 0f,    0f, 1f, 1f, 1f,     1f, 0f, // bottom right
-    //     -0.5f, -0.5f, 0f,   0f, 0f, 1f, 1f,     0f, 0f, // bottom left
-    // ];
-
-    Vertex[] Vertices {get;} =
+    List<Vertex> Vertices {get;} =
     [
         // front face
         new(new(-0.5f, 0.5f, 0.5f), new(1f, 0f, 0f, 1f), new(0f, 1f)),
@@ -82,29 +68,8 @@ public unsafe class HelloSquare : OpenGlControlBase, ICustomHitTest
         new(new(-0.5f, -0.5f, -0.5f), new(0f, 0f, 1f, 1f), new(0f, 0f)),
     ];
 
-    // List<Vector3> Vertices
-
-    // // a way no need to flip picture vertically
-    // // csharpier-ignore
-    // float[] TexCoords { get; } =
-    // [
-    //     0f, 0f, // top left
-    //     1f, 0f, // top right
-    //     1f, 1f, // bottom right
-    //     0f, 1f, // bottom left
-    // ];
-
     // csharpier-ignore
-    // float[] TexCoords { get; } =
-    // [
-    //     0f, 1f, // top left
-    //     1f, 1f, // top right
-    //     1f, 0f, // bottom right
-    //     0f, 0f // bottom left
-    // ];
-
-    // csharpier-ignore
-    byte[] Indices { get; } =
+    List<int> Indices { get; } =
     [
         0, 1, 2, // top right part
         2, 3, 0, // bottom left part
@@ -148,16 +113,9 @@ public unsafe class HelloSquare : OpenGlControlBase, ICustomHitTest
         Debug.WriteLine(PointerPostionDiff);
     }
 
-    // protected override void OnPointerExited(PointerEventArgs e)
-    // {
-    //     base.OnPointerExited(e);
-    //     PointerPostionDiff = Vector2.Zero;
-    // }
-
     protected override void OnSizeChanged(SizeChangedEventArgs e)
     {
         base.OnSizeChanged(e);
-        // Camera = new(Bounds.Center, 2.5f);
         var scaling = TopLevel.GetTopLevel(this)?.RenderScaling ?? 1;
         var size = e.NewSize * scaling;
         ViewPortSize = new((int)size.Width, (int)size.Height);
@@ -167,91 +125,52 @@ public unsafe class HelloSquare : OpenGlControlBase, ICustomHitTest
     protected override void OnOpenGlInit(GlInterface gl)
     {
         base.OnOpenGlInit(gl);
+        
+        Gl = GL.GetApi(gl.GetProcAddress);
 
-        using var Gl = GL.GetApi(gl.GetProcAddress);
+        Vao = new(Gl);
+        PositionVbo = new(Gl, Vertices.Select(v=>v.Position).ToArray());
+        ColorVbo = new(Gl, Vertices.Select(v=>v.Color).ToArray());
+        TexCoordVbo = new(Gl, Vertices.Select(v=>v.TexCoord).ToArray());
+        Ebo = new(Gl, Indices);
+        
+        Vao.Link(0, 3, VertexAttribPointerType.Float, PositionVbo);
+        Vao.Link(1, 4, VertexAttribPointerType.Float, ColorVbo);
+        Vao.Link(2, 2, VertexAttribPointerType.Float, TexCoordVbo);
 
-        Shader = new(ShaderRead.Read("simple.vert"), ShaderRead.Read("simple.frag"));
-        Shader.Load(gl);
+        Vao.Unbind();
+        PositionVbo.Unbind();
+        Ebo.Unbind();
 
-        VaoHandler = gl.GenVertexArray();
-        VboHandler = gl.GenBuffer();
-        EboHandler = gl.GenBuffer();
+        Shader = new(Gl, "simple");
 
-        gl.BindVertexArray(VaoHandler);
-        gl.BindBuffer(GL_ARRAY_BUFFER, VboHandler);
-        gl.BindBuffer(GL_ELEMENT_ARRAY_BUFFER, EboHandler);
-
-        fixed (Vertex* v = Vertices)
-        {
-            gl.BufferData(
-                GL_ARRAY_BUFFER,
-                sizeof(Vertex) * Vertices.Length,
-                new IntPtr(v),
-                GL_STATIC_DRAW
-            );
-        }
-        fixed (byte* v = Indices)
-        {
-            gl.BufferData(
-                GL_ELEMENT_ARRAY_BUFFER,
-                sizeof(byte) * Indices.Length,
-                new IntPtr(v),
-                GL_STATIC_DRAW
-            );
-        }
-
-        var stride = sizeof(Vertex);
-
-        gl.VertexAttribPointer(0, 3, GL_FLOAT, 0, stride, IntPtr.Zero);
-        gl.EnableVertexAttribArray(0);
-
-        gl.VertexAttribPointer(1, 4, GL_FLOAT, 0, stride, sizeof(Vector3));
-        gl.EnableVertexAttribArray(1);
-
-        gl.VertexAttribPointer(2, 2, GL_FLOAT, 0, stride, sizeof(Vector3) + sizeof(Vector4));
-        gl.EnableVertexAttribArray(2);
-
-        // TexCoordVboHandler = gl.GenBuffer();
-        // gl.BindBuffer(GL_ARRAY_BUFFER, TexCoordVboHandler);
-        // fixed (float* v = &TexCoords[0])
-        // {
-        //     gl.BufferData(
-        //         GL_ARRAY_BUFFER,
-        //         sizeof(float) * TexCoords.Length,
-        //         new IntPtr(v),
-        //         GL_STATIC_DRAW
-        //     );
-        // }
-
-        // gl.VertexAttribPointer(2, 2, GL_FLOAT, 0, sizeof(float) * 2, IntPtr.Zero);
-
-        gl.BindVertexArray(0);
-        gl.BindBuffer(GL_ARRAY_BUFFER, 0);
-        gl.BindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-        HappyTexture = new(gl, "happyTexture");
-        using var stream = TextureRead.Read("happy.jpg");
-        HappyTexture.Load(stream);
-
-        gl.Enable(GL_DEPTH_TEST);
+        HappyTexture = new(Gl, "happy", 1);
 
         Camera = new(Bounds.Size, Vector3.Zero);
+
+        gl.Enable(GL_DEPTH_TEST);
     }
 
     protected override void OnOpenGlDeinit(GlInterface gl)
     {
         base.OnOpenGlDeinit(gl);
-        gl.DeleteVertexArray(VaoHandler);
-        gl.DeleteBuffer(VboHandler);
-        // gl.DeleteBuffer(TexCoordVboHandler);
-        gl.DeleteBuffer(EboHandler);
-        Shader?.Delete(gl);
+        
+        Vao?.Delete();
+        PositionVbo?.Delete();
+        ColorVbo?.Delete();
+        TexCoordVbo?.Delete();
+        Ebo?.Delete();
+        
+        Shader?.Delete();
+        
         HappyTexture?.Delete();
+        
+        Gl?.Dispose();
     }
 
     protected override void OnOpenGlRender(GlInterface gl, int fb)
     {
-        if (Shader is null || Camera is null)
+        if (Gl is null || Shader is null || Camera is null)
             return;
 
         gl.Viewport(0, 0, ViewPortSize.Width, ViewPortSize.Height);
@@ -277,24 +196,27 @@ public unsafe class HelloSquare : OpenGlControlBase, ICustomHitTest
         var translation = Matrix4x4.CreateTranslation(0f, 0f, -3f);
         model = rotationX * rotationY * translation;
         // RotationX += 0.01f;
-        // RotationY += 0.01f;
+        RotationY += 0.01f;
 
-        Shader.SetMatrix(gl, "model", model);
-        Shader.SetMatrix(gl, "view", view);
-        Shader.SetMatrix(gl, "projection", projection);
+        Shader.SetMatrix("model", model);
+        Shader.SetMatrix("view", view);
+        Shader.SetMatrix("projection", projection);
 
-        Shader.Use(gl);
-
+        Shader.SetTexture(HappyTexture);
         HappyTexture?.Bind();
 
-        gl.BindVertexArray(VaoHandler);
-        gl.BindBuffer(GL_ELEMENT_ARRAY_BUFFER, EboHandler);
+        Shader.Bind();
+
+        Vao?.Bind();
+        Ebo?.Bind();
         // gl.DrawArrays(GL_TRIANGLES, 0, 3);
-        gl.DrawElements(GL_TRIANGLES, Indices.Length, GL_UNSIGNED_BYTE, IntPtr.Zero);
+        Gl.DrawElements(PrimitiveType.Triangles, (uint)Indices.Count, DrawElementsType.UnsignedInt, null);
 
         gl.BindVertexArray(0);
         gl.BindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
         HappyTexture?.Unbind();
+        
+        // Shader.Unbind();
 
         // Dispatcher.UIThread.Post(RequestNextFrameRendering, DispatcherPriority.Background);
         OnFrameUpdate();

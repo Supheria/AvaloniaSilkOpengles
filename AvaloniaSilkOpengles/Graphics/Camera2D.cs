@@ -6,7 +6,7 @@ using Avalonia;
 using Avalonia.Utilities;
 using Silk.NET.Maths;
 
-namespace AvaloniaSilkOpengles.Controls;
+namespace AvaloniaSilkOpengles.Graphics;
 
 public class Camera2D
 {
