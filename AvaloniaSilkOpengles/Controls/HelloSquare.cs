@@ -5,8 +5,11 @@ using System.Diagnostics;
 using System.Numerics;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Input;
+using Avalonia.Interactivity;
 using Avalonia.OpenGL;
 using Avalonia.OpenGL.Controls;
+using Avalonia.Rendering;
 using Avalonia.Threading;
 using AvaloniaSilkOpengles.Assets.Shaders;
 using AvaloniaSilkOpengles.Assets.Textures;
@@ -17,18 +20,24 @@ using static Avalonia.OpenGL.GlConsts;
 
 namespace AvaloniaSilkOpengles.Controls;
 
-public unsafe class HelloSquare : OpenGlControlBase
+public unsafe class HelloSquare : OpenGlControlBase, ICustomHitTest
 {
     int VaoHandler { get; set; }
     int VboHandler { get; set; }
+
     // int TexCoordVboHandler { get; set; }
     int EboHandler { get; set; }
     Shader? Shader { get; set; }
-    Camera2D? Camera { get; set; }
+
+    // Camera2D? Camera { get; set; }
+    Camera3D? Camera { get; set; }
     PixelSize ViewPortSize { get; set; }
     Texture? HappyTexture { get; set; }
     float RotationX { get; set; }
     float RotationY { get; set; }
+    KeyEventArgs? KeyState { get; set; }
+    Vector2 PointerPostionDiff {get;set;}
+    Point LastPointerPostion { get; set; }
 
     // csharpier-ignore
     // float[] Vertices { get; } =
@@ -38,7 +47,7 @@ public unsafe class HelloSquare : OpenGlControlBase
     //     0.5f, -0.5f, 0f,    0f, 1f, 1f, 1f,     1f, 0f, // bottom right
     //     -0.5f, -0.5f, 0f,   0f, 0f, 1f, 1f,     0f, 0f, // bottom left
     // ];
-    
+
     Vertex[] Vertices {get;} =
     [
         // front face
@@ -72,7 +81,7 @@ public unsafe class HelloSquare : OpenGlControlBase
         new(new(0.5f, -0.5f, -0.5f), new(0f, 1f, 1f, 1f), new(1f, 0f)),
         new(new(-0.5f, -0.5f, -0.5f), new(0f, 0f, 1f, 1f), new(0f, 0f)),
     ];
-    
+
     // List<Vector3> Vertices
 
     // // a way no need to flip picture vertically
@@ -99,16 +108,16 @@ public unsafe class HelloSquare : OpenGlControlBase
     [
         0, 1, 2, // top right part
         2, 3, 0, // bottom left part
-        
+
         4, 5, 6,
         6, 7, 4,
-        
+
         8, 9, 10,
         10, 11, 8,
-        
+
         12, 13, 14,
         14, 15, 12,
-        
+
         16, 17, 18,
         18, 19, 16,
 
@@ -116,13 +125,43 @@ public unsafe class HelloSquare : OpenGlControlBase
         22, 23, 20
     ];
 
+    public HelloSquare()
+    {
+        KeyDownEvent.AddClassHandler<TopLevel>((_, e) => KeyState = e, handledEventsToo: true);
+        KeyUpEvent.AddClassHandler<TopLevel>((_, _) => KeyState = null, handledEventsToo: true);
+    }
+
+    protected override void OnPointerEntered(PointerEventArgs e)
+    {
+        base.OnPointerEntered(e);
+        LastPointerPostion = e.GetPosition(this);
+    }
+
+    protected override void OnPointerMoved(PointerEventArgs e)
+    {
+        base.OnPointerMoved(e);
+        var position = e.GetPosition(this);
+        var dX = position.X - LastPointerPostion.X;
+        var dY = position.Y - LastPointerPostion.Y;
+        PointerPostionDiff = new((float)dX, (float)dY);
+        LastPointerPostion = position;
+        Debug.WriteLine(PointerPostionDiff);
+    }
+
+    // protected override void OnPointerExited(PointerEventArgs e)
+    // {
+    //     base.OnPointerExited(e);
+    //     PointerPostionDiff = Vector2.Zero;
+    // }
+
     protected override void OnSizeChanged(SizeChangedEventArgs e)
     {
         base.OnSizeChanged(e);
-        Camera = new(Bounds.Center, 2.5f);
+        // Camera = new(Bounds.Center, 2.5f);
         var scaling = TopLevel.GetTopLevel(this)?.RenderScaling ?? 1;
         var size = e.NewSize * scaling;
         ViewPortSize = new((int)size.Width, (int)size.Height);
+        Camera?.SetSize(Bounds.Size);
     }
 
     protected override void OnOpenGlInit(GlInterface gl)
@@ -160,7 +199,7 @@ public unsafe class HelloSquare : OpenGlControlBase
                 GL_STATIC_DRAW
             );
         }
-        
+
         var stride = sizeof(Vertex);
 
         gl.VertexAttribPointer(0, 3, GL_FLOAT, 0, stride, IntPtr.Zero);
@@ -193,8 +232,10 @@ public unsafe class HelloSquare : OpenGlControlBase
         HappyTexture = new(gl, "happyTexture");
         using var stream = TextureRead.Read("happy.jpg");
         HappyTexture.Load(stream);
-        
+
         gl.Enable(GL_DEPTH_TEST);
+
+        Camera = new(Bounds.Size, Vector3.Zero);
     }
 
     protected override void OnOpenGlDeinit(GlInterface gl)
@@ -228,15 +269,15 @@ public unsafe class HelloSquare : OpenGlControlBase
         // Shader.SetMatrix(gl, "model", sca * trans);
 
         var model = Matrix4x4.Identity;
-        var view = Matrix4x4.Identity;
-        var projection = Camera.GetProjectionMatrix(Bounds);
+        var view = Camera.GetViewMatrix();
+        var projection = Camera.GetProjectionMatrix();
 
         var rotationX = Matrix4x4.CreateRotationX(RotationX);
         var rotationY = Matrix4x4.CreateRotationY(RotationY);
         var translation = Matrix4x4.CreateTranslation(0f, 0f, -3f);
         model = rotationX * rotationY * translation;
-        RotationX += 0.01f;
-        RotationY += 0.01f;
+        // RotationX += 0.01f;
+        // RotationY += 0.01f;
 
         Shader.SetMatrix(gl, "model", model);
         Shader.SetMatrix(gl, "view", view);
@@ -256,5 +297,17 @@ public unsafe class HelloSquare : OpenGlControlBase
         HappyTexture?.Unbind();
 
         // Dispatcher.UIThread.Post(RequestNextFrameRendering, DispatcherPriority.Background);
+        OnFrameUpdate();
+    }
+
+    private void OnFrameUpdate()
+    {
+        Camera?.InputController(KeyState, PointerPostionDiff);
+        PointerPostionDiff = Vector2.Zero;
+    }
+
+    public bool HitTest(Point point)
+    {
+        return true;
     }
 }
