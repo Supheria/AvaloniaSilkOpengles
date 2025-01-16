@@ -23,6 +23,7 @@
         </PackageReference>
         <PackageReference Include="CommunityToolkit.Mvvm"/>
         <PackageReference Include="Silk.NET.OpenGLES" />
+        <PackageReference Include="SimplexNoise" />
         <PackageReference Include="StbImageSharp" />
     </ItemGroup>
 </Project>

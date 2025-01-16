@@ -13,7 +13,7 @@ public sealed class EboHandler : ResourceHandler
 
     public EboHandler(
         GL gl,
-        ICollection<int> data,
+        ICollection<uint> data,
         BufferUsageARB usage = BufferUsageARB.StaticDraw,
         bool doUnbind = false
     ) : base(gl)
@@ -21,9 +21,9 @@ public sealed class EboHandler : ResourceHandler
         Handle = gl.GenBuffer();
         Bind();
         var array = data.ToArray();
-        gl.BufferData<int>(
+        gl.BufferData<uint>(
             BufferTargetARB.ElementArrayBuffer,
-            (uint)(sizeof(int) * array.Length),
+            (uint)(sizeof(uint) * array.Length),
             data.ToArray(),
             usage
         );

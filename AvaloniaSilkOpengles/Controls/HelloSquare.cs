@@ -18,77 +18,79 @@ namespace AvaloniaSilkOpengles.Controls;
 
 public unsafe class HelloSquare : OpenGlControlBase, ICustomHitTest
 {
-    GL? Gl {get;set;}
-    VaoHandler? Vao { get; set; }
-    VboHandler<Vector3>? PositionVbo { get; set; }
-    VboHandler<Vector4>? ColorVbo { get; set; }
-    VboHandler<Vector2>? TexCoordVbo { get; set; }
-    EboHandler? Ebo { get; set; }
+    GL? Gl { get; set; }
+
+    // VaoHandler? Vao { get; set; }
+    // VboHandler<Vector3>? PositionVbo { get; set; }
+    // VboHandler<Vector4>? ColorVbo { get; set; }
+    // VboHandler<Vector2>? TexCoordVbo { get; set; }
+    // EboHandler? Ebo { get; set; }
+    Chunk? Chunk { get; set; }
     ShaderHandler? Shader { get; set; }
     Camera3D? Camera { get; set; }
-    Texture2DHandler? HappyTexture { get; set; }
+    // Texture2DHandler? HappyTexture { get; set; }
     PixelSize ViewPortSize { get; set; }
     float RotationX { get; set; }
     float RotationY { get; set; }
     KeyEventArgs? KeyState { get; set; }
-    Vector2 PointerPostionDiff {get;set;}
+    Vector2 PointerPostionDiff { get; set; }
     Point LastPointerPostion { get; set; }
 
-    List<Vertex> Vertices {get;} =
-    [
-        // front face
-        new(new(-0.5f, 0.5f, 0.5f), new(1f, 0f, 0f, 1f), new(0f, 1f)),
-        new(new(0.5f, 0.5f, 0.5f), new(0f, 1f, 0f, 1f), new(1f, 1f)),
-        new(new(0.5f, -0.5f, 0.5f), new(0f, 1f, 1f, 1f), new(1f, 0f)),
-        new(new(-0.5f, -0.5f, 0.5f), new(0f, 0f, 1f, 1f), new(0f, 0f)),
-        // right face
-        new(new(0.5f, 0.5f, 0.5f), new(1f, 0f, 0f, 1f), new(0f, 1f)),
-        new(new(0.5f, 0.5f, -0.5f), new(0f, 1f, 0f, 1f), new(1f, 1f)),
-        new(new(0.5f, -0.5f, -0.5f), new(0f, 1f, 1f, 1f), new(1f, 0f)),
-        new(new(0.5f, -0.5f, 0.5f), new(0f, 0f, 1f, 1f), new(0f, 0f)),
-        // back face
-        new(new(0.5f, 0.5f, -0.5f), new(1f, 0f, 0f, 1f), new(0f, 1f)),
-        new(new(-0.5f, 0.5f, -0.5f), new(0f, 1f, 0f, 1f), new(1f, 1f)),
-        new(new(-0.5f, -0.5f, -0.5f), new(0f, 1f, 1f, 1f), new(1f, 0f)),
-        new(new(0.5f, -0.5f, -0.5f), new(0f, 0f, 1f, 1f), new(0f, 0f)),
-        // left face
-        new(new(-0.5f, 0.5f, -0.5f), new(1f, 0f, 0f, 1f), new(0f, 1f)),
-        new(new(-0.5f, 0.5f, 0.5f), new(0f, 1f, 0f, 1f), new(1f, 1f)),
-        new(new(-0.5f, -0.5f, 0.5f), new(0f, 1f, 1f, 1f), new(1f, 0f)),
-        new(new(-0.5f, -0.5f, -0.5f), new(0f, 0f, 1f, 1f), new(0f, 0f)),
-        // top face
-        new(new(-0.5f, 0.5f, -0.5f), new(1f, 0f, 0f, 1f), new(0f, 1f)),
-        new(new(0.5f, 0.5f, -0.5f), new(0f, 1f, 0f, 1f), new(1f, 1f)),
-        new(new(0.5f, 0.5f, 0.5f), new(0f, 1f, 1f, 1f), new(1f, 0f)),
-        new(new(-0.5f, 0.5f, 0.5f), new(0f, 0f, 1f, 1f), new(0f, 0f)),
-        // bottom face
-        new(new(-0.5f, -0.5f, 0.5f), new(1f, 0f, 0f, 1f), new(0f, 1f)),
-        new(new(0.5f, -0.5f, 0.5f), new(0f, 1f, 0f, 1f), new(1f, 1f)),
-        new(new(0.5f, -0.5f, -0.5f), new(0f, 1f, 1f, 1f), new(1f, 0f)),
-        new(new(-0.5f, -0.5f, -0.5f), new(0f, 0f, 1f, 1f), new(0f, 0f)),
-    ];
-
-    // csharpier-ignore
-    List<int> Indices { get; } =
-    [
-        0, 1, 2, // top right part
-        2, 3, 0, // bottom left part
-
-        4, 5, 6,
-        6, 7, 4,
-
-        8, 9, 10,
-        10, 11, 8,
-
-        12, 13, 14,
-        14, 15, 12,
-
-        16, 17, 18,
-        18, 19, 16,
-
-        20, 21, 22,
-        22, 23, 20
-    ];
+    // List<Vertex> Vertices {get;} =
+    // [
+    //     // front face
+    //     new(new(-0.5f, 0.5f, 0.5f), new(1f, 0f, 0f, 1f), new(0f, 1f)),
+    //     new(new(0.5f, 0.5f, 0.5f), new(0f, 1f, 0f, 1f), new(1f, 1f)),
+    //     new(new(0.5f, -0.5f, 0.5f), new(0f, 1f, 1f, 1f), new(1f, 0f)),
+    //     new(new(-0.5f, -0.5f, 0.5f), new(0f, 0f, 1f, 1f), new(0f, 0f)),
+    //     // right face
+    //     new(new(0.5f, 0.5f, 0.5f), new(1f, 0f, 0f, 1f), new(0f, 1f)),
+    //     new(new(0.5f, 0.5f, -0.5f), new(0f, 1f, 0f, 1f), new(1f, 1f)),
+    //     new(new(0.5f, -0.5f, -0.5f), new(0f, 1f, 1f, 1f), new(1f, 0f)),
+    //     new(new(0.5f, -0.5f, 0.5f), new(0f, 0f, 1f, 1f), new(0f, 0f)),
+    //     // back face
+    //     new(new(0.5f, 0.5f, -0.5f), new(1f, 0f, 0f, 1f), new(0f, 1f)),
+    //     new(new(-0.5f, 0.5f, -0.5f), new(0f, 1f, 0f, 1f), new(1f, 1f)),
+    //     new(new(-0.5f, -0.5f, -0.5f), new(0f, 1f, 1f, 1f), new(1f, 0f)),
+    //     new(new(0.5f, -0.5f, -0.5f), new(0f, 0f, 1f, 1f), new(0f, 0f)),
+    //     // left face
+    //     new(new(-0.5f, 0.5f, -0.5f), new(1f, 0f, 0f, 1f), new(0f, 1f)),
+    //     new(new(-0.5f, 0.5f, 0.5f), new(0f, 1f, 0f, 1f), new(1f, 1f)),
+    //     new(new(-0.5f, -0.5f, 0.5f), new(0f, 1f, 1f, 1f), new(1f, 0f)),
+    //     new(new(-0.5f, -0.5f, -0.5f), new(0f, 0f, 1f, 1f), new(0f, 0f)),
+    //     // top face
+    //     new(new(-0.5f, 0.5f, -0.5f), new(1f, 0f, 0f, 1f), new(0f, 1f)),
+    //     new(new(0.5f, 0.5f, -0.5f), new(0f, 1f, 0f, 1f), new(1f, 1f)),
+    //     new(new(0.5f, 0.5f, 0.5f), new(0f, 1f, 1f, 1f), new(1f, 0f)),
+    //     new(new(-0.5f, 0.5f, 0.5f), new(0f, 0f, 1f, 1f), new(0f, 0f)),
+    //     // bottom face
+    //     new(new(-0.5f, -0.5f, 0.5f), new(1f, 0f, 0f, 1f), new(0f, 1f)),
+    //     new(new(0.5f, -0.5f, 0.5f), new(0f, 1f, 0f, 1f), new(1f, 1f)),
+    //     new(new(0.5f, -0.5f, -0.5f), new(0f, 1f, 1f, 1f), new(1f, 0f)),
+    //     new(new(-0.5f, -0.5f, -0.5f), new(0f, 0f, 1f, 1f), new(0f, 0f)),
+    // ];
+    //
+    // // csharpier-ignore
+    // List<uint> Indices { get; } =
+    // [
+    //     0, 1, 2, // top right part
+    //     2, 3, 0, // bottom left part
+    //
+    //     4, 5, 6,
+    //     6, 7, 4,
+    //
+    //     8, 9, 10,
+    //     10, 11, 8,
+    //
+    //     12, 13, 14,
+    //     14, 15, 12,
+    //
+    //     16, 17, 18,
+    //     18, 19, 16,
+    //
+    //     20, 21, 22,
+    //     22, 23, 20
+    // ];
 
     public HelloSquare()
     {
@@ -125,46 +127,54 @@ public unsafe class HelloSquare : OpenGlControlBase, ICustomHitTest
     protected override void OnOpenGlInit(GlInterface gl)
     {
         base.OnOpenGlInit(gl);
-        
+
         Gl = GL.GetApi(gl.GetProcAddress);
-
-        Vao = new(Gl);
-        PositionVbo = new(Gl, Vertices.Select(v=>v.Position).ToArray());
-        ColorVbo = new(Gl, Vertices.Select(v=>v.Color).ToArray());
-        TexCoordVbo = new(Gl, Vertices.Select(v=>v.TexCoord).ToArray());
-        Ebo = new(Gl, Indices);
         
-        Vao.Link(0, 3, VertexAttribPointerType.Float, PositionVbo);
-        Vao.Link(1, 4, VertexAttribPointerType.Float, ColorVbo);
-        Vao.Link(2, 2, VertexAttribPointerType.Float, TexCoordVbo);
+        Chunk = new(Gl, new()); 
 
-        Vao.Unbind();
-        PositionVbo.Unbind();
-        Ebo.Unbind();
+        // Vao = new(Gl);
+        // PositionVbo = new(Gl, Vertices.Select(v => v.Position).ToArray());
+        // ColorVbo = new(Gl, Vertices.Select(v => v.Color).ToArray());
+        // TexCoordVbo = new(Gl, Vertices.Select(v => v.TexCoord).ToArray());
+        // Ebo = new(Gl, Indices);
+        //
+        // Vao.Link(0, 3, PositionVbo, VertexAttribPointerType.Float);
+        // Vao.Link(1, 4, ColorVbo, VertexAttribPointerType.Float);
+        // Vao.Link(2, 2, TexCoordVbo, VertexAttribPointerType.Float);
+        //
+        // Vao.Unbind();
+        // PositionVbo.Unbind();
+        // Ebo.Unbind();
 
         Shader = new(Gl, "simple");
 
-        HappyTexture = new(Gl, "happy", 1);
+        // HappyTexture = new(Gl, "happy", 1);
 
         Camera = new(Bounds.Size, Vector3.Zero);
 
-        gl.Enable(GL_DEPTH_TEST);
+        Gl.Enable(EnableCap.DepthTest);
+        
+        Gl.FrontFace(FrontFaceDirection.CW);
+        Gl.Enable(EnableCap.CullFace);
+        Gl.CullFace(TriangleFace.Back);
     }
 
     protected override void OnOpenGlDeinit(GlInterface gl)
     {
         base.OnOpenGlDeinit(gl);
+
+        // Vao?.Delete();
+        // PositionVbo?.Delete();
+        // ColorVbo?.Delete();
+        // TexCoordVbo?.Delete();
+        // Ebo?.Delete();
         
-        Vao?.Delete();
-        PositionVbo?.Delete();
-        ColorVbo?.Delete();
-        TexCoordVbo?.Delete();
-        Ebo?.Delete();
-        
+        Chunk?.Delete();
+
         Shader?.Delete();
-        
-        HappyTexture?.Delete();
-        
+
+        // HappyTexture?.Delete();
+
         Gl?.Dispose();
     }
 
@@ -196,26 +206,32 @@ public unsafe class HelloSquare : OpenGlControlBase, ICustomHitTest
         var translation = Matrix4x4.CreateTranslation(0f, 0f, -3f);
         model = rotationX * rotationY * translation;
         // RotationX += 0.01f;
-        RotationY += 0.01f;
+        // RotationY += 0.01f;
 
         Shader.SetMatrix("model", model);
         Shader.SetMatrix("view", view);
         Shader.SetMatrix("projection", projection);
 
-        Shader.SetTexture(HappyTexture);
-        HappyTexture?.Bind();
+        // Shader.SetTexture(HappyTexture);
+        // HappyTexture?.Bind();
 
-        Shader.Bind();
+        // Shader.Bind();
 
-        Vao?.Bind();
-        Ebo?.Bind();
-        // gl.DrawArrays(GL_TRIANGLES, 0, 3);
-        Gl.DrawElements(PrimitiveType.Triangles, (uint)Indices.Count, DrawElementsType.UnsignedInt, null);
+        // Vao?.Bind();
+        // Ebo?.Bind();
+        // // gl.DrawArrays(GL_TRIANGLES, 0, 3);
+        // Gl.DrawElements(
+        //     PrimitiveType.Triangles,
+        //     (uint)Indices.Count,
+        //     DrawElementsType.UnsignedInt,
+        //     null
+        // );
+        Chunk?.Render(Shader);
 
-        gl.BindVertexArray(0);
-        gl.BindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-        HappyTexture?.Unbind();
-        
+        // gl.BindVertexArray(0);
+        // gl.BindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+        // HappyTexture?.Unbind();
+
         // Shader.Unbind();
 
         // Dispatcher.UIThread.Post(RequestNextFrameRendering, DispatcherPriority.Background);

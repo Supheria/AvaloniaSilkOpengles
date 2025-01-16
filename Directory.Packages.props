@@ -17,6 +17,7 @@
     <PackageVersion Include="Avalonia.Android" Version="11.2.3" />
     <PackageVersion Include="CommunityToolkit.Mvvm" Version="8.3.2" />
     <PackageVersion Include="Silk.NET.OpenGLES" Version="2.22.0" />
+    <PackageVersion Include="SimplexNoise" Version="2.0.0" />
     <PackageVersion Include="StbImageSharp" Version="2.30.15" />
     <PackageVersion Include="Xamarin.AndroidX.Core.SplashScreen" Version="1.0.1.1" />
   </ItemGroup>
