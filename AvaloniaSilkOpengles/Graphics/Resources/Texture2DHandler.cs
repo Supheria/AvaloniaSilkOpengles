@@ -1,6 +1,9 @@
+using Avalonia.Media.Imaging;
 using Avalonia.OpenGL;
+using Avalonia.Skia;
 using AvaloniaSilkOpengles.Assets.Textures;
 using Silk.NET.OpenGLES;
+using SkiaSharp;
 using StbImageSharp;
 
 namespace AvaloniaSilkOpengles.Graphics.Resources;
@@ -10,7 +13,8 @@ public class Texture2DHandler : ResourceHandler
     public int Unit { get; }
     public string TextureName { get; }
 
-    public Texture2DHandler(GL gl, string textureName, int unit) : base(gl)
+    public Texture2DHandler(GL gl, string textureName, int unit)
+        : base(gl)
     {
         TextureName = textureName;
         Unit = unit;
@@ -46,8 +50,7 @@ public class Texture2DHandler : ResourceHandler
         );
 
         using var source = TextureRead.Read(textureName);
-        StbImage.stbi_set_flip_vertically_on_load(1);
-        var texture = ImageResult.FromStream(source, ColorComponents.RedGreenBlueAlpha);
+        var texture = ImageResult.FromStream(source);
         gl.TexImage2D<byte>(
             TextureTarget.Texture2D,
             0,

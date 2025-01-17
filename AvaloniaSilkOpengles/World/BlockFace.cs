@@ -5,10 +5,10 @@ namespace AvaloniaSilkOpengles.World;
 
 public struct BlockFace
 {
-    public List<Vector3> Vertices { get; set; }
-    public List<Vector2> Uvs { get; set; }
+    public Vector3[] Vertices { get; set; }
+    public Vector2[] Uvs { get; set; }
     
-    public BlockFace(List<Vector3> vertices, List<Vector2> uvs)
+    public BlockFace(Vector3[] vertices, Vector2[] uvs)
     {
         Vertices = vertices;
         Uvs = uvs;

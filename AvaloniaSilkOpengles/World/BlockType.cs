@@ -4,4 +4,6 @@ public enum BlockType
 {
     Empty,
     Dirt,
+    Grass,
+    CuttenPumpkin,
 }

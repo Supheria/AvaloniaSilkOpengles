@@ -5,7 +5,7 @@ namespace AvaloniaSilkOpengles.World;
 
 public sealed class FaceData
 {
-    public static Dictionary<Face, List<Vector3>> RawVertexData { get; } =
+    public static Dictionary<Face, Vector3[]> RawVertexData { get; } =
         new()
         {
             [Face.Front] =

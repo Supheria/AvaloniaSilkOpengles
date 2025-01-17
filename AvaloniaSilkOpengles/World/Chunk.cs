@@ -29,7 +29,7 @@ public sealed class Chunk
         Position = position;
         var heightMap = GenerateHeightMap();
         GenerateBlocks(heightMap);
-        GenerateBlockFaces(heightMap);
+        GenerateBlockFaces();
         Build();
     }
 
@@ -49,19 +49,6 @@ public sealed class Chunk
 
     private void GenerateBlocks(float[,] heightMap)
     {
-        // for (var i = 0; i < 3; i++)
-        // {
-        //     var position = new Vector3(i, 0, 0);
-        //     var block = new Block(position);
-        //     AddBlockFace(block[Face.Front]);
-        //     AddBlockFace(block[Face.Back]);
-        //     if (i is 0)
-        //         AddBlockFace(block[Face.Left]);
-        //     else if (i is 2)
-        //         AddBlockFace(block[Face.Right]);
-        //     AddBlockFace(block[Face.Top]);
-        //     AddBlockFace(block[Face.Bottom]);
-        // }
         for (var x = 0; x < SizeOfChunk; x++)
         {
             for (var z = 0; z < SizeOfChunk; z++)
@@ -69,26 +56,30 @@ public sealed class Chunk
                 var columnHeight = (int)(heightMap[x, z] / 10);
                 for (var y = 0; y < HeightOfChunk; y++)
                 {
+                    var type = BlockType.Empty;
+                    if (y < columnHeight - 1)
+                        type = BlockType.Dirt;
+                    else if (y == columnHeight - 1)
+                        type = BlockType.Grass;
                     var position = new Vector3(x, y, z);
-                    if (y < columnHeight)
-                        Blocks[x, y, z] = new Block(position, BlockType.Dirt);
-                    else
-                        Blocks[x, y, z] = new Block(position, BlockType.Empty);
+                    Blocks[x, y, z] = new Block(position, type);
                 }
             }
         }
     }
 
-    private void GenerateBlockFaces(float[,] heightMap)
+    private void GenerateBlockFaces()
     {
         for (var x = 0; x < SizeOfChunk; x++)
         {
             for (var z = 0; z < SizeOfChunk; z++)
             {
-                var columnHeight = (int)(heightMap[x, z] / 10);
-                for (var y = 0; y < columnHeight; y++)
+                // var columnHeight = (int)(heightMap[x, z] / 10);
+                for (var y = 0; y < HeightOfChunk; y++)
                 {
                     var block = Blocks[x, y, z];
+                    if (block.Type is BlockType.Empty)
+                        continue;
                     // right faces
                     if (x < SizeOfChunk - 1)
                     {
@@ -106,7 +97,7 @@ public sealed class Chunk
                     else
                         AddBlockFace(block[Face.Left]);
                     // top faces
-                    if (y < columnHeight - 1)
+                    if (y < HeightOfChunk - 1)
                     {
                         if (Blocks[x, y + 1, z].Type is BlockType.Empty)
                             AddBlockFace(block[Face.Top]);
@@ -169,7 +160,7 @@ public sealed class Chunk
         Vao.Link(0, 3, VertexVbo, VertexAttribPointerType.Float);
         Vao.Link(1, 2, UvVbo, VertexAttribPointerType.Float);
 
-        Texture = new(Gl, "dirt", 0);
+        Texture = new(Gl, "atlas", 0);
     }
 
     public unsafe void Render(ShaderHandler shader)
