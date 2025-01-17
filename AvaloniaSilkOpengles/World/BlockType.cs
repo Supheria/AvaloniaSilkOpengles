@@ -6,4 +6,5 @@ public enum BlockType
     Dirt,
     Grass,
     CuttenPumpkin,
+    Glass,
 }

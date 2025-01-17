@@ -160,7 +160,7 @@ public sealed class Chunk
         Vao.Link(0, 3, VertexVbo, VertexAttribPointerType.Float);
         Vao.Link(1, 2, UvVbo, VertexAttribPointerType.Float);
 
-        Texture = new(Gl, "atlas", 0);
+        Texture = new(Gl, "atlas", 1);
     }
 
     public unsafe void Render(ShaderHandler shader)

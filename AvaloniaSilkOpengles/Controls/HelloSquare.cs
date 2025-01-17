@@ -197,18 +197,18 @@ public unsafe class HelloSquare : OpenGlControlBase, ICustomHitTest
         // Shader.SetMatrix(gl, "model", sca * rot * trans);
         // Shader.SetMatrix(gl, "model", sca * trans);
 
-        var model = Matrix4x4.Identity;
+        // var model = Matrix4x4.Identity;
         var view = Camera.GetViewMatrix();
         var projection = Camera.GetProjectionMatrix();
 
         var rotationX = Matrix4x4.CreateRotationX(RotationX);
         var rotationY = Matrix4x4.CreateRotationY(RotationY);
         var translation = Matrix4x4.CreateTranslation(0f, 0f, -3f);
-        model = rotationX * rotationY * translation;
+        // model = rotationX * rotationY * translation;
         // RotationX += 0.01f;
         // RotationY += 0.01f;
 
-        Shader.SetMatrix("model", model);
+        // Shader.SetMatrix("model", model);
         Shader.SetMatrix("view", view);
         Shader.SetMatrix("projection", projection);
 

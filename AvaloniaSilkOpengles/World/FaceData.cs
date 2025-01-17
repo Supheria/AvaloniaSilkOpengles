@@ -15,6 +15,13 @@ public sealed class FaceData
                 new(0.5f, -0.5f, 0.5f),
                 new(0.5f, 0.5f, 0.5f),
             ],
+            [Face.Right] =
+            [
+                new(0.5f, 0.5f, 0.5f),
+                new(0.5f, -0.5f, 0.5f),
+                new(0.5f, -0.5f, -0.5f),
+                new(0.5f, 0.5f, -0.5f),
+            ],
             [Face.Back] =
             [
                 new(0.5f, 0.5f, -0.5f),
@@ -29,19 +36,12 @@ public sealed class FaceData
                 new(-0.5f, -0.5f, 0.5f),
                 new(-0.5f, 0.5f, 0.5f),
             ],
-            [Face.Right] =
-            [
-                new(0.5f, 0.5f, 0.5f),
-                new(0.5f, -0.5f, 0.5f),
-                new(0.5f, -0.5f, -0.5f),
-                new(0.5f, 0.5f, -0.5f),
-            ],
             [Face.Top] =
             [
-                new(-0.5f, 0.5f, -0.5f),
-                new(-0.5f, 0.5f, 0.5f),
                 new(0.5f, 0.5f, 0.5f),
                 new(0.5f, 0.5f, -0.5f),
+                new(-0.5f, 0.5f, -0.5f),
+                new(-0.5f, 0.5f, 0.5f),
             ],
             [Face.Bottom] =
             [
