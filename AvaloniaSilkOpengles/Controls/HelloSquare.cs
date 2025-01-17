@@ -154,7 +154,7 @@ public unsafe class HelloSquare : OpenGlControlBase, ICustomHitTest
 
         Gl.Enable(EnableCap.DepthTest);
         
-        Gl.FrontFace(FrontFaceDirection.CW);
+        // Gl.FrontFace(FrontFaceDirection.CW);
         Gl.Enable(EnableCap.CullFace);
         Gl.CullFace(TriangleFace.Back);
     }

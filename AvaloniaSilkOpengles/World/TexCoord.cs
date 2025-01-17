@@ -24,9 +24,9 @@ public struct TexCoord
         var uvs = new Vector2[]
         {
             new(left, top),
-            new(right, top),
-            new(right, bottom),
             new(left, bottom),
+            new(right, bottom),
+            new(right, top),
         };
         return new(uvs);
     }
@@ -40,9 +40,9 @@ public struct TexCoord
         var uvs = new Vector2[]
         {
             new(left, top),
-            new(right, top),
-            new(right, bottom),
             new(left, bottom),
+            new(right, bottom),
+            new(right, top),
         };
         return new(uvs);
     }
