@@ -1,19 +1,14 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using Avalonia.OpenGL;
-using AvaloniaSilkOpengles.Controls;
 using Silk.NET.OpenGLES;
-using static Avalonia.OpenGL.GlConsts;
 
 namespace AvaloniaSilkOpengles.Graphics.Resources;
 
-public sealed unsafe class VboHandler<T> : ResourceHandler
-    where T : unmanaged
+public class VboHandler: ResourceHandler
 {
     public VboHandler(
         GL gl,
-        ICollection<T> data,
+        ICollection<float> data,
         BufferUsageARB usage = BufferUsageARB.StaticDraw,
         bool doUnbind = false
     ) : base(gl)
@@ -21,9 +16,9 @@ public sealed unsafe class VboHandler<T> : ResourceHandler
         Handle = gl.GenBuffer();
         Bind();
         var array = data.ToArray();
-        gl.BufferData<T>(
+        gl.BufferData<float>(
             BufferTargetARB.ArrayBuffer,
-            (uint)(sizeof(T) * array.Length),
+            (uint)(sizeof(float) * array.Length),
             data.ToArray(),
             usage
         );

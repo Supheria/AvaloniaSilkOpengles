@@ -33,10 +33,10 @@ public struct TexCoord
     
     public static TexCoord CreateFromSingle()
     {
-        var left = 0;
-        var top = 0;
-        var right = 1;
-        var bottom = 1;
+        const int left = 0;
+        const int top = 0;
+        const int right = 1;
+        const int bottom = 1;
         var uvs = new Vector2[]
         {
             new(left, top),

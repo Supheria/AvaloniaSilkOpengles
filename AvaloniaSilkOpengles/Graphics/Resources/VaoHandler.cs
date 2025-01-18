@@ -15,17 +15,38 @@ public sealed unsafe class VaoHandler : ResourceHandler
     }
 
     public void Link<T>(
+        VboHandler<T> vbo,
         uint plot,
         int elementCount,
-        VboHandler<T> vbo,
-        VertexAttribPointerType elementType,
+        VertexAttribPointerType elementType = VertexAttribPointerType.Float,
         bool normalized = false
     )
         where T : unmanaged
     {
         vbo.Bind();
         var stride = (uint)sizeof(T);
-        Gl.VertexAttribPointer(plot, elementCount, elementType, normalized, stride, 0);
+        Gl.VertexAttribPointer(plot, elementCount, elementType, normalized, stride, null);
+        Gl.EnableVertexAttribArray(plot);
+    }
+
+    public void Link(
+        VboHandler vbo,
+        uint plot,
+        int elementCount,
+        uint stride,
+        int startpointer,
+        bool normalized = false
+    )
+    {
+        vbo.Bind();
+        Gl.VertexAttribPointer(
+            plot,
+            elementCount,
+            VertexAttribPointerType.Float,
+            normalized,
+            stride,
+            startpointer
+        );
         Gl.EnableVertexAttribArray(plot);
     }
 

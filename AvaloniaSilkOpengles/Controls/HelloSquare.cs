@@ -13,89 +13,41 @@ using AvaloniaSilkOpengles.Graphics.Resources;
 using AvaloniaSilkOpengles.World;
 using Silk.NET.OpenGLES;
 using static Avalonia.OpenGL.GlConsts;
+using Vector = Avalonia.Vector;
 
 namespace AvaloniaSilkOpengles.Controls;
 
 public unsafe class HelloSquare : OpenGlControlBase, ICustomHitTest
 {
     GL? Gl { get; set; }
-
-    // VaoHandler? Vao { get; set; }
-    // VboHandler<Vector3>? PositionVbo { get; set; }
-    // VboHandler<Vector4>? ColorVbo { get; set; }
-    // VboHandler<Vector2>? TexCoordVbo { get; set; }
-    // EboHandler? Ebo { get; set; }
+    LightCube? LightCube { get; set; }
     Chunk? Chunk { get; set; }
-    ShaderHandler? Shader { get; set; }
+    ShaderHandler? LightShader { get; set; }
+    ShaderHandler? ChunkShader { get; set; }
     Camera3D? Camera { get; set; }
-    // Texture2DHandler? HappyTexture { get; set; }
     PixelSize ViewPortSize { get; set; }
     float RotationX { get; set; }
     float RotationY { get; set; }
     KeyEventArgs? KeyState { get; set; }
     Vector2 PointerPostionDiff { get; set; }
     Point LastPointerPostion { get; set; }
-
-    // List<Vertex> Vertices {get;} =
-    // [
-    //     // front face
-    //     new(new(-0.5f, 0.5f, 0.5f), new(1f, 0f, 0f, 1f), new(0f, 1f)),
-    //     new(new(0.5f, 0.5f, 0.5f), new(0f, 1f, 0f, 1f), new(1f, 1f)),
-    //     new(new(0.5f, -0.5f, 0.5f), new(0f, 1f, 1f, 1f), new(1f, 0f)),
-    //     new(new(-0.5f, -0.5f, 0.5f), new(0f, 0f, 1f, 1f), new(0f, 0f)),
-    //     // right face
-    //     new(new(0.5f, 0.5f, 0.5f), new(1f, 0f, 0f, 1f), new(0f, 1f)),
-    //     new(new(0.5f, 0.5f, -0.5f), new(0f, 1f, 0f, 1f), new(1f, 1f)),
-    //     new(new(0.5f, -0.5f, -0.5f), new(0f, 1f, 1f, 1f), new(1f, 0f)),
-    //     new(new(0.5f, -0.5f, 0.5f), new(0f, 0f, 1f, 1f), new(0f, 0f)),
-    //     // back face
-    //     new(new(0.5f, 0.5f, -0.5f), new(1f, 0f, 0f, 1f), new(0f, 1f)),
-    //     new(new(-0.5f, 0.5f, -0.5f), new(0f, 1f, 0f, 1f), new(1f, 1f)),
-    //     new(new(-0.5f, -0.5f, -0.5f), new(0f, 1f, 1f, 1f), new(1f, 0f)),
-    //     new(new(0.5f, -0.5f, -0.5f), new(0f, 0f, 1f, 1f), new(0f, 0f)),
-    //     // left face
-    //     new(new(-0.5f, 0.5f, -0.5f), new(1f, 0f, 0f, 1f), new(0f, 1f)),
-    //     new(new(-0.5f, 0.5f, 0.5f), new(0f, 1f, 0f, 1f), new(1f, 1f)),
-    //     new(new(-0.5f, -0.5f, 0.5f), new(0f, 1f, 1f, 1f), new(1f, 0f)),
-    //     new(new(-0.5f, -0.5f, -0.5f), new(0f, 0f, 1f, 1f), new(0f, 0f)),
-    //     // top face
-    //     new(new(-0.5f, 0.5f, -0.5f), new(1f, 0f, 0f, 1f), new(0f, 1f)),
-    //     new(new(0.5f, 0.5f, -0.5f), new(0f, 1f, 0f, 1f), new(1f, 1f)),
-    //     new(new(0.5f, 0.5f, 0.5f), new(0f, 1f, 1f, 1f), new(1f, 0f)),
-    //     new(new(-0.5f, 0.5f, 0.5f), new(0f, 0f, 1f, 1f), new(0f, 0f)),
-    //     // bottom face
-    //     new(new(-0.5f, -0.5f, 0.5f), new(1f, 0f, 0f, 1f), new(0f, 1f)),
-    //     new(new(0.5f, -0.5f, 0.5f), new(0f, 1f, 0f, 1f), new(1f, 1f)),
-    //     new(new(0.5f, -0.5f, -0.5f), new(0f, 1f, 1f, 1f), new(1f, 0f)),
-    //     new(new(-0.5f, -0.5f, -0.5f), new(0f, 0f, 1f, 1f), new(0f, 0f)),
-    // ];
-    //
-    // // csharpier-ignore
-    // List<uint> Indices { get; } =
-    // [
-    //     0, 1, 2, // top right part
-    //     2, 3, 0, // bottom left part
-    //
-    //     4, 5, 6,
-    //     6, 7, 4,
-    //
-    //     8, 9, 10,
-    //     10, 11, 8,
-    //
-    //     12, 13, 14,
-    //     14, 15, 12,
-    //
-    //     16, 17, 18,
-    //     18, 19, 16,
-    //
-    //     20, 21, 22,
-    //     22, 23, 20
-    // ];
+    bool Alpha { get; set; }
 
     public HelloSquare()
     {
-        KeyDownEvent.AddClassHandler<TopLevel>((_, e) => KeyState = e, handledEventsToo: true);
+        KeyDownEvent.AddClassHandler<TopLevel>(OnKeyDown, handledEventsToo: true);
         KeyUpEvent.AddClassHandler<TopLevel>((_, _) => KeyState = null, handledEventsToo: true);
+    }
+
+    private void OnKeyDown(TopLevel _, KeyEventArgs e)
+    {
+        KeyState = e;
+        switch (e.Key)
+        {
+            case Key.B:
+                Alpha = !Alpha;
+                break;
+        }
     }
 
     protected override void OnPointerEntered(PointerEventArgs e)
@@ -129,64 +81,65 @@ public unsafe class HelloSquare : OpenGlControlBase, ICustomHitTest
         base.OnOpenGlInit(gl);
 
         Gl = GL.GetApi(gl.GetProcAddress);
-        
-        Chunk = new(Gl, new()); 
 
-        // Vao = new(Gl);
-        // PositionVbo = new(Gl, Vertices.Select(v => v.Position).ToArray());
-        // ColorVbo = new(Gl, Vertices.Select(v => v.Color).ToArray());
-        // TexCoordVbo = new(Gl, Vertices.Select(v => v.TexCoord).ToArray());
-        // Ebo = new(Gl, Indices);
-        //
-        // Vao.Link(0, 3, PositionVbo, VertexAttribPointerType.Float);
-        // Vao.Link(1, 4, ColorVbo, VertexAttribPointerType.Float);
-        // Vao.Link(2, 2, TexCoordVbo, VertexAttribPointerType.Float);
-        //
-        // Vao.Unbind();
-        // PositionVbo.Unbind();
-        // Ebo.Unbind();
+        LightCube = new(Gl, new());
+        Chunk = new(Gl, new());
 
-        Shader = new(Gl, "simple");
-
-        // HappyTexture = new(Gl, "happy", 1);
+        LightShader = new(Gl, "light");
+        ChunkShader = new(Gl, "simple");
 
         Camera = new(Bounds.Size, Vector3.Zero);
 
         Gl.Enable(EnableCap.DepthTest);
-        
+
         // Gl.FrontFace(FrontFaceDirection.CW);
         Gl.Enable(EnableCap.CullFace);
         Gl.CullFace(TriangleFace.Back);
+
+        // Gl.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
+        // Gl.Enable(EnableCap.Blend);
     }
 
     protected override void OnOpenGlDeinit(GlInterface gl)
     {
         base.OnOpenGlDeinit(gl);
 
-        // Vao?.Delete();
-        // PositionVbo?.Delete();
-        // ColorVbo?.Delete();
-        // TexCoordVbo?.Delete();
-        // Ebo?.Delete();
-        
+        LightCube?.Delete();
         Chunk?.Delete();
 
-        Shader?.Delete();
-
-        // HappyTexture?.Delete();
+        ChunkShader?.Delete();
+        LightShader?.Delete();
 
         Gl?.Dispose();
     }
 
+    private void CheckSettings(GL gl)
+    {
+        gl.Viewport(0, 0, (uint)ViewPortSize.Width, (uint)ViewPortSize.Height);
+        // if (Alpha)
+        // {
+        //     gl.Enable(EnableCap.Blend);
+        //     // gl.Disable(EnableCap.DepthTest);
+        //     // gl.Disable(EnableCap.CullFace);
+        // }
+        // else
+        // {
+        //     gl.Disable(EnableCap.Blend);
+        //     // gl.Enable(EnableCap.DepthTest);
+        //     // gl.Enable(EnableCap.CullFace);
+        // }
+    }
+
     protected override void OnOpenGlRender(GlInterface gl, int fb)
     {
-        if (Gl is null || Shader is null || Camera is null)
+        if (Gl is null || ChunkShader is null || Camera is null)
             return;
 
-        gl.Viewport(0, 0, ViewPortSize.Width, ViewPortSize.Height);
+        CheckSettings(Gl);
+        // gl.Viewport(0, 0, ViewPortSize.Width, ViewPortSize.Height);
 
-        gl.ClearColor(0, 0, 0, 1);
-        gl.Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        Gl.ClearColor(0, 0, 0, 1);
+        Gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
         // var position = Bounds.Center;
         // var scale = new Vector2(150, 100);
@@ -200,41 +153,38 @@ public unsafe class HelloSquare : OpenGlControlBase, ICustomHitTest
         // var model = Matrix4x4.Identity;
         var view = Camera.GetViewMatrix();
         var projection = Camera.GetProjectionMatrix();
+        
+        var lightColor = new Vector4(1.0f, 1.0f, 1.0f, 1.0f);
+        // var lightPos = new Vector3(0.5f, 0.5f, 0.5f);
+        var lightPos = new Vector3(0.5f, 0.5f, 0.5f);
+        var lightModel = Matrix4x4.CreateScale(new Vector3(0.05f, 0.05f, 0.05f)) * Matrix4x4.CreateTranslation(lightPos);
+
+        LightShader?.Bind();
+        LightShader?.SetMatrix("view", view);
+        LightShader?.SetMatrix("projection", projection);
+        LightShader?.SetMatrix("model", lightModel);
+        LightShader?.SetVector4("lightColor", lightColor);
+
+        LightCube?.Render();
 
         var rotationX = Matrix4x4.CreateRotationX(RotationX);
         var rotationY = Matrix4x4.CreateRotationY(RotationY);
-        var translation = Matrix4x4.CreateTranslation(0f, 0f, -3f);
-        // model = rotationX * rotationY * translation;
-        // RotationX += 0.01f;
-        // RotationY += 0.01f;
+        var translation = Matrix4x4.CreateTranslation(0f, 0f, 0f);
+        var model = rotationX * rotationY * translation;
+        RotationX += 0.005f;
+        RotationY += 0.005f;
 
-        // Shader.SetMatrix("model", model);
-        Shader.SetMatrix("view", view);
-        Shader.SetMatrix("projection", projection);
+        ChunkShader.Bind();
+        ChunkShader.SetMatrix("model", model);
+        ChunkShader.SetMatrix("view", view);
+        ChunkShader.SetMatrix("projection", projection);
+        ChunkShader.SetVector4("lightColor", lightColor);
+        ChunkShader.SetVector3("lightPos", lightPos);
+        ChunkShader.SetVector3("camPos", Camera.Position);
 
-        // Shader.SetTexture(HappyTexture);
-        // HappyTexture?.Bind();
+        // ChunkShader.SetVector3("light_direct", new(0, 0, 1));
+        Chunk?.Render(ChunkShader);
 
-        // Shader.Bind();
-
-        // Vao?.Bind();
-        // Ebo?.Bind();
-        // // gl.DrawArrays(GL_TRIANGLES, 0, 3);
-        // Gl.DrawElements(
-        //     PrimitiveType.Triangles,
-        //     (uint)Indices.Count,
-        //     DrawElementsType.UnsignedInt,
-        //     null
-        // );
-        Chunk?.Render(Shader);
-
-        // gl.BindVertexArray(0);
-        // gl.BindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-        // HappyTexture?.Unbind();
-
-        // Shader.Unbind();
-
-        // Dispatcher.UIThread.Post(RequestNextFrameRendering, DispatcherPriority.Background);
         OnFrameUpdate();
     }
 

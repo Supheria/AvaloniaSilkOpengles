@@ -21,4 +21,5 @@
 
     <!-- <avaloniaSilkOpengles:HelloTriangle /> -->
     <controls:HelloSquareContainer />
+    <!-- <controls:HelloPyramid /> -->
 </UserControl>

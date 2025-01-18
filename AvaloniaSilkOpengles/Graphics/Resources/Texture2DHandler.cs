@@ -13,15 +13,15 @@ public class Texture2DHandler : ResourceHandler
     public int Unit { get; }
     public string TextureName { get; }
 
-    public Texture2DHandler(GL gl, string textureName, int unit)
+    public Texture2DHandler(GL gl, string textureName, int unit, PixelFormat format)
         : base(gl)
     {
         TextureName = textureName;
         Unit = unit;
-        Handle = Load(gl, textureName, unit);
+        Handle = Load(gl, textureName, unit, format);
     }
 
-    private static uint Load(GL gl, string textureName, int unit)
+    private static uint Load(GL gl, string textureName, int unit, PixelFormat format)
     {
         gl.ActiveTexture(TextureUnit.Texture0 + unit);
 
@@ -50,7 +50,7 @@ public class Texture2DHandler : ResourceHandler
         );
 
         using var source = TextureRead.Read(textureName);
-        var texture = ImageResult.FromStream(source);
+        var texture = ImageResult.FromStream(source, ColorComponents.RedGreenBlueAlpha);
         gl.TexImage2D<byte>(
             TextureTarget.Texture2D,
             0,
@@ -58,7 +58,7 @@ public class Texture2DHandler : ResourceHandler
             (uint)texture.Width,
             (uint)texture.Height,
             0,
-            PixelFormat.Rgba,
+            format,
             PixelType.UnsignedByte,
             texture.Data
         );
@@ -70,11 +70,13 @@ public class Texture2DHandler : ResourceHandler
 
     public void Bind()
     {
+        Gl.ActiveTexture(TextureUnit.Texture0 + Unit);
         Gl.BindTexture(TextureTarget.Texture2D, Handle);
     }
 
     public void Unbind()
     {
+        Gl.ActiveTexture(TextureUnit.Texture0 + Unit);
         Gl.BindTexture(TextureTarget.Texture2D, 0);
     }
 
