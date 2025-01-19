@@ -6,7 +6,7 @@ namespace AvaloniaSilkOpengles.Graphics;
 
 public class Mesh
 {
-    List<VertexTexture> Vertices {get;}
+    List<VertexUv> Vertices {get;}
     List<uint> Indices {get;}
     List<Texture2DHandler> Textures {get;}
     VaoHandler Vao {get;set;}

@@ -13,15 +13,15 @@ public class Texture2DHandler : ResourceHandler
     public int Unit { get; }
     public string TextureName { get; }
 
-    public Texture2DHandler(GL gl, string textureName, int unit, PixelFormat format)
+    public Texture2DHandler(GL gl, string textureName, int unit)
         : base(gl)
     {
         TextureName = textureName;
         Unit = unit;
-        Handle = Load(gl, textureName, unit, format);
+        Handle = Load(gl, textureName, unit);
     }
 
-    private static uint Load(GL gl, string textureName, int unit, PixelFormat format)
+    private static uint Load(GL gl, string textureName, int unit)
     {
         gl.ActiveTexture(TextureUnit.Texture0 + unit);
 
@@ -58,7 +58,7 @@ public class Texture2DHandler : ResourceHandler
             (uint)texture.Width,
             (uint)texture.Height,
             0,
-            format,
+            PixelFormat.Rgba,
             PixelType.UnsignedByte,
             texture.Data
         );

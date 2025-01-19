@@ -59,7 +59,7 @@ public sealed class LightCube
         VertexVbo = new(Gl, Vertices);
         Ibo = new(Gl, Indices);
 
-        Vao.Link(VertexVbo, 0, 3, 0);
+        Vao.Link(VertexVbo, 0, VertexElement.Position);
     }
 
     public unsafe void Render()

@@ -16,7 +16,7 @@ public sealed class Chunk
     // List<Vector3> Vertices { get; } = [];
     // List<Vector2> Uvs { get; } = [];
     // List<Vector3> Normals { get; } = [];
-    List<VertexTexture> Vertices { get; } = [];
+    List<VertexUv> Vertices { get; } = [];
     List<uint> Indices { get; } = [];
     uint IndexHead { get; set; }
     public Vector3 Position { get; }
@@ -25,7 +25,7 @@ public sealed class Chunk
     // VboHandler<Vector3>? VertexVbo { get; set; }
     // VboHandler<Vector2>? UvVbo { get; set; }
     // VboHandler<Vector3>? NormalVbo { get; set; }
-    VboHandler<VertexTexture>? Vbo { get; set; }
+    VboHandler<VertexUv>? Vbo { get; set; }
     IboHandler? Ibo { get; set; }
     Texture2DHandler? Texture { get; set; }
     Texture2DHandler? TextureSpecular { get; set; }
@@ -64,12 +64,12 @@ public sealed class Chunk
                 for (var y = 0; y < HeightOfChunk; y++)
                 {
                     var type = BlockType.Empty;
-                    // if (y < columnHeight - 1)
-                    //     type = BlockType.Dirt;
-                    // else if (y == columnHeight - 1)
-                    //     type = BlockType.Grass;
-                    if (y <= columnHeight - 1)
-                        type = BlockType.TestBlock;
+                    if (y < columnHeight - 1)
+                        type = BlockType.Dirt;
+                    else if (y == columnHeight - 1)
+                        type = BlockType.Grass;
+                    // if (y <= columnHeight - 1)
+                    //     type = BlockType.TestBlock;
                     var position = new Vector3(x, y, z);
                     Blocks[x, y, z] = new Block(position, type);
                 }
@@ -171,14 +171,14 @@ public sealed class Chunk
         Vao = new(Gl);
         Vbo = new(Gl, Vertices);
         Ibo = new(Gl, Indices);
+        
+        Vao.Link(Vbo, 0, VertexElement.Position);
+        Vao.Link(Vbo, 1, VertexElement.Normal);
+        Vao.Link(Vbo, 2, VertexElement.Uv);
 
-        Vao.Link(Vbo, 0, 3, 0);
-        Vao.Link(Vbo, 1, 3, sizeof(float) * 3);
-        Vao.Link(Vbo, 2, 2, sizeof(float) * 6);
-
-        // Texture = new(Gl, "atlas", 1);
-        Texture = new(Gl, "planks", 0, PixelFormat.Rgba);
-        TextureSpecular = new(Gl, "planksSpec", 1, PixelFormat.Rgba);
+        Texture = new(Gl, "atlas", 0);
+        // Texture = new(Gl, "planks", 0);
+        // TextureSpecular = new(Gl, "planksSpec", 1, PixelFormat.Rgba);
     }
 
     public unsafe void Render(ShaderHandler shader)
