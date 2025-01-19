@@ -1,15 +1,16 @@
 #version 300 es
-layout (location = 0) in vec3 aPosition;
-//layout (location = 1) in vec4 aColor;
-//layout (location = 2) in vec2 aTexCoord;
-layout (location = 1) in vec2 aTexCoord;
+
+precision highp float;
+
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec2 aTex;
 layout (location = 2) in vec3 aNormal;
+// TODO
 layout (location = 3) in mat4 aTransform;
 
-//out vec4 vertexColor;
 out vec2 texCoord;
 out vec3 normal;
-out vec3 modelPos;
+out vec3 currentPos;
 
 uniform mat4 projection;
 uniform mat4 model;
@@ -17,14 +18,9 @@ uniform mat4 view;
 
 void main()
 {
-//    vertexColor = vec4(aColor.rgba);
-    normal = normalize((model * vec4(floor(aNormal), 0.0)).xyz);
-    texCoord = aTexCoord;
-
-
-    modelPos = vec3(model * vec4(aPosition, 1.0));
-    gl_Position = projection * view * vec4(modelPos, 1.0);
-//    gl_Position = projection * view * vec4(aPosition, 1.0);
-//    gl_Position = projection * view * vec4(aPosition, 1.0);
-//    gl_Position = vec4(aPosition.xy, 0.0, 1.0);
+    texCoord = aTex;
+    normal = normalize((model * vec4(floor(aNormal), 0.0f)).xyz);
+    currentPos = vec3(model * vec4(aPos, 1.0f));
+    
+    gl_Position = projection * view * vec4(currentPos, 1.0f);
 }

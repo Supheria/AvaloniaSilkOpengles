@@ -7,4 +7,5 @@ public enum BlockType
     Grass,
     CuttenPumpkin,
     Glass,
+    TestBlock,
 }

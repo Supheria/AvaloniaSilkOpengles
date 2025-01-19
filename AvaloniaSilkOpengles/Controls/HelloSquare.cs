@@ -88,7 +88,8 @@ public unsafe class HelloSquare : OpenGlControlBase, ICustomHitTest
         LightShader = new(Gl, "light");
         ChunkShader = new(Gl, "simple");
 
-        Camera = new(Bounds.Size, Vector3.Zero);
+        // Camera = new(Bounds.Size, Vector3.Zero);
+        Camera = new(Bounds.Size, new(10, 10, 10));
 
         Gl.Enable(EnableCap.DepthTest);
 
@@ -156,7 +157,7 @@ public unsafe class HelloSquare : OpenGlControlBase, ICustomHitTest
         
         var lightColor = new Vector4(1.0f, 1.0f, 1.0f, 1.0f);
         // var lightPos = new Vector3(0.5f, 0.5f, 0.5f);
-        var lightPos = new Vector3(0.5f, 0.5f, 0.5f);
+        var lightPos = new Vector3(10f, 8f, 5f);
         var lightModel = Matrix4x4.CreateScale(new Vector3(0.05f, 0.05f, 0.05f)) * Matrix4x4.CreateTranslation(lightPos);
 
         LightShader?.Bind();
@@ -171,8 +172,8 @@ public unsafe class HelloSquare : OpenGlControlBase, ICustomHitTest
         var rotationY = Matrix4x4.CreateRotationY(RotationY);
         var translation = Matrix4x4.CreateTranslation(0f, 0f, 0f);
         var model = rotationX * rotationY * translation;
-        RotationX += 0.005f;
-        RotationY += 0.005f;
+        // RotationX += 0.005f;
+        // RotationY += 0.005f;
 
         ChunkShader.Bind();
         ChunkShader.SetMatrix("model", model);

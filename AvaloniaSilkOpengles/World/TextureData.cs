@@ -44,5 +44,14 @@ public sealed class TextureData
                 [Face.Top] = TexCoord.CreateFromSingle(),
                 [Face.Bottom] = TexCoord.CreateFromSingle(),
             },
+            [BlockType.TestBlock] = new()
+            {
+                [Face.Front] = TexCoord.CreateFromSingle(),
+                [Face.Right] = TexCoord.CreateFromSingle(),
+                [Face.Back] = TexCoord.CreateFromSingle(),
+                [Face.Left] = TexCoord.CreateFromSingle(),
+                [Face.Top] = TexCoord.CreateFromSingle(),
+                [Face.Bottom] = TexCoord.CreateFromSingle(),
+            }
         };
 }

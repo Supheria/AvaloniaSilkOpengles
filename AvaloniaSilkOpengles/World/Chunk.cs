@@ -52,96 +52,98 @@ public sealed class Chunk
 
     private void GenerateBlocks(float[,] heightMap)
     {
-        // for (var x = 0; x < SizeOfChunk; x++)
-        // {
-        //     for (var z = 0; z < SizeOfChunk; z++)
-        //     {
-        //         var columnHeight = (int)(heightMap[x, z] / 10);
-        //         for (var y = 0; y < HeightOfChunk; y++)
-        //         {
-        //             var type = BlockType.Empty;
-        //             if (y < columnHeight - 1)
-        //                 type = BlockType.Dirt;
-        //             else if (y == columnHeight - 1)
-        //                 type = BlockType.Grass;
-        //             var position = new Vector3(x, y, z);
-        //             Blocks[x, y, z] = new Block(position, type);
-        //         }
-        //     }
-        // }
-        Blocks[0, 0, 0] = new(Vector3.Zero, BlockType.Glass);
+        for (var x = 0; x < SizeOfChunk; x++)
+        {
+            for (var z = 0; z < SizeOfChunk; z++)
+            {
+                var columnHeight = (int)(heightMap[x, z] / 10);
+                for (var y = 0; y < HeightOfChunk; y++)
+                {
+                    var type = BlockType.Empty;
+                    // if (y < columnHeight - 1)
+                    //     type = BlockType.Dirt;
+                    // else if (y == columnHeight - 1)
+                    //     type = BlockType.Grass;
+                    if (y <= columnHeight - 1)
+                        type = BlockType.TestBlock;
+                    var position = new Vector3(x, y, z);
+                    Blocks[x, y, z] = new Block(position, type);
+                }
+            }
+        }
+        // Blocks[0, 0, 0] = new(Vector3.Zero, BlockType.Glass);
     }
 
     private void GenerateBlockFaces()
     {
-        // for (var x = 0; x < SizeOfChunk; x++)
-        // {
-        //     for (var z = 0; z < SizeOfChunk; z++)
-        //     {
-        //         // var columnHeight = (int)(heightMap[x, z] / 10);
-        //         for (var y = 0; y < HeightOfChunk; y++)
-        //         {
-        //             var block = Blocks[x, y, z];
-        //             if (block.Type is BlockType.Empty)
-        //                 continue;
-        //             // right faces
-        //             if (x < SizeOfChunk - 1)
-        //             {
-        //                 if (Blocks[x + 1, y, z].Type is BlockType.Empty)
-        //                     AddBlockFace(block[Face.Right]);
-        //             }
-        //             else
-        //                 AddBlockFace(block[Face.Right]);
-        //             // left faces
-        //             if (x > 0)
-        //             {
-        //                 if (Blocks[x - 1, y, z].Type is BlockType.Empty)
-        //                     AddBlockFace(block[Face.Left]);
-        //             }
-        //             else
-        //                 AddBlockFace(block[Face.Left]);
-        //             // top faces
-        //             if (y < HeightOfChunk - 1)
-        //             {
-        //                 if (Blocks[x, y + 1, z].Type is BlockType.Empty)
-        //                     AddBlockFace(block[Face.Top]);
-        //             }
-        //             else
-        //                 AddBlockFace(block[Face.Top]);
-        //             // bottom face
-        //             if (y > 0)
-        //             {
-        //                 if (Blocks[x, y - 1, z].Type is BlockType.Empty)
-        //                     AddBlockFace(block[Face.Bottom]);
-        //             }
-        //             else
-        //                 AddBlockFace(block[Face.Bottom]);
-        //             // front face
-        //             if (z < SizeOfChunk - 1)
-        //             {
-        //                 if (Blocks[x, y, z + 1].Type is BlockType.Empty)
-        //                     AddBlockFace(block[Face.Front]);
-        //             }
-        //             else
-        //                 AddBlockFace(block[Face.Front]);
-        //             // back face
-        //             if (z > 0)
-        //             {
-        //                 if (Blocks[x, y, z - 1].Type is BlockType.Empty)
-        //                     AddBlockFace(block[Face.Back]);
-        //             }
-        //             else
-        //                 AddBlockFace(block[Face.Back]);
-        //         }
-        //     }
-        // }
-        var block = Blocks[0, 0, 0];
-        AddBlockFace(block[Face.Front]);
-        AddBlockFace(block[Face.Right]);
-        AddBlockFace(block[Face.Back]);
-        AddBlockFace(block[Face.Left]);
-        AddBlockFace(block[Face.Top]);
-        AddBlockFace(block[Face.Bottom]);
+        for (var x = 0; x < SizeOfChunk; x++)
+        {
+            for (var z = 0; z < SizeOfChunk; z++)
+            {
+                // var columnHeight = (int)(heightMap[x, z] / 10);
+                for (var y = 0; y < HeightOfChunk; y++)
+                {
+                    var block = Blocks[x, y, z];
+                    if (block.Type is BlockType.Empty)
+                        continue;
+                    // right faces
+                    if (x < SizeOfChunk - 1)
+                    {
+                        if (Blocks[x + 1, y, z].Type is BlockType.Empty)
+                            AddBlockFace(block[Face.Right]);
+                    }
+                    else
+                        AddBlockFace(block[Face.Right]);
+                    // left faces
+                    if (x > 0)
+                    {
+                        if (Blocks[x - 1, y, z].Type is BlockType.Empty)
+                            AddBlockFace(block[Face.Left]);
+                    }
+                    else
+                        AddBlockFace(block[Face.Left]);
+                    // top faces
+                    if (y < HeightOfChunk - 1)
+                    {
+                        if (Blocks[x, y + 1, z].Type is BlockType.Empty)
+                            AddBlockFace(block[Face.Top]);
+                    }
+                    else
+                        AddBlockFace(block[Face.Top]);
+                    // bottom face
+                    if (y > 0)
+                    {
+                        if (Blocks[x, y - 1, z].Type is BlockType.Empty)
+                            AddBlockFace(block[Face.Bottom]);
+                    }
+                    else
+                        AddBlockFace(block[Face.Bottom]);
+                    // front face
+                    if (z < SizeOfChunk - 1)
+                    {
+                        if (Blocks[x, y, z + 1].Type is BlockType.Empty)
+                            AddBlockFace(block[Face.Front]);
+                    }
+                    else
+                        AddBlockFace(block[Face.Front]);
+                    // back face
+                    if (z > 0)
+                    {
+                        if (Blocks[x, y, z - 1].Type is BlockType.Empty)
+                            AddBlockFace(block[Face.Back]);
+                    }
+                    else
+                        AddBlockFace(block[Face.Back]);
+                }
+            }
+        }
+        // var block = Blocks[0, 0, 0];
+        // AddBlockFace(block[Face.Front]);
+        // AddBlockFace(block[Face.Right]);
+        // AddBlockFace(block[Face.Back]);
+        // AddBlockFace(block[Face.Left]);
+        // AddBlockFace(block[Face.Top]);
+        // AddBlockFace(block[Face.Bottom]);
     }
 
     private void AddBlockFace(BlockFace face)
