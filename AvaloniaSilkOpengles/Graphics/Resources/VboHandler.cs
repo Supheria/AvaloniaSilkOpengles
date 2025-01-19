@@ -4,21 +4,23 @@ using Silk.NET.OpenGLES;
 
 namespace AvaloniaSilkOpengles.Graphics.Resources;
 
-public class VboHandler: ResourceHandler
+public sealed unsafe class VboHandler<T> : ResourceHandler
+    where T : unmanaged, IVertex
 {
     public VboHandler(
         GL gl,
-        ICollection<float> data,
+        ICollection<T> data,
         BufferUsageARB usage = BufferUsageARB.StaticDraw,
         bool doUnbind = false
-    ) : base(gl)
+    )
+        : base(gl)
     {
         Handle = gl.GenBuffer();
         Bind();
         var array = data.ToArray();
-        gl.BufferData<float>(
+        gl.BufferData<T>(
             BufferTargetARB.ArrayBuffer,
-            (uint)(sizeof(float) * array.Length),
+            (uint)(sizeof(T) * array.Length),
             data.ToArray(),
             usage
         );

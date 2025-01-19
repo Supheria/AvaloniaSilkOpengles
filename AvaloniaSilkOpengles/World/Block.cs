@@ -35,8 +35,8 @@ public sealed class Block
 
     private static BlockFace GetFace(Face face, Vector3 position, TexCoord texCoord)
     {
-        var vertices = FaceData.VertexData[face].Select(v => v + position).ToArray();
-        var normals = FaceData.NormalData[face];
-        return new(vertices, texCoord.Uvs, normals);
+        var coords = VertexData.Coords[face].Select(c => c + position).ToArray();
+        var normals = VertexData.Normals[face];
+        return new(coords, normals, texCoord.Uvs);
     }
 }

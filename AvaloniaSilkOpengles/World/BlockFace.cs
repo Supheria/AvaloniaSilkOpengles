@@ -1,18 +1,20 @@
 using System.Collections.Generic;
 using System.Numerics;
+using AvaloniaSilkOpengles.Graphics;
+using AvaloniaSilkOpengles.Graphics.Resources;
 
 namespace AvaloniaSilkOpengles.World;
 
 public struct BlockFace
 {
-    public Vector3[] Vertices { get; set; }
-    public Vector2[] Uvs { get; set; }
-    public Vector3[] Normals { get; set; }
-    
-    public BlockFace(Vector3[] vertices, Vector2[] uvs, Vector3[] normals)
+    public List<VertexTexture> Vertices { get; } = [];
+
+    public BlockFace(IList<Vector3> coords, IList<Vector3> normals, IList<Vector2> uvs)
     {
-        Vertices = vertices;
-        Uvs = uvs;
-        Normals = normals;
+        for (var i = 0; i < coords.Count; i++)
+        {
+            var vertex = new VertexTexture(coords[i], normals[i], uvs[i]);
+            Vertices.Add(vertex);
+        }
     }
 }

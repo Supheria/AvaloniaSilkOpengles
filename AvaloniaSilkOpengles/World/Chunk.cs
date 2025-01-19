@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Numerics;
+using AvaloniaSilkOpengles.Graphics;
 using AvaloniaSilkOpengles.Graphics.Resources;
 using Silk.NET.OpenGLES;
 using StbImageSharp;
@@ -12,16 +13,19 @@ public sealed class Chunk
     const int HeightOfChunk = 32;
     GL Gl { get; }
     Block[,,] Blocks { get; } = new Block[SizeOfChunk, HeightOfChunk, SizeOfChunk];
-    List<Vector3> Vertices { get; } = [];
-    List<Vector2> Uvs { get; } = [];
-    List<Vector3> Normals { get; } = [];
+    // List<Vector3> Vertices { get; } = [];
+    // List<Vector2> Uvs { get; } = [];
+    // List<Vector3> Normals { get; } = [];
+    List<VertexTexture> Vertices { get; } = [];
     List<uint> Indices { get; } = [];
     uint IndexHead { get; set; }
     public Vector3 Position { get; }
     VaoHandler? Vao { get; set; }
-    VboHandler<Vector3>? VertexVbo { get; set; }
-    VboHandler<Vector2>? UvVbo { get; set; }
-    VboHandler<Vector3>? NormalVbo { get; set; }
+
+    // VboHandler<Vector3>? VertexVbo { get; set; }
+    // VboHandler<Vector2>? UvVbo { get; set; }
+    // VboHandler<Vector3>? NormalVbo { get; set; }
+    VboHandler<VertexTexture>? Vbo { get; set; }
     IboHandler? Ibo { get; set; }
     Texture2DHandler? Texture { get; set; }
     Texture2DHandler? TextureSpecular { get; set; }
@@ -149,8 +153,6 @@ public sealed class Chunk
     private void AddBlockFace(BlockFace face)
     {
         Vertices.AddRange(face.Vertices);
-        Uvs.AddRange(face.Uvs);
-        Normals.AddRange(face.Normals);
         Indices.AddRange(
             [
                 0 + IndexHead,
@@ -167,14 +169,12 @@ public sealed class Chunk
     private void Build()
     {
         Vao = new(Gl);
-        VertexVbo = new(Gl, Vertices);
-        UvVbo = new(Gl, Uvs);
-        NormalVbo = new(Gl, Normals);
+        Vbo = new(Gl, Vertices);
         Ibo = new(Gl, Indices);
 
-        Vao.Link(VertexVbo, 0, 3);
-        Vao.Link(UvVbo, 1, 2);
-        Vao.Link(NormalVbo, 2, 3);
+        Vao.Link(Vbo, 0, 3, 0);
+        Vao.Link(Vbo, 1, 3, sizeof(float) * 3);
+        Vao.Link(Vbo, 2, 2, sizeof(float) * 6);
 
         // Texture = new(Gl, "atlas", 1);
         Texture = new(Gl, "planks", 0, PixelFormat.Rgba);
@@ -197,7 +197,7 @@ public sealed class Chunk
             DrawElementsType.UnsignedInt,
             null
         );
-        
+
         // shader.Unbind();
         Vao?.Unbind();
         Ibo?.Unbind();
@@ -208,9 +208,7 @@ public sealed class Chunk
     public void Delete()
     {
         Vao?.Delete();
-        VertexVbo?.Delete();
-        UvVbo?.Delete();
-        NormalVbo?.Delete();
+        Vbo?.Delete();
         Ibo?.Delete();
         Texture?.Delete();
     }

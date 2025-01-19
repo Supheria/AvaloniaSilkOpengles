@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using AvaloniaSilkOpengles.Graphics;
 using AvaloniaSilkOpengles.Graphics.Resources;
 using Silk.NET.OpenGLES;
 
@@ -9,12 +10,12 @@ namespace AvaloniaSilkOpengles.World;
 public sealed class LightCube
 {
     GL Gl { get; }
-    List<Vector3> Vertices { get; } = [];
+    List<VertexSingle> Vertices { get; } = [];
     List<uint> Indices { get; } = [];
     uint IndexHead { get; set; }
     public Vector3 Position { get; set; }
     VaoHandler? Vao { get; set; }
-    VboHandler<Vector3>? VertexVbo { get; set; }
+    VboHandler<VertexSingle>? VertexVbo { get; set; }
     IboHandler? Ibo { get; set; }
 
     public LightCube(GL gl, Vector3 position)
@@ -37,7 +38,7 @@ public sealed class LightCube
 
     private void AddFace(Face face)
     {
-        var vertices = FaceData.VertexData[face].Select(v => v + Position);
+        var vertices = VertexData.Coords[face].Select(v => new VertexSingle(v + Position));
         Vertices.AddRange(vertices);
         Indices.AddRange(
             [
@@ -58,7 +59,7 @@ public sealed class LightCube
         VertexVbo = new(Gl, Vertices);
         Ibo = new(Gl, Indices);
 
-        Vao.Link(VertexVbo, 0, 3);
+        Vao.Link(VertexVbo, 0, 3, 0);
     }
 
     public unsafe void Render()
@@ -72,12 +73,11 @@ public sealed class LightCube
             DrawElementsType.UnsignedInt,
             null
         );
-        
+
         // shader.Unbind();
         Vao?.Unbind();
         Ibo?.Unbind();
     }
-    
 
     public void Delete()
     {

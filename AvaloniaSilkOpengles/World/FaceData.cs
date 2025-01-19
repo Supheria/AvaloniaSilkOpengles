@@ -3,9 +3,9 @@ using System.Numerics;
 
 namespace AvaloniaSilkOpengles.World;
 
-public sealed class FaceData
+public sealed class VertexData
 {
-    public static Dictionary<Face, Vector3[]> VertexData { get; } =
+    public static Dictionary<Face, Vector3[]> Coords { get; } =
         new()
         {
             [Face.Front] =
@@ -51,7 +51,7 @@ public sealed class FaceData
                 new(0.5f, -0.5f, 0.5f),
             ],
         };
-    public static Dictionary<Face, Vector3[]> NormalData { get; } =
+    public static Dictionary<Face, Vector3[]> Normals { get; } =
         new()
         {
             [Face.Front] =
