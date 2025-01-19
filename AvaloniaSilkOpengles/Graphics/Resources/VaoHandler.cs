@@ -14,24 +14,43 @@ public sealed unsafe class VaoHandler : ResourceHandler
             gl.BindVertexArray(Handle);
     }
 
-    public void Link<T>(
-        VboHandler<T> vbo,
-        uint plot,
-        VertexElement element,
-        bool normalized = false
-    )
-    where T : unmanaged, IVertex
+    // public void Link(
+    //     VboHandler vbo,
+    //     VertexElement element,
+    //     bool normalized = false
+    // )
+    // {
+    //     vbo.Bind();
+    //     Gl.VertexAttribPointer(
+    //         element.Plot,
+    //         element.Count,
+    //         VertexAttribPointerType.Float,
+    //         normalized,
+    //         (uint)sizeof(Vertex),
+    //         element.StartPointer
+    //     );
+    //     Gl.EnableVertexAttribArray(element.Plot);
+    // }
+    
+    public void Link(VboHandler vbo)
     {
         vbo.Bind();
-        Gl.VertexAttribPointer(
-            plot,
-            element.Count,
-            VertexAttribPointerType.Float,
-            normalized,
-            (uint)sizeof(T),
-            element.StartPointer
-        );
-        Gl.EnableVertexAttribArray(plot);
+        link(VertexElement.Position);
+        link(VertexElement.Normal);
+        link(VertexElement.Color);
+        link(VertexElement.Uv);
+        void link(VertexElement element)
+        {
+            Gl.VertexAttribPointer(
+                element.Plot,
+                element.Count,
+                VertexAttribPointerType.Float,
+                false,
+                (uint)sizeof(Vertex),
+                element.StartPointer
+            );
+            Gl.EnableVertexAttribArray(element.Plot);
+        }
     }
 
     public void Bind()

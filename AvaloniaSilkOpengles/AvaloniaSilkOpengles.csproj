@@ -25,5 +25,6 @@
         <PackageReference Include="Silk.NET.OpenGLES" />
         <PackageReference Include="SimplexNoise" />
         <PackageReference Include="StbImageSharp" />
+        <PackageReference Include="System.Drawing.Common" />
     </ItemGroup>
 </Project>

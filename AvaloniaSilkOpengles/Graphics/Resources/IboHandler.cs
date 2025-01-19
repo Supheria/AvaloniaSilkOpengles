@@ -7,11 +7,11 @@ using static Avalonia.OpenGL.GlConsts;
 
 namespace AvaloniaSilkOpengles.Graphics.Resources;
 
-public sealed class IboHandler : ResourceHandler
+public sealed class EboHandler : ResourceHandler
 {
     public DrawElementsType ElementType { get; }
 
-    public IboHandler(
+    public EboHandler(
         GL gl,
         ICollection<uint> data,
         BufferUsageARB usage = BufferUsageARB.StaticDraw,

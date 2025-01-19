@@ -7,37 +7,21 @@ using StbImageSharp;
 
 namespace AvaloniaSilkOpengles.World;
 
-public sealed class Chunk
+public sealed class Chunk : RenderableObject
 {
     const int SizeOfChunk = 16;
     const int HeightOfChunk = 32;
-    GL Gl { get; }
     Block[,,] Blocks { get; } = new Block[SizeOfChunk, HeightOfChunk, SizeOfChunk];
-    // List<Vector3> Vertices { get; } = [];
-    // List<Vector2> Uvs { get; } = [];
-    // List<Vector3> Normals { get; } = [];
-    List<VertexUv> Vertices { get; } = [];
-    List<uint> Indices { get; } = [];
     uint IndexHead { get; set; }
     public Vector3 Position { get; }
-    VaoHandler? Vao { get; set; }
-
-    // VboHandler<Vector3>? VertexVbo { get; set; }
-    // VboHandler<Vector2>? UvVbo { get; set; }
-    // VboHandler<Vector3>? NormalVbo { get; set; }
-    VboHandler<VertexUv>? Vbo { get; set; }
-    IboHandler? Ibo { get; set; }
-    Texture2DHandler? Texture { get; set; }
-    Texture2DHandler? TextureSpecular { get; set; }
 
     public Chunk(GL gl, Vector3 position)
     {
-        Gl = gl;
         Position = position;
         var heightMap = GenerateHeightMap();
         GenerateBlocks(heightMap);
         GenerateBlockFaces();
-        Build();
+        Mesh = BuildMesh(gl, Vertices, Indices);
     }
 
     private float[,] GenerateHeightMap()
@@ -64,12 +48,12 @@ public sealed class Chunk
                 for (var y = 0; y < HeightOfChunk; y++)
                 {
                     var type = BlockType.Empty;
-                    if (y < columnHeight - 1)
-                        type = BlockType.Dirt;
-                    else if (y == columnHeight - 1)
-                        type = BlockType.Grass;
-                    // if (y <= columnHeight - 1)
-                    //     type = BlockType.TestBlock;
+                    // if (y < columnHeight - 1)
+                    //     type = BlockType.Dirt;
+                    // else if (y == columnHeight - 1)
+                    //     type = BlockType.Grass;
+                    if (y <= columnHeight - 1)
+                        type = BlockType.TestBlock;
                     var position = new Vector3(x, y, z);
                     Blocks[x, y, z] = new Block(position, type);
                 }
@@ -166,50 +150,15 @@ public sealed class Chunk
         IndexHead += 4;
     }
 
-    private void Build()
+    private static Mesh BuildMesh(GL gl, List<Vertex> vertices, List<uint> indices)
     {
-        Vao = new(Gl);
-        Vbo = new(Gl, Vertices);
-        Ibo = new(Gl, Indices);
-        
-        Vao.Link(Vbo, 0, VertexElement.Position);
-        Vao.Link(Vbo, 1, VertexElement.Normal);
-        Vao.Link(Vbo, 2, VertexElement.Uv);
-
-        Texture = new(Gl, "atlas", 0);
-        // Texture = new(Gl, "planks", 0);
-        // TextureSpecular = new(Gl, "planksSpec", 1, PixelFormat.Rgba);
-    }
-
-    public unsafe void Render(ShaderHandler shader)
-    {
-        shader.SetTexture(Texture);
-        shader.SetTexture(TextureSpecular);
-        Texture?.Bind();
-        TextureSpecular?.Bind();
-
-        Vao?.Bind();
-        Ibo?.Bind();
-
-        Gl.DrawElements(
-            PrimitiveType.Triangles,
-            (uint)Indices.Count,
-            DrawElementsType.UnsignedInt,
-            null
-        );
-
-        // shader.Unbind();
-        Vao?.Unbind();
-        Ibo?.Unbind();
-        Texture?.Unbind();
-        TextureSpecular?.Unbind();
-    }
-
-    public void Delete()
-    {
-        Vao?.Delete();
-        Vbo?.Delete();
-        Ibo?.Delete();
-        Texture?.Delete();
+        var diffuse = new Texture2DHandler(gl, "planks", TextureType.Diffuse, 0);
+        var specular = new Texture2DHandler(gl, "planksSpec", TextureType.Specular, 1);
+        var textures = new List<Texture2DHandler>
+        {
+            diffuse,
+            specular,
+        };
+        return new Mesh(gl, vertices, indices, textures);
     }
 }

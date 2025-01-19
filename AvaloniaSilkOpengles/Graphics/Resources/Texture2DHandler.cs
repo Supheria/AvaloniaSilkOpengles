@@ -1,3 +1,4 @@
+using System;
 using Avalonia.Media.Imaging;
 using Avalonia.OpenGL;
 using Avalonia.Skia;
@@ -5,18 +6,21 @@ using AvaloniaSilkOpengles.Assets.Textures;
 using Silk.NET.OpenGLES;
 using SkiaSharp;
 using StbImageSharp;
+using Bitmap = System.Drawing.Bitmap;
 
 namespace AvaloniaSilkOpengles.Graphics.Resources;
 
 public class Texture2DHandler : ResourceHandler
 {
-    public int Unit { get; }
     public string TextureName { get; }
+    public TextureType Type {get;}
+    public int Unit { get; }
 
-    public Texture2DHandler(GL gl, string textureName, int unit)
+    public Texture2DHandler(GL gl, string textureName, TextureType type, int unit)
         : base(gl)
     {
         TextureName = textureName;
+        Type = type;
         Unit = unit;
         Handle = Load(gl, textureName, unit);
     }

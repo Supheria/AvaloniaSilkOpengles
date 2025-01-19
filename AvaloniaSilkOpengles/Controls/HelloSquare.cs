@@ -133,7 +133,7 @@ public unsafe class HelloSquare : OpenGlControlBase, ICustomHitTest
 
     protected override void OnOpenGlRender(GlInterface gl, int fb)
     {
-        if (Gl is null || ChunkShader is null || Camera is null)
+        if (Gl is null || ChunkShader is null || LightShader is null || Camera is null)
             return;
 
         CheckSettings(Gl);
@@ -152,21 +152,23 @@ public unsafe class HelloSquare : OpenGlControlBase, ICustomHitTest
         // Shader.SetMatrix(gl, "model", sca * trans);
 
         // var model = Matrix4x4.Identity;
-        var view = Camera.GetViewMatrix();
-        var projection = Camera.GetProjectionMatrix();
+        // var view = Camera.GetViewMatrix();
+        // var projection = Camera.GetProjectionMatrix();
+        var cameraMatrix = Camera.GetMatrix();
         
         var lightColor = new Vector4(1.0f, 1.0f, 1.0f, 1.0f);
         // var lightPos = new Vector3(0.5f, 0.5f, 0.5f);
         var lightPos = new Vector3(10f, 8f, 5f);
         var lightModel = Matrix4x4.CreateScale(new Vector3(0.05f, 0.05f, 0.05f)) * Matrix4x4.CreateTranslation(lightPos);
 
-        LightShader?.Bind();
-        LightShader?.SetMatrix("view", view);
-        LightShader?.SetMatrix("projection", projection);
-        LightShader?.SetMatrix("model", lightModel);
-        LightShader?.SetVector4("lightColor", lightColor);
+        LightShader.Use();
+        // LightShader?.SetMatrix("view", view);
+        // LightShader?.SetMatrix("projection", projection);
+        // LightShader?.SetMatrix("camMatrix", cameraMatrix);
+        LightShader.SetMatrix("model", lightModel);
+        LightShader.SetVector4("lightColor", lightColor);
 
-        LightCube?.Render();
+        LightCube?.Render(LightShader, Camera);
 
         var rotationX = Matrix4x4.CreateRotationX(RotationX);
         var rotationY = Matrix4x4.CreateRotationY(RotationY);
@@ -175,16 +177,17 @@ public unsafe class HelloSquare : OpenGlControlBase, ICustomHitTest
         // RotationX += 0.005f;
         // RotationY += 0.005f;
 
-        ChunkShader.Bind();
+        ChunkShader.Use();
         ChunkShader.SetMatrix("model", model);
-        ChunkShader.SetMatrix("view", view);
-        ChunkShader.SetMatrix("projection", projection);
+        // ChunkShader.SetMatrix("view", view);
+        // ChunkShader.SetMatrix("projection", projection);
+        // ChunkShader.SetMatrix("camMatrix", cameraMatrix);
         ChunkShader.SetVector4("lightColor", lightColor);
         ChunkShader.SetVector3("lightPos", lightPos);
-        ChunkShader.SetVector3("camPos", Camera.Position);
+        // ChunkShader.SetVector3("camPos", Camera.Position);
 
         // ChunkShader.SetVector3("light_direct", new(0, 0, 1));
-        Chunk?.Render(ChunkShader);
+        Chunk?.Render(ChunkShader, Camera);
 
         OnFrameUpdate();
     }

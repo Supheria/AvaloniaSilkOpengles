@@ -48,15 +48,15 @@ public sealed unsafe class ShaderHandler : ResourceHandler
         return handle;
     }
 
-    public void Bind()
+    public void Use()
     {
         Gl.UseProgram(Handle);
     }
 
-    public void Unbind()
-    {
-        Gl.UseProgram(0);
-    }
+    // public void Unbind()
+    // {
+    //     Gl.UseProgram(0);
+    // }
 
     public void Delete()
     {
@@ -84,11 +84,10 @@ public sealed unsafe class ShaderHandler : ResourceHandler
         ];
     }
 
-    public void SetTexture(Texture2DHandler? texture)
+    public void SetTexture(Texture2DHandler? texture, string uniformName)
     {
         if (texture is null)
             return;
-        var uniformName = $"tex{texture.Unit}";
         var location = Gl.GetUniformLocation(Handle, uniformName);
         Gl.Uniform1(location, texture.Unit);
     }

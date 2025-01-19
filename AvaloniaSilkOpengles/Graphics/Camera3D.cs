@@ -25,27 +25,39 @@ public sealed class Camera3D
         Height = (float)size.Height;
         Position = position;
     }
-    
+
     public void SetSize(Size size)
     {
         Width = (float)size.Width;
         Height = (float)size.Height;
     }
 
-    public Matrix4x4 GetViewMatrix()
-    {
-        return Matrix4x4.CreateLookAt(Position, Position + Front, Up);
-    }
+    // public Matrix4x4 GetViewMatrix()
+    // {
+    //     return Matrix4x4.CreateLookAt(Position, Position + Front, Up);
+    // }
 
-    public Matrix4x4 GetProjectionMatrix()
+    // public Matrix4x4 GetProjectionMatrix()
+    // {
+    //     var projection = Matrix4x4.CreatePerspectiveFieldOfView(
+    //         float.DegreesToRadians(45.0f),
+    //         Width / Height,
+    //         0.1f,
+    //         100.0f
+    //     );
+    //     return projection;
+    // }
+
+    public Matrix4x4 GetMatrix()
     {
-        var projection = Matrix4x4.CreatePerspectiveFieldOfView(
+        var view = Matrix4x4.CreateLookAt(Position, Position + Front, Up);
+        var project = Matrix4x4.CreatePerspectiveFieldOfView(
             float.DegreesToRadians(45.0f),
             Width / Height,
             0.1f,
             100.0f
         );
-        return projection;
+        return view * project;
     }
 
     public void InputController(KeyEventArgs? keyState, Vector2 pointerPostionDiff)

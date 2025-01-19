@@ -7,23 +7,16 @@ using Silk.NET.OpenGLES;
 
 namespace AvaloniaSilkOpengles.World;
 
-public sealed class LightCube
+public sealed class LightCube : RenderableObject
 {
-    GL Gl { get; }
-    List<VertexSingle> Vertices { get; } = [];
-    List<uint> Indices { get; } = [];
     uint IndexHead { get; set; }
     public Vector3 Position { get; set; }
-    VaoHandler? Vao { get; set; }
-    VboHandler<VertexSingle>? VertexVbo { get; set; }
-    IboHandler? Ibo { get; set; }
 
     public LightCube(GL gl, Vector3 position)
     {
-        Gl = gl;
         Position = position;
         GenerateFaces();
-        Build();
+        Mesh = new(gl, Vertices, Indices, []);
     }
 
     private void GenerateFaces()
@@ -38,7 +31,23 @@ public sealed class LightCube
 
     private void AddFace(Face face)
     {
-        var vertices = VertexData.Coords[face].Select(v => new VertexSingle(v + Position));
+        var coords = VertexData.Coords[face].Select(c => c + Position);
+        var vertices = new List<Vertex>();
+        switch (face)
+        {
+            case Face.Front:
+                vertices.AddRange(coords.Select(c => new Vertex(c, new(1.0f, 0.0f, 0.0f))));
+                break;
+            case Face.Right:
+                vertices.AddRange(coords.Select(c => new Vertex(c, new(0.0f, 1.0f, 0.0f))));
+                break;
+            case Face.Top:
+                vertices.AddRange(coords.Select(c => new Vertex(c, new(0.0f, 0.0f, 1.0f))));
+                break;
+            default:
+                vertices.AddRange(coords.Select(c => new Vertex(c, new(1.0f, 1.0f, 1.0f))));
+                break;
+        }
         Vertices.AddRange(vertices);
         Indices.AddRange(
             [
@@ -51,38 +60,5 @@ public sealed class LightCube
             ]
         );
         IndexHead += 4;
-    }
-
-    private void Build()
-    {
-        Vao = new(Gl);
-        VertexVbo = new(Gl, Vertices);
-        Ibo = new(Gl, Indices);
-
-        Vao.Link(VertexVbo, 0, VertexElement.Position);
-    }
-
-    public unsafe void Render()
-    {
-        Vao?.Bind();
-        Ibo?.Bind();
-
-        Gl.DrawElements(
-            PrimitiveType.Triangles,
-            (uint)Indices.Count,
-            DrawElementsType.UnsignedInt,
-            null
-        );
-
-        // shader.Unbind();
-        Vao?.Unbind();
-        Ibo?.Unbind();
-    }
-
-    public void Delete()
-    {
-        Vao?.Delete();
-        VertexVbo?.Delete();
-        Ibo?.Delete();
     }
 }

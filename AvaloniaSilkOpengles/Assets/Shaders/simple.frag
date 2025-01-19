@@ -5,15 +5,15 @@ precision highp float;
 // RGBA
 out vec4 FragColor;
 
-in vec2 texCoord;
-in vec3 normal;
 in vec3 currentPos;
+in vec3 normal;
+in vec2 texCoord;
 
 uniform vec3 lightPos;
 uniform vec3 camPos;
 uniform vec4 lightColor;
-uniform sampler2D tex0;
-uniform sampler2D tex1;
+uniform sampler2D diffuse0;
+uniform sampler2D specular0;
 
 vec4 point_light();
 vec4 direct_light();
@@ -52,9 +52,9 @@ vec4 point_light()
     float specAmount = pow(max(dot(viewDirection, reflectionDirection), 0.0f), 16.0f);
     float specular = specAmount * specularLight;
 
-    vec4 texColor = texture(tex0, texCoord);
-    vec4 specColor = texture(tex1, texCoord);
-    vec4 fragment = (texColor * (diffuse * inten + ambient) + specColor.r * specular * inten) * lightColor;
+    vec4 texColor = texture(diffuse0, texCoord);
+    vec4 specColor = texture(specular0, texCoord);
+    vec4 fragment = (texColor * (diffuse * inten + ambient) + specColor * specular * inten) * lightColor;
     return vec4(fragment.rgb, 1.0f);
 }
 
@@ -71,9 +71,9 @@ vec4 direct_light()
     float specAmount = pow(max(dot(viewDirection, reflectionDirection), 0.0f), 16.0f);
     float specular = specAmount * specularLight;
 
-    vec4 texColor = texture(tex0, texCoord);
-    vec4 specColor = texture(tex1, texCoord);
-    vec4 fragment = (texColor * (diffuse + ambient) + specColor.r * specular) * lightColor;
+    vec4 texColor = texture(diffuse0, texCoord);
+    vec4 specColor = texture(specular0, texCoord);
+    vec4 fragment = (texColor * (diffuse + ambient) + specColor * specular) * lightColor;
     return vec4(fragment.rgb, 1.0f);
 }
 
@@ -96,8 +96,8 @@ vec4 spot_light()
     float angle = dot(vec3(0.0f, -1.0f, 0.0f), -lightDirection);
     float inten = clamp((angle - outerCone) / (innerCone - outerCone), 0.0f, 1.0f);
 
-    vec4 texColor = texture(tex0, texCoord);
-    vec4 specColor = texture(tex1, texCoord);
-    vec4 fragment = (texColor * (diffuse * inten + ambient) + specColor.r * specular * inten) * lightColor;
+    vec4 texColor = texture(diffuse0, texCoord);
+    vec4 specColor = texture(specular0, texCoord);
+    vec4 fragment = (texColor * (diffuse * inten + ambient) + specColor * specular * inten) * lightColor;
     return vec4(fragment.rgb, 1.0f);
 }
