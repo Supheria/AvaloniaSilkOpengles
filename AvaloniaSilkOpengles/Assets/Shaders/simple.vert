@@ -16,11 +16,16 @@ out vec2 texCoord;
 uniform mat4 camMatrix;
 uniform mat4 model;
 //uniform mat4 view;
+uniform mat4 translation;
+uniform mat4 rotation;
+uniform mat4 scale;
 
 void main()
 {
-    currentPos = vec3(model * vec4(aPos, 1.0f));
-    normal = normalize((model * vec4(floor(aNormal), 0.0f)).xyz);
+    mat4 trans = model * translation * rotation * scale;
+    currentPos = vec3(trans * vec4(aPos, 1.0f));
+//    normal = normalize((trans * vec4(floor(aNormal), 0.0f)).xyz);
+    normal = normalize(aNormal);
     texCoord = aTex;
     
 //    gl_Position = projection * view * vec4(currentPos, 1.0f);

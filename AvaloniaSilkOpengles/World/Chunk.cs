@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Numerics;
+using AvaloniaSilkOpengles.Assets.Textures;
 using AvaloniaSilkOpengles.Graphics;
 using AvaloniaSilkOpengles.Graphics.Resources;
 using Silk.NET.OpenGLES;
@@ -152,12 +153,16 @@ public sealed class Chunk : RenderableObject
 
     private static Mesh BuildMesh(GL gl, List<Vertex> vertices, List<uint> indices)
     {
-        var diffuse = new Texture2DHandler(gl, "planks", TextureType.Diffuse, 0);
-        var specular = new Texture2DHandler(gl, "planksSpec", TextureType.Specular, 1);
+        using var source1 = TextureRead.Read("planks");
+        using var source2 = TextureRead.Read("planksSpec");
+        // var texture = ImageResult.FromStream(source1, ColorComponents.RedGreenBlueAlpha);
+        var diffuse = new Texture2DHandler(gl, source1, TextureType.Diffuse, 0);
+        // texture = ImageResult.FromStream(source2, ColorComponents.RedGreenBlueAlpha);
+        var specular = new Texture2DHandler(gl, source2, TextureType.Specular, 1);
         var textures = new List<Texture2DHandler>
         {
-            diffuse,
-            specular,
+            diffuse, 
+            specular
         };
         return new Mesh(gl, vertices, indices, textures);
     }

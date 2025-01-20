@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Numerics;
 using AvaloniaSilkOpengles.Graphics.Resources;
 using AvaloniaSilkOpengles.World;
 using Silk.NET.OpenGLES;
@@ -43,7 +44,7 @@ public unsafe class Mesh
             texture.Delete();
     }
 
-    public void Render(ShaderHandler shader, Camera3D camera)
+    public void Render(ShaderHandler shader, Camera3D camera, Vector3 scale, Quaternion rotation, Vector3 translation, Matrix4x4 matrix)
     {
         Vao.Bind();
         Ebo.Bind();
@@ -67,6 +68,15 @@ public unsafe class Mesh
         }
         shader.SetVector3("camPos", camera.Position);
         shader.SetMatrix("camMatrix", camera.GetMatrix());
+        
+        var scaleMatrix = Matrix4x4.CreateScale(scale);
+        var rotationMatrix = Matrix4x4.CreateFromQuaternion(rotation);
+        var translationMatrix = Matrix4x4.CreateTranslation(translation);
+        
+        shader.SetMatrix("scale", scaleMatrix);
+        shader.SetMatrix("rotation", rotationMatrix);
+        shader.SetMatrix("translation", translationMatrix);
+        shader.SetMatrix("model", matrix);
 
         Gl.DrawElements(
             PrimitiveType.Triangles,

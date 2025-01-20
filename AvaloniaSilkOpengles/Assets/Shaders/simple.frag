@@ -21,6 +21,7 @@ vec4 spot_light();
 
 void main()
 {
+//    FragColor = vec4(texture(diffuse0, texCoord).r, 0.0, 0.0, 1.0);
     FragColor = point_light();
 //    FragColor = direct_light();
 //    FragColor = spot_light();
@@ -54,7 +55,7 @@ vec4 point_light()
 
     vec4 texColor = texture(diffuse0, texCoord);
     vec4 specColor = texture(specular0, texCoord);
-    vec4 fragment = (texColor * (diffuse * inten + ambient) + specColor * specular * inten) * lightColor;
+    vec4 fragment = (texColor * (diffuse * inten + ambient) + specColor.r * specular * inten) * lightColor;
     return vec4(fragment.rgb, 1.0f);
 }
 
@@ -73,7 +74,7 @@ vec4 direct_light()
 
     vec4 texColor = texture(diffuse0, texCoord);
     vec4 specColor = texture(specular0, texCoord);
-    vec4 fragment = (texColor * (diffuse + ambient) + specColor * specular) * lightColor;
+    vec4 fragment = (texColor * (diffuse + ambient) + specColor.r * specular) * lightColor;
     return vec4(fragment.rgb, 1.0f);
 }
 
@@ -98,6 +99,6 @@ vec4 spot_light()
 
     vec4 texColor = texture(diffuse0, texCoord);
     vec4 specColor = texture(specular0, texCoord);
-    vec4 fragment = (texColor * (diffuse * inten + ambient) + specColor * specular * inten) * lightColor;
+    vec4 fragment = (texColor * (diffuse * inten + ambient) + specColor.r * specular * inten) * lightColor;
     return vec4(fragment.rgb, 1.0f);
 }
