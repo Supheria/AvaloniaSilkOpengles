@@ -40,8 +40,10 @@ public class Model
         TraverseNode(0, Matrix4x4.Identity);
     }
 
-    public void Render(ShaderHandler shader, Camera3D camera)
+    public void Render(ShaderHandler? shader, Camera3D? camera)
     {
+        if (shader is null || camera is null)
+            return;
         for (var i = 0; i < Meshes.Count; i++)
         {
             var mesh = Meshes[i];

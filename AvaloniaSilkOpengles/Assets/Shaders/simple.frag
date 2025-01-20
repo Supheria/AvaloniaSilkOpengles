@@ -30,10 +30,10 @@ void main()
 {
     float depth = logisticDepth(gl_FragCoord.z);
 //    FragColor = vec4(texture(diffuse0, texCoord).r, 0.0, 0.0, 1.0);
-    FragColor = direct_light() * (1.0f - depth) + vec4(depth * backGround.rgb, 1.0f);   
+//    FragColor = direct_light() * (1.0f - depth) + vec4(depth * backGround.rgb, 1.0f);   
     
 //    FragColor = point_light();
-//    FragColor = direct_light();
+    FragColor = direct_light();
 //    FragColor = spot_light();
 }
 

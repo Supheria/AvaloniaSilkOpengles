@@ -83,6 +83,12 @@ public sealed unsafe class ShaderHandler : ResourceHandler
             matrix.M41, matrix.M42, matrix.M43, matrix.M44
         ];
     }
+    
+    public void SetValue(string uniformName, float value)
+    {
+        var location = Gl.GetUniformLocation(Handle, uniformName);
+        Gl.Uniform1(location, value);
+    }
 
     public void SetTexture(Texture2DHandler? texture, string uniformName)
     {

@@ -25,9 +25,11 @@ public unsafe class HelloSquare : OpenGlControlBase, ICustomHitTest
     Chunk? Chunk { get; set; }
     Model? Model1 { get; set; }
     Model? Model2 { get; set; }
-    Model? Model3 { get; set; }
+    Model? Crow { get; set; }
+    Model? CrowOutline { get; set; }
     ShaderHandler? LightShader { get; set; }
-    ShaderHandler? ChunkShader { get; set; }
+    ShaderHandler? SimpleShader { get; set; }
+    ShaderHandler? OutlineShader { get; set; }
     Camera3D? Camera { get; set; }
     PixelSize ViewPortSize { get; set; }
     float RotationX { get; set; }
@@ -90,18 +92,22 @@ public unsafe class HelloSquare : OpenGlControlBase, ICustomHitTest
         LightCube = new(Gl, new());
         Chunk = new(Gl, new());
         Model1 = new(Gl, new ModelRead("trees"));
-        // Model1 = new(Gl, @"C:\Users\ZhuanZ\Desktop\test\test.gltf");
         Model2 = new(Gl, new ModelRead("ground"));
-        // Model3 = new(Gl, @"C:\Users\ZhuanZ\Desktop\opengl-tutorials-main\Resources\YoutubeOpenGL 13 - Model Loading\models\grindstone\scene.gltf");
+        Crow = new(Gl, new ModelRead("crow"));
+        CrowOutline = new(Gl, new ModelRead("crow-outline"));
 
         LightShader = new(Gl, "light");
-        ChunkShader = new(Gl, "simple");
+        SimpleShader = new(Gl, "simple");
+        OutlineShader = new(Gl, "outline");
 
         Camera = new(Bounds.Size, Vector3.Zero);
         // Camera = new(Bounds.Size, new(10, 10, 10));
 
         Gl.Enable(EnableCap.DepthTest);
         Gl.DepthFunc(DepthFunction.Less);
+
+        Gl.Enable(EnableCap.StencilTest);
+        Gl.StencilOp(StencilOp.Keep, StencilOp.Keep, StencilOp.Replace);
 
         // Gl.FrontFace(FrontFaceDirection.CW);
         // Gl.Enable(EnableCap.CullFace);
@@ -118,7 +124,7 @@ public unsafe class HelloSquare : OpenGlControlBase, ICustomHitTest
         LightCube?.Delete();
         Chunk?.Delete();
 
-        ChunkShader?.Delete();
+        SimpleShader?.Delete();
         LightShader?.Delete();
 
         Gl?.Dispose();
@@ -143,7 +149,7 @@ public unsafe class HelloSquare : OpenGlControlBase, ICustomHitTest
 
     protected override void OnOpenGlRender(GlInterface gl, int fb)
     {
-        if (Gl is null || ChunkShader is null || LightShader is null || Camera is null)
+        if (Gl is null || SimpleShader is null || LightShader is null || Camera is null)
             return;
 
         CheckSettings(Gl);
@@ -152,7 +158,11 @@ public unsafe class HelloSquare : OpenGlControlBase, ICustomHitTest
         // Gl.ClearColor(0, 0, 0, 1);
         var backGround = new Vector4(0.85f, 0.85f, 0.90f, 1.0f);
         Gl.ClearColor(backGround.X, backGround.Y, backGround.Z, backGround.W);
-        Gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+        Gl.Clear(
+            ClearBufferMask.ColorBufferBit
+                | ClearBufferMask.DepthBufferBit
+                | ClearBufferMask.StencilBufferBit
+        );
 
         // var position = Bounds.Center;
         // var scale = new Vector2(150, 100);
@@ -205,21 +215,36 @@ public unsafe class HelloSquare : OpenGlControlBase, ICustomHitTest
         // RotationY += 0.001f;
         // RotationZ += 0.001f;
 
-        ChunkShader.Use();
+        SimpleShader.Use();
         // ChunkShader.SetMatrix("model", model);
         // ChunkShader.SetMatrix("view", view);
         // ChunkShader.SetMatrix("projection", projection);
         // ChunkShader.SetMatrix("camMatrix", cameraMatrix);
-        ChunkShader.SetVector4("lightColor", lightColor);
-        ChunkShader.SetVector3("lightPos", lightPos);
-        ChunkShader.SetVector4("backGround", backGround);
+        SimpleShader.SetVector4("lightColor", lightColor);
+        SimpleShader.SetVector3("lightPos", lightPos);
+        SimpleShader.SetVector4("backGround", backGround);
         // ChunkShader.SetVector3("camPos", Camera.Position);
+
+        Gl.StencilFunc(StencilFunction.Always, 1, 0XFF);
+        Gl.StencilMask(0xFF);
 
         // ChunkShader.SetVector3("light_direct", new(0, 0, 1));
         // Chunk?.Render(ChunkShader, Camera, Vector3.One, rotation, translation, Matrix4x4.Identity);
-        Model1?.Render(ChunkShader, Camera);
-        Model2?.Render(ChunkShader, Camera);
-        Model3?.Render(ChunkShader, Camera);
+        // Model1?.Render(SimpleShader, Camera);
+        // Model2?.Render(SimpleShader, Camera);
+        Crow?.Render(SimpleShader, Camera);
+
+        Gl.StencilFunc(StencilFunction.Notequal, 1, 0XFF);
+        Gl.StencilMask(0x00);
+        Gl.Disable(EnableCap.DepthTest);
+
+        OutlineShader?.Use();
+        OutlineShader?.SetValue("outlining", 0.08f);
+        CrowOutline?.Render(OutlineShader, Camera);
+
+        Gl.StencilMask(0xFF);
+        Gl.StencilFunc(StencilFunction.Always, 0, 0XFF);
+        Gl.Enable(EnableCap.DepthTest);
 
         OnFrameUpdate();
     }

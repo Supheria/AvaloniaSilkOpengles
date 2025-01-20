@@ -12,10 +12,8 @@ out vec3 currentPos;
 out vec3 normal;
 out vec2 texCoord;
 
-//uniform mat4 projection;
 uniform mat4 camMatrix;
 uniform mat4 model;
-//uniform mat4 view;
 uniform mat4 translation;
 uniform mat4 rotation;
 uniform mat4 scale;
