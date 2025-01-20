@@ -8,6 +8,7 @@ using Avalonia.Input;
 using Avalonia.OpenGL;
 using Avalonia.OpenGL.Controls;
 using Avalonia.Rendering;
+using AvaloniaSilkOpengles.Assets.Models;
 using AvaloniaSilkOpengles.Graphics;
 using AvaloniaSilkOpengles.Graphics.Resources;
 using AvaloniaSilkOpengles.World;
@@ -88,9 +89,10 @@ public unsafe class HelloSquare : OpenGlControlBase, ICustomHitTest
 
         LightCube = new(Gl, new());
         Chunk = new(Gl, new());
-        Model1 = new(Gl, @"C:\Users\ZhuanZ\Desktop\opengl-tutorials-main\Resources\YoutubeOpenGL 13 - Model Loading\models\sword\scene.gltf");
-        Model2 = new(Gl, @"C:\Users\ZhuanZ\Desktop\opengl-tutorials-main\Resources\YoutubeOpenGL 13 - Model Loading\models\scroll\scene.gltf");
-        Model3 = new(Gl, @"C:\Users\ZhuanZ\Desktop\opengl-tutorials-main\Resources\YoutubeOpenGL 13 - Model Loading\models\grindstone\scene.gltf");
+        Model1 = new(Gl, new ModelRead("trees"));
+        // Model1 = new(Gl, @"C:\Users\ZhuanZ\Desktop\test\test.gltf");
+        Model2 = new(Gl, new ModelRead("ground"));
+        // Model3 = new(Gl, @"C:\Users\ZhuanZ\Desktop\opengl-tutorials-main\Resources\YoutubeOpenGL 13 - Model Loading\models\grindstone\scene.gltf");
 
         LightShader = new(Gl, "light");
         ChunkShader = new(Gl, "simple");
@@ -99,6 +101,7 @@ public unsafe class HelloSquare : OpenGlControlBase, ICustomHitTest
         // Camera = new(Bounds.Size, new(10, 10, 10));
 
         Gl.Enable(EnableCap.DepthTest);
+        Gl.DepthFunc(DepthFunction.Less);
 
         // Gl.FrontFace(FrontFaceDirection.CW);
         // Gl.Enable(EnableCap.CullFace);
@@ -146,7 +149,9 @@ public unsafe class HelloSquare : OpenGlControlBase, ICustomHitTest
         CheckSettings(Gl);
         // gl.Viewport(0, 0, ViewPortSize.Width, ViewPortSize.Height);
 
-        Gl.ClearColor(0, 0, 0, 1);
+        // Gl.ClearColor(0, 0, 0, 1);
+        var backGround = new Vector4(0.85f, 0.85f, 0.90f, 1.0f);
+        Gl.ClearColor(backGround.X, backGround.Y, backGround.Z, backGround.W);
         Gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
         // var position = Bounds.Center;
@@ -163,10 +168,12 @@ public unsafe class HelloSquare : OpenGlControlBase, ICustomHitTest
         // var projection = Camera.GetProjectionMatrix();
         var cameraMatrix = Camera.GetMatrix();
 
+        // var lightColor = new Vector4(1.0f, 0.8f, 0.6f, 1.0f);
         var lightColor = new Vector4(1.0f, 1.0f, 1.0f, 1.0f);
         // var lightPos = new Vector3(0.5f, 0.5f, 0.5f);
+        var lightPos = new Vector3(3.0f, 4.0f, -3.0f);
         // var lightPos = new Vector3(10f, 8f, 5f);
-        var lightPos = new Vector3(-8f, 25f, -15f);
+        // var lightPos = new Vector3(-8f, 25f, -15f);
         // var lightModel =
         //     Matrix4x4.CreateScale(new Vector3(0.05f, 0.05f, 0.05f))
         //     * Matrix4x4.CreateTranslation(lightPos);
@@ -179,7 +186,14 @@ public unsafe class HelloSquare : OpenGlControlBase, ICustomHitTest
         // LightShader.SetMatrix("model", lightModel);
         LightShader.SetVector4("lightColor", lightColor);
 
-        LightCube?.Render(LightShader, Camera, scale, Quaternion.Identity, lightPos, Matrix4x4.Identity);
+        LightCube?.Render(
+            LightShader,
+            Camera,
+            scale,
+            Quaternion.Identity,
+            lightPos,
+            Matrix4x4.Identity
+        );
 
         var rotationX = Matrix4x4.CreateRotationX(RotationX);
         var rotationY = Matrix4x4.CreateRotationY(RotationY);
@@ -198,6 +212,7 @@ public unsafe class HelloSquare : OpenGlControlBase, ICustomHitTest
         // ChunkShader.SetMatrix("camMatrix", cameraMatrix);
         ChunkShader.SetVector4("lightColor", lightColor);
         ChunkShader.SetVector3("lightPos", lightPos);
+        ChunkShader.SetVector4("backGround", backGround);
         // ChunkShader.SetVector3("camPos", Camera.Position);
 
         // ChunkShader.SetVector3("light_direct", new(0, 0, 1));

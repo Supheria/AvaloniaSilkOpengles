@@ -12,19 +12,42 @@ in vec2 texCoord;
 uniform vec3 lightPos;
 uniform vec3 camPos;
 uniform vec4 lightColor;
+uniform vec4 backGround;
 uniform sampler2D diffuse0;
 uniform sampler2D specular0;
 
 vec4 point_light();
 vec4 direct_light();
 vec4 spot_light();
+float linearizeDepth(float depth);
+float logisticDepth(float depth);
+
+
+float near = 0.1f;
+float far = 100.0f;
 
 void main()
 {
+    float depth = logisticDepth(gl_FragCoord.z);
 //    FragColor = vec4(texture(diffuse0, texCoord).r, 0.0, 0.0, 1.0);
-    FragColor = point_light();
+    FragColor = direct_light() * (1.0f - depth) + vec4(depth * backGround.rgb, 1.0f);   
+    
+//    FragColor = point_light();
 //    FragColor = direct_light();
 //    FragColor = spot_light();
+}
+
+float linearizeDepth(float depth)
+{
+    return (2.0f * near * far) / (far + near - (depth * 2.0f - 1.0f) * (far - near));
+}
+
+float logisticDepth(float depth)
+{
+    float steepness = 0.5f;
+    float offset = 5.0f;
+    float zVal = linearizeDepth(depth);
+    return (1.0f / (1.0f + exp(-steepness * (zVal - offset))));
 }
 
 vec4 point_light()

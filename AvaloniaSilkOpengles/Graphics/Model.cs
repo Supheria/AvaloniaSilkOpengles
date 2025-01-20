@@ -5,6 +5,7 @@ using System.Linq;
 using System.Numerics;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using AvaloniaSilkOpengles.Assets.Models;
 using AvaloniaSilkOpengles.Graphics.Resources;
 using Silk.NET.Maths;
 using Silk.NET.OpenGLES;
@@ -15,9 +16,9 @@ namespace AvaloniaSilkOpengles.Graphics;
 public class Model
 {
     GL Gl { get; }
+    ModelRead ModelRead { get; }
     JsonNode JSON { get; }
     byte[] Data { get; }
-    string DirectoryName { get; }
     Dictionary<string, Texture2DHandler> LoadedTextures { get; } = [];
     List<Mesh> Meshes { get; } = [];
     List<Vector3> Translations { get; } = [];
@@ -25,11 +26,11 @@ public class Model
     List<Vector3> Scales { get; } = [];
     List<Matrix4x4> Matrices { get; } = [];
 
-    public Model(GL gl, string fileName)
+    public Model(GL gl, ModelRead modelRead)
     {
         Gl = gl;
-        DirectoryName = Path.GetDirectoryName(fileName) ?? "";
-        var json = File.ReadAllText(fileName);
+        ModelRead = modelRead;
+        var json = modelRead.ReadFile("scene.gltf");
         var array = JsonSerializer.Deserialize<JsonNode>(json);
         JSON = array ?? new JsonObject();
 
@@ -51,9 +52,10 @@ public class Model
     private byte[] GetData()
     {
         var uri = (JSON?["buffers"]?[0]?["uri"] ?? string.Empty).ToString();
-        var path = Path.Combine(DirectoryName, uri);
-
-        return File.ReadAllBytes(path);
+        using var stream = ModelRead.ReadFile(uri);
+        using var buffer = new MemoryStream();
+        stream.CopyTo(buffer);
+        return buffer.ToArray();
     }
 
     private void TraverseNode(int nextNode, Matrix4x4 matrix)
@@ -104,11 +106,11 @@ public class Model
                 }
             }
         }
-        var transMatrix = Matrix4x4.CreateTranslation(translation);
+        var translationMatrix = Matrix4x4.CreateTranslation(translation);
         var rotationMatrix = Matrix4x4.CreateFromQuaternion(rotation);
         var scaleMatrix = Matrix4x4.CreateScale(scale);
         // var childMatrix = matrix * mat * transMatrix * rotationMatrix * scaleMatrix;
-        var childMatrix = scaleMatrix * rotationMatrix * transMatrix * mat * matrix;
+        var childMatrix = scaleMatrix * rotationMatrix * translationMatrix * mat * matrix;
         var meshNode = node?["mesh"];
         if (meshNode is not null)
         {
@@ -279,10 +281,9 @@ public class Model
                 textures.Add(loaded);
                 continue;
             }
-            var path = Path.Combine(DirectoryName, name);
-            using var source = File.OpenRead(path);
+            using var source = ModelRead.ReadFile(name);
             // var texture = ImageResult.FromStream(source, ColorComponents.RedGreenBlueAlpha);
-            if (name.Contains("baseColor"))
+            if (name.Contains("baseColor") || name.Contains("diffuse"))
             {
                 var diffuse = new Texture2DHandler(
                     Gl,
@@ -293,7 +294,7 @@ public class Model
                 textures.Add(diffuse);
                 LoadedTextures.Add(name, diffuse);
             }
-            else if (name.Contains("metallicRoughness"))
+            else if (name.Contains("metallicRoughness") || name.Contains("specular"))
             {
                 var specular = new Texture2DHandler(
                     Gl,
