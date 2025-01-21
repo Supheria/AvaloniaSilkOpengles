@@ -50,6 +50,12 @@ public class Model
             mesh.Render(shader, camera, Scales[i], Rotations[i], Translations[i], Matrices[i]);
         }
     }
+    
+    public void Delete()
+    {
+        foreach (var mesh in Meshes)
+            mesh.Delete();
+    }
 
     private byte[] GetData()
     {

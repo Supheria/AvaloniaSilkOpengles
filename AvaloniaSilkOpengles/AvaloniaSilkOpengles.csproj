@@ -27,4 +27,10 @@
         <PackageReference Include="StbImageSharp" />
         <PackageReference Include="System.Drawing.Common" />
     </ItemGroup>
+
+    <ItemGroup>
+      <UpToDateCheckInput Remove="Assets\Models\statue\170516_mia337_032122_600_200Kfaces_8192px_OBJ_baseColor.jpg" />
+      <UpToDateCheckInput Remove="Assets\Models\statue\scene.bin" />
+      <UpToDateCheckInput Remove="Assets\Models\statue\scene.gltf" />
+    </ItemGroup>
 </Project>

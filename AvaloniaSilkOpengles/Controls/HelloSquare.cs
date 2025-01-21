@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -8,6 +9,7 @@ using Avalonia.Input;
 using Avalonia.OpenGL;
 using Avalonia.OpenGL.Controls;
 using Avalonia.Rendering;
+using Avalonia.Threading;
 using AvaloniaSilkOpengles.Assets.Models;
 using AvaloniaSilkOpengles.Graphics;
 using AvaloniaSilkOpengles.Graphics.Resources;
@@ -18,15 +20,15 @@ using Vector = Avalonia.Vector;
 
 namespace AvaloniaSilkOpengles.Controls;
 
-public unsafe class HelloSquare : OpenGlControlBase, ICustomHitTest
+public class HelloSquare : OpenGlControlBase, ICustomHitTest
 {
+    public EventHandler<FrameInfo> FrameInfoUpdated;
     GL? Gl { get; set; }
     LightCube? LightCube { get; set; }
     Chunk? Chunk { get; set; }
     Model? Model1 { get; set; }
     Model? Model2 { get; set; }
     Model? Crow { get; set; }
-    Model? CrowOutline { get; set; }
     ShaderHandler? LightShader { get; set; }
     ShaderHandler? SimpleShader { get; set; }
     ShaderHandler? OutlineShader { get; set; }
@@ -39,11 +41,19 @@ public unsafe class HelloSquare : OpenGlControlBase, ICustomHitTest
     Vector2 PointerPostionDiff { get; set; }
     Point LastPointerPostion { get; set; }
     bool Alpha { get; set; }
+    DispatcherTimer Timer { get; } = new();
+    DateTime lastFrameUpdateTime { get; set; }
+    DateTime PreviousTime { get; set; }
+    int FrameCount { get; set; }
+    FrameInfo FrameInfo { get; set; }
 
     public HelloSquare()
     {
         KeyDownEvent.AddClassHandler<TopLevel>(OnKeyDown, handledEventsToo: true);
         KeyUpEvent.AddClassHandler<TopLevel>((_, _) => KeyState = null, handledEventsToo: true);
+        Timer.Interval = TimeSpan.FromMilliseconds(10);
+        Timer.Tick += (_, _) => RequestNextFrameRendering();
+        Timer.Start();
     }
 
     private void OnKeyDown(TopLevel _, KeyEventArgs e)
@@ -94,7 +104,6 @@ public unsafe class HelloSquare : OpenGlControlBase, ICustomHitTest
         Model1 = new(Gl, new ModelRead("trees"));
         Model2 = new(Gl, new ModelRead("ground"));
         Crow = new(Gl, new ModelRead("crow"));
-        CrowOutline = new(Gl, new ModelRead("crow-outline"));
 
         LightShader = new(Gl, "light");
         SimpleShader = new(Gl, "simple");
@@ -106,12 +115,9 @@ public unsafe class HelloSquare : OpenGlControlBase, ICustomHitTest
         Gl.Enable(EnableCap.DepthTest);
         Gl.DepthFunc(DepthFunction.Less);
 
-        Gl.Enable(EnableCap.StencilTest);
-        Gl.StencilOp(StencilOp.Keep, StencilOp.Keep, StencilOp.Replace);
-
-        // Gl.FrontFace(FrontFaceDirection.CW);
-        // Gl.Enable(EnableCap.CullFace);
-        // Gl.CullFace(TriangleFace.Back);
+        Gl.FrontFace(FrontFaceDirection.Ccw);
+        Gl.Enable(EnableCap.CullFace);
+        Gl.CullFace(TriangleFace.Back);
 
         // Gl.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
         // Gl.Enable(EnableCap.Blend);
@@ -120,6 +126,10 @@ public unsafe class HelloSquare : OpenGlControlBase, ICustomHitTest
     protected override void OnOpenGlDeinit(GlInterface gl)
     {
         base.OnOpenGlDeinit(gl);
+
+        Model1?.Delete();
+        Model2?.Delete();
+        Crow?.Delete();
 
         LightCube?.Delete();
         Chunk?.Delete();
@@ -225,34 +235,33 @@ public unsafe class HelloSquare : OpenGlControlBase, ICustomHitTest
         SimpleShader.SetVector4("backGround", backGround);
         // ChunkShader.SetVector3("camPos", Camera.Position);
 
-        Gl.StencilFunc(StencilFunction.Always, 1, 0XFF);
-        Gl.StencilMask(0xFF);
-
         // ChunkShader.SetVector3("light_direct", new(0, 0, 1));
         // Chunk?.Render(ChunkShader, Camera, Vector3.One, rotation, translation, Matrix4x4.Identity);
-        // Model1?.Render(SimpleShader, Camera);
-        // Model2?.Render(SimpleShader, Camera);
+        Model1?.Render(SimpleShader, Camera);
+        Model2?.Render(SimpleShader, Camera);
         Crow?.Render(SimpleShader, Camera);
-
-        Gl.StencilFunc(StencilFunction.Notequal, 1, 0XFF);
-        Gl.StencilMask(0x00);
-        Gl.Disable(EnableCap.DepthTest);
-
-        OutlineShader?.Use();
-        OutlineShader?.SetValue("outlining", 0.08f);
-        CrowOutline?.Render(OutlineShader, Camera);
-
-        Gl.StencilMask(0xFF);
-        Gl.StencilFunc(StencilFunction.Always, 0, 0XFF);
-        Gl.Enable(EnableCap.DepthTest);
 
         OnFrameUpdate();
     }
 
     private void OnFrameUpdate()
     {
-        Camera?.InputController(KeyState, PointerPostionDiff);
+        FrameCount++;
+        var now = DateTime.Now;
+        Camera?.InputController(KeyState, PointerPostionDiff, (float)(now - lastFrameUpdateTime).TotalMilliseconds / 1000);
         PointerPostionDiff = Vector2.Zero;
+        lastFrameUpdateTime = now;
+
+        var timeDelta = (now - PreviousTime).TotalMilliseconds;
+        if (timeDelta >= 500)
+        {
+            var fps = FrameCount * 1000 / timeDelta;
+            var mspf = timeDelta / FrameCount;
+            FrameInfo = new FrameInfo(timeDelta, fps, mspf);
+            FrameInfoUpdated.Invoke(this, FrameInfo);
+            PreviousTime = now;
+            FrameCount = 0;
+        }
     }
 
     public bool HitTest(Point point)

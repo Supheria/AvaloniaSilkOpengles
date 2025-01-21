@@ -8,8 +8,8 @@ namespace AvaloniaSilkOpengles.Graphics;
 
 public sealed class Camera3D
 {
-    float speed { get; set; } = 0.05f;
-    float sensitivity { get; set; } = 0.3f;
+    float speed { get; set; } = 2.0f;
+    float sensitivity { get; set; } = 20.0f;
     float Width { get; set; }
     float Height { get; set; }
     Vector3 Up { get; set; } = Vector3.UnitY;
@@ -60,36 +60,36 @@ public sealed class Camera3D
         return view * project;
     }
 
-    public void InputController(KeyEventArgs? keyState, Vector2 pointerPostionDiff)
+    public void InputController(KeyEventArgs? keyState, Vector2 pointerPostionDiff, float timeDelta)
     {
         if (keyState is not null)
         {
             switch (keyState.Key)
             {
                 case Key.W:
-                    Position += Front * speed;
+                    Position += Front * speed * timeDelta;
                     break;
                 case Key.S:
-                    Position -= Front * speed;
+                    Position -= Front * speed * timeDelta;
                     break;
                 case Key.A:
-                    Position -= Right * speed;
+                    Position -= Right * speed * timeDelta;
                     break;
                 case Key.D:
-                    Position += Right * speed;
+                    Position += Right * speed * timeDelta;
                     break;
                 case Key.Space:
-                    Position = new(Position.X, Position.Y + speed, Position.Z);
+                    Position = new(Position.X, Position.Y + speed * timeDelta, Position.Z);
                     break;
                 case Key.LeftShift:
-                    Position = new(Position.X, Position.Y - speed, Position.Z);
+                    Position = new(Position.X, Position.Y - speed * timeDelta, Position.Z);
                     break;
             }
         }
         if (pointerPostionDiff != Vector2.Zero)
         {
-            Yaw += pointerPostionDiff.X * sensitivity;
-            Pitch -= pointerPostionDiff.Y * sensitivity;
+            Yaw += pointerPostionDiff.X * sensitivity * timeDelta;
+            Pitch -= pointerPostionDiff.Y * sensitivity * timeDelta;
             UpdateVectors();
         }
     }
