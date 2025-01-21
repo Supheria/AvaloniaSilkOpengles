@@ -8,8 +8,8 @@ namespace AvaloniaSilkOpengles.Graphics;
 
 public sealed class Camera3D
 {
-    float speed { get; set; } = 2.0f;
-    float sensitivity { get; set; } = 20.0f;
+    float Speed { get; set; } = 2.0f;
+    float Sensitivity { get; set; } = 20.0f;
     float Width { get; set; }
     float Height { get; set; }
     Vector3 Up { get; set; } = Vector3.UnitY;
@@ -19,10 +19,8 @@ public sealed class Camera3D
     float Pitch { get; set; }
     float Yaw { get; set; } = -90.0f;
 
-    public Camera3D(Size size, Vector3 position)
+    public Camera3D(Vector3 position)
     {
-        Width = (float)size.Width;
-        Height = (float)size.Height;
         Position = position;
     }
 
@@ -60,36 +58,36 @@ public sealed class Camera3D
         return view * project;
     }
 
-    public void InputController(KeyEventArgs? keyState, Vector2 pointerPostionDiff, float timeDelta)
+    public void UpdateControl(KeyEventArgs? keyState, Vector2 pointerPostionDiff, float timeDelta)
     {
         if (keyState is not null)
         {
             switch (keyState.Key)
             {
                 case Key.W:
-                    Position += Front * speed * timeDelta;
+                    Position += Front * Speed * timeDelta;
                     break;
                 case Key.S:
-                    Position -= Front * speed * timeDelta;
+                    Position -= Front * Speed * timeDelta;
                     break;
                 case Key.A:
-                    Position -= Right * speed * timeDelta;
+                    Position -= Right * Speed * timeDelta;
                     break;
                 case Key.D:
-                    Position += Right * speed * timeDelta;
+                    Position += Right * Speed * timeDelta;
                     break;
                 case Key.Space:
-                    Position = new(Position.X, Position.Y + speed * timeDelta, Position.Z);
+                    Position = new(Position.X, Position.Y + Speed * timeDelta, Position.Z);
                     break;
                 case Key.LeftShift:
-                    Position = new(Position.X, Position.Y - speed * timeDelta, Position.Z);
+                    Position = new(Position.X, Position.Y - Speed * timeDelta, Position.Z);
                     break;
             }
         }
         if (pointerPostionDiff != Vector2.Zero)
         {
-            Yaw += pointerPostionDiff.X * sensitivity * timeDelta;
-            Pitch -= pointerPostionDiff.Y * sensitivity * timeDelta;
+            Yaw += pointerPostionDiff.X * Sensitivity * timeDelta;
+            Pitch -= pointerPostionDiff.Y * Sensitivity * timeDelta;
             UpdateVectors();
         }
     }

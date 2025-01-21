@@ -20,6 +20,6 @@
     </Design.DataContext>
 
     <!-- <avaloniaSilkOpengles:HelloTriangle /> -->
-    <controls:HelloSquareContainer />
-    <!-- <controls:HelloPyramid /> -->
+    <!-- <controls:HelloSquareContainer /> -->
+    <controls:TerrainLoader />
 </UserControl>

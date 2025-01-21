@@ -33,4 +33,8 @@
       <UpToDateCheckInput Remove="Assets\Models\statue\scene.bin" />
       <UpToDateCheckInput Remove="Assets\Models\statue\scene.gltf" />
     </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\AltitudeMapGenerator\AltitudeMapGenerator.csproj" />
+    </ItemGroup>
 </Project>

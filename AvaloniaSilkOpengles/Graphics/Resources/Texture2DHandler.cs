@@ -8,7 +8,6 @@ using AvaloniaSilkOpengles.Assets.Textures;
 using Silk.NET.OpenGLES;
 using SkiaSharp;
 using StbImageSharp;
-using Bitmap = System.Drawing.Bitmap;
 
 namespace AvaloniaSilkOpengles.Graphics.Resources;
 
