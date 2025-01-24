@@ -9,7 +9,7 @@ namespace AvaloniaSilkOpengles.Graphics.Resources;
 
 public sealed class EboHandler : ResourceHandler
 {
-    public DrawElementsType ElementType { get; }
+    uint ElementCount { get; }
 
     public EboHandler(
         GL gl,
@@ -27,7 +27,7 @@ public sealed class EboHandler : ResourceHandler
             data.ToArray(),
             usage
         );
-        ElementType = DrawElementsType.UnsignedInt;
+        ElementCount = (uint)array.Length;
         if (doUnbind)
             Unbind();
     }
@@ -45,5 +45,10 @@ public sealed class EboHandler : ResourceHandler
     public void Delete()
     {
         Gl.DeleteBuffer(Handle);
+    }
+    
+    public unsafe void DrawElements(PrimitiveType renderMode)
+    {
+        Gl.DrawElements(renderMode, ElementCount, DrawElementsType.UnsignedInt, null);
     }
 }

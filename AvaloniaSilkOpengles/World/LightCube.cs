@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Numerics;
 using AvaloniaSilkOpengles.Graphics;
@@ -10,55 +11,46 @@ namespace AvaloniaSilkOpengles.World;
 public sealed class LightCube : RenderableObject
 {
     uint IndexHead { get; set; }
-    public Vector3 Position { get; set; }
 
-    public LightCube(GL gl, Vector3 position)
+    public LightCube(GL gl)
+        : base(gl)
     {
-        Position = position;
         GenerateFaces();
-        Mesh = new(gl, Vertices, Indices, []);
+        CreateMesh();
     }
 
     private void GenerateFaces()
     {
-        AddFace(Face.Front);
-        AddFace(Face.Right);
-        AddFace(Face.Back);
-        AddFace(Face.Left);
-        AddFace(Face.Top);
-        AddFace(Face.Bottom);
+        AddFace(FaceType.Front);
+        AddFace(FaceType.Right);
+        AddFace(FaceType.Back);
+        AddFace(FaceType.Left);
+        AddFace(FaceType.Top);
+        AddFace(FaceType.Bottom);
     }
 
-    private void AddFace(Face face)
+    private void AddFace(FaceType faceType)
     {
-        var coords = VertexData.Coords[face].Select(c => c + Position);
-        var vertices = new List<Vertex>();
-        switch (face)
+        var positions = VertexData.Positions[faceType];
+        Face face;
+        switch (faceType)
         {
-            case Face.Front:
-                vertices.AddRange(coords.Select(c => new Vertex(c, new(1.0f, 0.0f, 0.0f))));
+            case FaceType.Front:
+                face = new LightCubeFace(positions, new(Color.Red));
                 break;
-            case Face.Right:
-                vertices.AddRange(coords.Select(c => new Vertex(c, new(0.0f, 1.0f, 0.0f))));
+            case FaceType.Right:
+                face = new LightCubeFace(positions, new(Color.Green));
                 break;
-            case Face.Top:
-                vertices.AddRange(coords.Select(c => new Vertex(c, new(0.0f, 0.0f, 1.0f))));
+            case FaceType.Top:
+                face = new LightCubeFace(positions, new(Color.Blue));
                 break;
             default:
-                vertices.AddRange(coords.Select(c => new Vertex(c, new(1.0f, 1.0f, 1.0f))));
+                face = new LightCubeFace(positions, new(Color.White));
                 break;
         }
-        Vertices.AddRange(vertices);
-        Indices.AddRange(
-            [
-                0 + IndexHead,
-                1 + IndexHead,
-                2 + IndexHead,
-                2 + IndexHead,
-                3 + IndexHead,
-                0 + IndexHead,
-            ]
-        );
+        AddVertices(face);
+        AddTriangleIndices(0 + IndexHead, 1 + IndexHead, 2 + IndexHead);
+        AddTriangleIndices(2 + IndexHead, 3 + IndexHead, 0 + IndexHead);
         IndexHead += 4;
     }
 }

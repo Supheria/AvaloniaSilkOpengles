@@ -17,6 +17,9 @@ public abstract class SilkNetOpenGlControl : OpenGlControlBase, ICustomHitTest
     public EventHandler<FrameInfo>? FrameInfoUpdated;
     GL? Gl { get; set; }
     protected Camera3D Camera { get; } = new(Vector3.Zero);
+    protected float FovDegrees { get; private set; } = 45.0f;
+    protected float NearClipPlane { get; private set; } = 0.1f;
+    protected float FarClipPlane { get; private set; } = 75.0f;
     PixelSize ViewPortSize { get; set; }
     bool DoChangeViewPort { get; set; }
     DispatcherTimer Timer { get; } = new();
@@ -25,7 +28,7 @@ public abstract class SilkNetOpenGlControl : OpenGlControlBase, ICustomHitTest
     int FrameCount { get; set; }
     KeyEventArgs? KeyState { get; set; }
     Vector2 PointerPostionDiff { get; set; }
-    Point LastPointerPostion { get; set; }
+    protected Point LastPointerPostion { get; set; }
 
     public SilkNetOpenGlControl()
     {
@@ -68,7 +71,15 @@ public abstract class SilkNetOpenGlControl : OpenGlControlBase, ICustomHitTest
             DoChangeViewPort = true;
             ViewPortSize = viewPortSize;
         }
-        Camera.SetSize(Bounds.Size);
+        SetCameraProjection(FovDegrees, NearClipPlane, FarClipPlane);
+    }
+    
+    protected void SetCameraProjection(float fovDegrees, float nearClipPlane, float farClipPlane)
+    {
+        FovDegrees = fovDegrees;
+        NearClipPlane = nearClipPlane;
+        FarClipPlane = farClipPlane;
+        Camera.SetSize(Bounds.Size, fovDegrees, nearClipPlane, farClipPlane);
     }
 
     protected sealed override void OnOpenGlInit(GlInterface gl)

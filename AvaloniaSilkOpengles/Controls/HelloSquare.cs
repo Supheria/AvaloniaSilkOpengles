@@ -33,8 +33,8 @@ public class HelloSquare : SilkNetOpenGlControl
 
     protected override void OnGlInit(GL gl)
     {
-        LightCube = new(gl, new());
-        Chunk = new(gl, new());
+        LightCube = new(gl);
+        Chunk = new(gl);
         Model1 = new(gl, new ModelRead("trees"));
         Model2 = new(gl, new ModelRead("ground"));
         Crow = new(gl, new ModelRead("crow"));
@@ -66,7 +66,7 @@ public class HelloSquare : SilkNetOpenGlControl
 
     protected override void OnGlRender(GL gl)
     {
-        if (SimpleShader is null || LightShader is null)
+        if (LightCube is null || SimpleShader is null || LightShader is null)
             return;
         var backGround = new Vector4(0.85f, 0.85f, 0.90f, 1.0f);
         gl.ClearColor(backGround.X, backGround.Y, backGround.Z, backGround.W);
@@ -76,27 +76,23 @@ public class HelloSquare : SilkNetOpenGlControl
                 | ClearBufferMask.StencilBufferBit
         );
         var lightColor = new Vector4(1.0f, 1.0f, 1.0f, 1.0f);
-        var lightPos = new Vector3(3.0f, 4.0f, -3.0f);
-        var scale = new Vector3(0.05f, 0.05f, 0.05f);
+        // var lightPos = new Vector3(3.0f, 4.0f, -3.0f);
+        var lightPos = new Vector3(5.0f, 9.0f, 5.0f);
+        LightCube.Translation = lightPos;
+        LightCube.Scale = new(0.05f, 0.05f, 0.05f);
 
         LightShader.Use();
         LightShader.SetVector4("lightColor", lightColor);
 
-        LightCube?.Render(
-            LightShader,
-            Camera,
-            scale,
-            Quaternion.Identity,
-            lightPos,
-            Matrix4x4.Identity
-        );
+        LightCube?.Render(LightShader, Camera);
 
         SimpleShader.Use();
         SimpleShader.SetVector4("lightColor", lightColor);
         SimpleShader.SetVector3("lightPos", lightPos);
         SimpleShader.SetVector4("backGround", backGround);
-        Model1?.Render(SimpleShader, Camera);
-        Model2?.Render(SimpleShader, Camera);
-        Crow?.Render(SimpleShader, Camera);
+        // Model1?.Render(SimpleShader, Camera);
+        // Model2?.Render(SimpleShader, Camera);
+        // Crow?.Render(SimpleShader, Camera);
+        Chunk?.Render(SimpleShader, Camera);
     }
 }

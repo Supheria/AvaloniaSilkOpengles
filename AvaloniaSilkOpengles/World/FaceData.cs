@@ -1,49 +1,50 @@
 using System.Collections.Generic;
 using System.Numerics;
+using AvaloniaSilkOpengles.Graphics;
 
 namespace AvaloniaSilkOpengles.World;
 
 public sealed class VertexData
 {
-    public static Dictionary<Face, Vector3[]> Coords { get; } =
+    public static Dictionary<FaceType, Position[]> Positions { get; } =
         new()
         {
-            [Face.Front] =
+            [FaceType.Front] =
             [
                 new(-0.5f, 0.5f, 0.5f),
                 new(-0.5f, -0.5f, 0.5f),
                 new(0.5f, -0.5f, 0.5f),
                 new(0.5f, 0.5f, 0.5f),
             ],
-            [Face.Right] =
+            [FaceType.Right] =
             [
                 new(0.5f, 0.5f, 0.5f),
                 new(0.5f, -0.5f, 0.5f),
                 new(0.5f, -0.5f, -0.5f),
                 new(0.5f, 0.5f, -0.5f),
             ],
-            [Face.Back] =
+            [FaceType.Back] =
             [
                 new(0.5f, 0.5f, -0.5f),
                 new(0.5f, -0.5f, -0.5f),
                 new(-0.5f, -0.5f, -0.5f),
                 new(-0.5f, 0.5f, -0.5f),
             ],
-            [Face.Left] =
+            [FaceType.Left] =
             [
                 new(-0.5f, 0.5f, -0.5f),
                 new(-0.5f, -0.5f, -0.5f),
                 new(-0.5f, -0.5f, 0.5f),
                 new(-0.5f, 0.5f, 0.5f),
             ],
-            [Face.Top] =
+            [FaceType.Top] =
             [
                 new(0.5f, 0.5f, 0.5f),
                 new(0.5f, 0.5f, -0.5f),
                 new(-0.5f, 0.5f, -0.5f),
                 new(-0.5f, 0.5f, 0.5f),
             ],
-            [Face.Bottom] =
+            [FaceType.Bottom] =
             [
                 new(-0.5f, -0.5f, 0.5f),
                 new(-0.5f, -0.5f, -0.5f),
@@ -51,45 +52,45 @@ public sealed class VertexData
                 new(0.5f, -0.5f, 0.5f),
             ],
         };
-    public static Dictionary<Face, Vector3[]> Normals { get; } =
+    public static Dictionary<FaceType, Normal[]> Normals { get; } =
         new()
         {
-            [Face.Front] =
+            [FaceType.Front] =
             [
                 new(0.0f, 0.0f, 1.0f),
                 new(0.0f, 0.0f, 1.0f),
                 new(0.0f, 0.0f, 1.0f),
                 new(0.0f, 0.0f, 1.0f),
             ],
-            [Face.Right] =
+            [FaceType.Right] =
             [
                 new(1.0f, 0.0f, 0.0f),
                 new(1.0f, 0.0f, 0.0f),
                 new(1.0f, 0.0f, 0.0f),
                 new(1.0f, 0.0f, 0.0f),
             ],
-            [Face.Back] =
+            [FaceType.Back] =
             [
                 new(0.0f, 0.0f, -1.0f),
                 new(0.0f, 0.0f, -1.0f),
                 new(0.0f, 0.0f, -1.0f),
                 new(0.0f, 0.0f, -1.0f),
             ],
-            [Face.Left] =
+            [FaceType.Left] =
             [
                 new(-1.0f, 0.0f, 0.0f),
                 new(-1.0f, 0.0f, 0.0f),
                 new(-1.0f, 0.0f, 0.0f),
                 new(-1.0f, 0.0f, 0.0f),
             ],
-            [Face.Top] =
+            [FaceType.Top] =
             [
                 new(0.0f, 1.0f, 0.0f),
                 new(0.0f, 1.0f, 0.0f),
                 new(0.0f, 1.0f, 0.0f),
                 new(0.0f, 1.0f, 0.0f),
             ],
-            [Face.Bottom] =
+            [FaceType.Bottom] =
             [
                 new(0.0f, -1.0f, 0.0f),
                 new(0.0f, -1.0f, 0.0f),

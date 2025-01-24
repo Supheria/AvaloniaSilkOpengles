@@ -14,14 +14,14 @@ namespace AvaloniaSilkOpengles.Graphics.Resources;
 public class Texture2DHandler : ResourceHandler
 {
     public TextureType Type { get; }
-    public int Unit { get; }
+    public int Plot { get; }
 
-    public Texture2DHandler(GL gl, Stream stream, TextureType type, int unit)
+    public Texture2DHandler(GL gl, Stream stream, TextureType type, int plot)
         : base(gl)
     {
         Type = type;
-        Unit = unit;
-        Handle = Load(gl, stream, unit);
+        Plot = plot;
+        Handle = Load(gl, stream, plot);
     }
 
     record ImageData(byte[] Data, int Width, int Height, int ColumnNumber);
@@ -122,13 +122,13 @@ public class Texture2DHandler : ResourceHandler
 
     public void Bind()
     {
-        Gl.ActiveTexture(TextureUnit.Texture0 + Unit);
+        Gl.ActiveTexture(TextureUnit.Texture0 + Plot);
         Gl.BindTexture(TextureTarget.Texture2D, Handle);
     }
 
     public void Unbind()
     {
-        Gl.ActiveTexture(TextureUnit.Texture0 + Unit);
+        Gl.ActiveTexture(TextureUnit.Texture0 + Plot);
         Gl.BindTexture(TextureTarget.Texture2D, 0);
     }
 

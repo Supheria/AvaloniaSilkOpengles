@@ -5,16 +5,11 @@ using AvaloniaSilkOpengles.Graphics.Resources;
 
 namespace AvaloniaSilkOpengles.World;
 
-public struct BlockFace
+public class BlockFace : Face
 {
-    public List<Vertex> Vertices { get; } = [];
-
-    public BlockFace(IList<Vector3> coords, IList<Vector3> normals, IList<Vector2> uvs)
+    public BlockFace(IList<Position> positions, IList<Normal> normals, IList<TexUv> uvs)
     {
-        for (var i = 0; i < coords.Count; i++)
-        {
-            var vertex = new Vertex(coords[i], normals[i], uvs[i]);
-            Vertices.Add(vertex);
-        }
+        for (var i = 0; i < positions.Count; i++)
+            AddVertex(positions[i], normals[i], RenderColor.Zero, uvs[i]);
     }
 }

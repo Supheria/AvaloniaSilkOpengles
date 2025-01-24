@@ -7,21 +7,25 @@ using Silk.NET.OpenGLES;
 
 namespace AvaloniaSilkOpengles.Graphics;
 
-public unsafe class Mesh
+public class Mesh
 {
-    GL Gl { get; }
-    List<Vertex> Vertices { get; }
-    List<uint> Indices { get; }
-    List<Texture2DHandler> Textures { get; }
-    VaoHandler Vao { get; }
-    VboHandler Vbo { get; }
-    EboHandler Ebo { get; }
+    VaoHandler? Vao { get; set; }
+    VboHandler? Vbo { get; set; }
+    EboHandler? Ebo { get; set; }
+    List<Texture2DHandler> Textures { get; set; } = [];
+    public Vector3 Scale { get; set; } = Vector3.One;
+    public Quaternion Rotation { get; set; } = Quaternion.Identity;
+    public Vector3 Translation { get; set; } = Vector3.Zero;
+    public Matrix4x4 Matrix { get; set; } = Matrix4x4.Identity;
+    public PrimitiveType RenderMode { get; set; } = PrimitiveType.Triangles;
 
-    public Mesh(GL gl, List<Vertex> vertices, List<uint> indices, List<Texture2DHandler> textures)
+    public void Create(
+        GL gl,
+        List<Vertex> vertices,
+        List<uint> indices,
+        List<Texture2DHandler> textures
+    )
     {
-        Gl = gl;
-        Vertices = vertices;
-        Indices = indices;
         Textures = textures;
 
         Vao = new(gl);
@@ -37,15 +41,18 @@ public unsafe class Mesh
 
     public void Delete()
     {
-        Vao.Delete();
-        Vbo.Delete();
-        Ebo.Delete();
+        Vao?.Delete();
+        Vbo?.Delete();
+        Ebo?.Delete();
         foreach (var texture in Textures)
             texture.Delete();
     }
 
-    public void Render(ShaderHandler shader, Camera3D camera, Vector3 scale, Quaternion rotation, Vector3 translation, Matrix4x4 matrix)
+    public void Render(ShaderHandler shader, Camera3D camera)
     {
+        if (Vao is null || Vbo is null || Ebo is null)
+            throw new ArgumentException("Mesh is not created yet");
+        
         Vao.Bind();
         Ebo.Bind();
 
@@ -68,22 +75,17 @@ public unsafe class Mesh
         }
         shader.SetVector3("camPos", camera.Position);
         shader.SetMatrix("camMatrix", camera.GetMatrix());
-        
-        var scaleMatrix = Matrix4x4.CreateScale(scale);
-        var rotationMatrix = Matrix4x4.CreateFromQuaternion(rotation);
-        var translationMatrix = Matrix4x4.CreateTranslation(translation);
-        
+
+        var scaleMatrix = Matrix4x4.CreateScale(Scale);
+        var rotationMatrix = Matrix4x4.CreateFromQuaternion(Rotation);
+        var translationMatrix = Matrix4x4.CreateTranslation(Translation);
+
         shader.SetMatrix("scale", scaleMatrix);
         shader.SetMatrix("rotation", rotationMatrix);
         shader.SetMatrix("translation", translationMatrix);
-        shader.SetMatrix("model", matrix);
-
-        Gl.DrawElements(
-            PrimitiveType.Triangles,
-            (uint)Indices.Count,
-            DrawElementsType.UnsignedInt,
-            null
-        );
+        shader.SetMatrix("model", Matrix);
+        
+        Ebo.DrawElements(RenderMode);
 
         // Vao.Unbind();
         // Ebo.Unbind();

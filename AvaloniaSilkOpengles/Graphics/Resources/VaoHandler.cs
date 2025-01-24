@@ -35,11 +35,13 @@ public sealed unsafe class VaoHandler : ResourceHandler
     public void Link(VboHandler vbo)
     {
         vbo.Bind();
-        link(VertexElement.Position);
-        link(VertexElement.Normal);
-        link(VertexElement.Color);
-        link(VertexElement.Uv);
-        void link(VertexElement element)
+        LinkItem(VertexElement.Position);
+        LinkItem(VertexElement.Normal);
+        LinkItem(VertexElement.Color);
+        LinkItem(VertexElement.Uv);
+        return;
+
+        void LinkItem(VertexElement element)
         {
             Gl.VertexAttribPointer(
                 element.Plot,

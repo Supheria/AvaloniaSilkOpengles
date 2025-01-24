@@ -1,42 +1,41 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using AvaloniaSilkOpengles.Graphics;
 using Silk.NET.OpenGLES;
 
 namespace AvaloniaSilkOpengles.World;
 
 public sealed class Block
 {
-    public Vector3 Position { get; }
     public BlockType Type { get; }
-    Dictionary<Face, TexCoord> TexCoords { get; } = [];
-    Dictionary<Face, BlockFace> Faces { get; } = [];
+    Dictionary<FaceType, TexCoord> TexCoords { get; } = [];
+    Dictionary<FaceType, BlockFace> Faces { get; } = [];
 
-    public BlockFace this[Face face] => Faces[face];
+    public BlockFace this[FaceType faceType] => Faces[faceType];
 
-    public Block(Vector3 position, BlockType type)
+    public Block(Vector3 offset, BlockType type)
     {
-        Position = position;
         Type = type;
         if (type is not BlockType.Empty)
         {
             TexCoords = TextureData.BlockTexCoordData[type];
             Faces = new()
             {
-                [Face.Front] = GetFace(Face.Front, position, TexCoords[Face.Front]),
-                [Face.Back] = GetFace(Face.Back, position, TexCoords[Face.Back]),
-                [Face.Left] = GetFace(Face.Left, position, TexCoords[Face.Left]),
-                [Face.Right] = GetFace(Face.Right, position, TexCoords[Face.Right]),
-                [Face.Top] = GetFace(Face.Top, position, TexCoords[Face.Top]),
-                [Face.Bottom] = GetFace(Face.Bottom, position, TexCoords[Face.Bottom]),
+                [FaceType.Front] = GetFace(FaceType.Front, offset, TexCoords[FaceType.Front]),
+                [FaceType.Back] = GetFace(FaceType.Back, offset, TexCoords[FaceType.Back]),
+                [FaceType.Left] = GetFace(FaceType.Left, offset, TexCoords[FaceType.Left]),
+                [FaceType.Right] = GetFace(FaceType.Right, offset, TexCoords[FaceType.Right]),
+                [FaceType.Top] = GetFace(FaceType.Top, offset, TexCoords[FaceType.Top]),
+                [FaceType.Bottom] = GetFace(FaceType.Bottom, offset, TexCoords[FaceType.Bottom]),
             };
         }
     }
 
-    private static BlockFace GetFace(Face face, Vector3 position, TexCoord texCoord)
+    private static BlockFace GetFace(FaceType faceType, Vector3 offset, TexCoord texCoord)
     {
-        var coords = VertexData.Coords[face].Select(c => c + position).ToArray();
-        var normals = VertexData.Normals[face];
-        return new(coords, normals, texCoord.Uvs);
+        var positions = VertexData.Positions[faceType].Select(p => new Position(p.Value + offset)).ToArray();
+        var normals = VertexData.Normals[faceType];
+        return new(positions, normals, texCoord.Uvs);
     }
 }

@@ -21,5 +21,6 @@
 
     <!-- <avaloniaSilkOpengles:HelloTriangle /> -->
     <!-- <controls:HelloSquareContainer /> -->
-    <controls:TerrainLoader />
+    <!-- <controls:TerrainLoader /> -->
+    <controls:HelloSphere />
 </UserControl>

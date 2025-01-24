@@ -47,10 +47,16 @@ public class Model
         for (var i = 0; i < Meshes.Count; i++)
         {
             var mesh = Meshes[i];
-            mesh.Render(shader, camera, Scales[i], Rotations[i], Translations[i], Matrices[i]);
+            mesh.RenderMode = PrimitiveType.Triangles;
+            mesh.Scale = Scales[i];
+            mesh.Rotation = Rotations[i];
+            mesh.Translation = Translations[i];
+            mesh.Matrix = Matrices[i];
+
+            mesh.Render(shader, camera);
         }
     }
-    
+
     public void Delete()
     {
         foreach (var mesh in Meshes)
@@ -84,10 +90,6 @@ public class Model
             var count = node?["rotation"]?.AsArray().Count ?? 0;
             for (var i = 0; i < count; i++)
                 rotation[i] = (float)(node?["rotation"]?[i] ?? 0f);
-            // rotation.X = - rotation.X;
-            // rotation.Y = - rotation.Y;
-            // rotation.Z = - rotation.Z;
-            // rotation.W = -rotation.W;
         }
         var scale = Vector3.One;
         var scaleNode = node?["scale"];
@@ -155,27 +157,37 @@ public class Model
         );
 
         var coordsRaw = GetFloats(JSON["accessors"]?[coordsIndex]);
-        var coords = GroupToVector3(coordsRaw);
+        var positions = GroupToVector3(coordsRaw);
         var normalRaw = GetFloats(JSON["accessors"]?[normalsIndex]);
         var normals = GroupToVector3(normalRaw);
         var uvsRaw = GetFloats(JSON["accessors"]?[uvsIndex]);
         var uvs = GroupToVector2(uvsRaw);
 
-        var vertices = GetVertices(coords, normals, uvs);
+        var vertices = GetVertices(positions, normals, uvs);
         var indicesIndex = (int)(JSON["meshes"]?[index]?["primitives"]?[0]?["indices"] ?? 0);
         var indices = GetIndices(JSON["accessors"]?[indicesIndex]);
         var textures = GetTextures();
 
-        var mesh = new Mesh(Gl, vertices, indices, textures);
+        var mesh = new Mesh();
+        mesh.Create(Gl, vertices, indices, textures);
         Meshes.Add(mesh);
     }
 
-    private List<Vertex> GetVertices(List<Vector3> coords, List<Vector3> normals, List<Vector2> uvs)
+    private List<Vertex> GetVertices(
+        List<Vector3> positions,
+        List<Vector3> normals,
+        List<Vector2> uvs
+    )
     {
         var vertices = new List<Vertex>();
-        for (var i = 0; i < coords.Count; i++)
+        for (var i = 0; i < positions.Count; i++)
         {
-            var vertex = new Vertex(coords[i], normals[i], uvs[i]);
+            var vertex = new Vertex
+            {
+                Position = new(positions[i]),
+                Normal = new(normals[i]),
+                Uv = new(uvs[i]),
+            };
             vertices.Add(vertex);
         }
         return vertices;

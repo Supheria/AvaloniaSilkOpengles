@@ -95,7 +95,7 @@ public sealed unsafe class ShaderHandler : ResourceHandler
         if (texture is null)
             return;
         var location = Gl.GetUniformLocation(Handle, uniformName);
-        Gl.Uniform1(location, texture.Unit);
+        Gl.Uniform1(location, texture.Plot);
     }
     
     public void SetVector3(string uniformName, Vector3 value)

@@ -14,15 +14,15 @@ public sealed class Chunk : RenderableObject
     const int HeightOfChunk = 32;
     Block[,,] Blocks { get; } = new Block[SizeOfChunk, HeightOfChunk, SizeOfChunk];
     uint IndexHead { get; set; }
-    public Vector3 Position { get; }
 
-    public Chunk(GL gl, Vector3 position)
+    public Chunk(GL gl)
+        : base(gl)
     {
-        Position = position;
         var heightMap = GenerateHeightMap();
         GenerateBlocks(heightMap);
         GenerateBlockFaces();
-        Mesh = BuildMesh(gl, Vertices, Indices);
+        CreateMesh();
+        AddTextures(gl);
     }
 
     private float[,] GenerateHeightMap()
@@ -55,8 +55,8 @@ public sealed class Chunk : RenderableObject
                     //     type = BlockType.Grass;
                     if (y <= columnHeight - 1)
                         type = BlockType.TestBlock;
-                    var position = new Vector3(x, y, z);
-                    Blocks[x, y, z] = new Block(position, type);
+                    var offset = new Vector3(x, y, z);
+                    Blocks[x, y, z] = new Block(offset, type);
                 }
             }
         }
@@ -79,50 +79,50 @@ public sealed class Chunk : RenderableObject
                     if (x < SizeOfChunk - 1)
                     {
                         if (Blocks[x + 1, y, z].Type is BlockType.Empty)
-                            AddBlockFace(block[Face.Right]);
+                            AddBlockFace(block[FaceType.Right]);
                     }
                     else
-                        AddBlockFace(block[Face.Right]);
+                        AddBlockFace(block[FaceType.Right]);
                     // left faces
                     if (x > 0)
                     {
                         if (Blocks[x - 1, y, z].Type is BlockType.Empty)
-                            AddBlockFace(block[Face.Left]);
+                            AddBlockFace(block[FaceType.Left]);
                     }
                     else
-                        AddBlockFace(block[Face.Left]);
+                        AddBlockFace(block[FaceType.Left]);
                     // top faces
                     if (y < HeightOfChunk - 1)
                     {
                         if (Blocks[x, y + 1, z].Type is BlockType.Empty)
-                            AddBlockFace(block[Face.Top]);
+                            AddBlockFace(block[FaceType.Top]);
                     }
                     else
-                        AddBlockFace(block[Face.Top]);
+                        AddBlockFace(block[FaceType.Top]);
                     // bottom face
                     if (y > 0)
                     {
                         if (Blocks[x, y - 1, z].Type is BlockType.Empty)
-                            AddBlockFace(block[Face.Bottom]);
+                            AddBlockFace(block[FaceType.Bottom]);
                     }
                     else
-                        AddBlockFace(block[Face.Bottom]);
+                        AddBlockFace(block[FaceType.Bottom]);
                     // front face
                     if (z < SizeOfChunk - 1)
                     {
                         if (Blocks[x, y, z + 1].Type is BlockType.Empty)
-                            AddBlockFace(block[Face.Front]);
+                            AddBlockFace(block[FaceType.Front]);
                     }
                     else
-                        AddBlockFace(block[Face.Front]);
+                        AddBlockFace(block[FaceType.Front]);
                     // back face
                     if (z > 0)
                     {
                         if (Blocks[x, y, z - 1].Type is BlockType.Empty)
-                            AddBlockFace(block[Face.Back]);
+                            AddBlockFace(block[FaceType.Back]);
                     }
                     else
-                        AddBlockFace(block[Face.Back]);
+                        AddBlockFace(block[FaceType.Back]);
                 }
             }
         }
@@ -137,21 +137,13 @@ public sealed class Chunk : RenderableObject
 
     private void AddBlockFace(BlockFace face)
     {
-        Vertices.AddRange(face.Vertices);
-        Indices.AddRange(
-            [
-                0 + IndexHead,
-                1 + IndexHead,
-                2 + IndexHead,
-                2 + IndexHead,
-                3 + IndexHead,
-                0 + IndexHead,
-            ]
-        );
+        AddVertices(face);
+        AddTriangleIndices(0 + IndexHead, 1 + IndexHead, 2 + IndexHead);
+        AddTriangleIndices(2 + IndexHead, 3 + IndexHead, 0 + IndexHead);
         IndexHead += 4;
     }
 
-    private static Mesh BuildMesh(GL gl, List<Vertex> vertices, List<uint> indices)
+    private void AddTextures(GL gl)
     {
         using var source1 = TextureRead.Read("planks");
         using var source2 = TextureRead.Read("planksSpec");
@@ -159,11 +151,6 @@ public sealed class Chunk : RenderableObject
         var diffuse = new Texture2DHandler(gl, source1, TextureType.Diffuse, 0);
         // texture = ImageResult.FromStream(source2, ColorComponents.RedGreenBlueAlpha);
         var specular = new Texture2DHandler(gl, source2, TextureType.Specular, 1);
-        var textures = new List<Texture2DHandler>
-        {
-            diffuse, 
-            specular
-        };
-        return new Mesh(gl, vertices, indices, textures);
+        Textures.AddRange([diffuse, specular]);
     }
 }

@@ -1,6 +1,6 @@
 namespace AvaloniaSilkOpengles.World;
 
-public enum Face
+public enum FaceType
 {
     Front,
     Back,

@@ -21,14 +21,14 @@ public class Terrain : RenderableObject
     List<AltitudeSite> AltitudeSites { get; } = [];
     uint IndexHead { get; set; }
 
-    public Terrain(GL gl)
+    public Terrain(GL gl) : base(gl)
     {
         var rawMap = LoadRawMap();
         if (rawMap is null)
             return;
         GenerateAltitudeMap(rawMap);
         GenerateFaces();
-        Mesh = new(gl, Vertices, Indices, []);
+        CreateMesh();
     }
 
     private static AltitudeMap? LoadRawMap()
@@ -85,7 +85,7 @@ public class Terrain : RenderableObject
         foreach (var (key, value) in altitudes)
             AltitudeMap[key] = value.Average();
     }
-
+    
     private void GenerateFaces()
     {
         foreach (var site in AltitudeSites)
@@ -110,10 +110,10 @@ public class Terrain : RenderableObject
         return altitudes.Average();
     }
 
-    private void AddFace(Face face)
+    private void AddFace(TerrainFace terrainFace)
     {
-        Vertices.AddRange(face.Vertices);
-        Indices.AddRange([IndexHead++, IndexHead++, IndexHead++]);
+        AddVertices(terrainFace);
+        AddTriangleIndices(IndexHead++, IndexHead++, IndexHead++);
     }
 
     private TerrainType GetTerrainType(double altitudeRatio, double random)
@@ -152,13 +152,13 @@ public class Terrain : RenderableObject
         return TerrainType.Stream;
     }
 
-    private List<Face> GetSiteFaces(AltitudeSite site)
+    private List<TerrainFace> GetSiteFaces(AltitudeSite site)
     {
-        var c0 = GetCoord(site, VertexIndex.V0);
-        var c1 = GetCoord(site, VertexIndex.V1);
-        var c2 = GetCoord(site, VertexIndex.V2);
-        var c3 = GetCoord(site, VertexIndex.V3);
-        var c4 = GetCoord(site, VertexIndex.V4);
+        var c0 = GetPosition(site, VertexIndex.V0);
+        var c1 = GetPosition(site, VertexIndex.V1);
+        var c2 = GetPosition(site, VertexIndex.V2);
+        var c3 = GetPosition(site, VertexIndex.V3);
+        var c4 = GetPosition(site, VertexIndex.V4);
         return
         [
             GetFace(site.TerrainType, FaceType.Back, c0, c1, c2, c3, c4),
@@ -168,24 +168,24 @@ public class Terrain : RenderableObject
         ];
     }
 
-    private Vector3 GetCoord(AltitudeSite altitudeSite, VertexIndex index)
+    private Position GetPosition(AltitudeSite altitudeSite, VertexIndex index)
     {
         var (x, z) = altitudeSite.VertexXzs[index];
         var y = (float)AltitudeMap[(x, z)] * 0.25f;
         return new(x, y, z);
     }
 
-    private Face GetFace(
+    private TerrainFace GetFace(
         TerrainType terrainType,
         FaceType faceType,
-        Vector3 c0,
-        Vector3 c1,
-        Vector3 c2,
-        Vector3 c3,
-        Vector3 c4
+        Position c0,
+        Position c1,
+        Position c2,
+        Position c3,
+        Position c4
     )
     {
-        Vector3[] coords = faceType switch
+        Position[] positions = faceType switch
         {
             FaceType.Back => [c1, c0, c4],
             FaceType.Left => [c2, c0, c1],
@@ -195,17 +195,13 @@ public class Terrain : RenderableObject
         };
         var color = terrainType switch
         {
-            TerrainType.None => NormalizeColor(Color.Black),
-            TerrainType.Plain => NormalizeColor(Color.LightYellow),
-            TerrainType.Stream => NormalizeColor(Color.SkyBlue),
-            TerrainType.Wood => NormalizeColor(Color.LimeGreen),
-            TerrainType.Hill => NormalizeColor(Color.DarkSlateGray),
+            TerrainType.None => Color.Black,
+            TerrainType.Plain => Color.LightYellow,
+            TerrainType.Stream => Color.SkyBlue,
+            TerrainType.Wood => Color.LimeGreen,
+            TerrainType.Hill => Color.DarkSlateGray,
+            _ => throw new ArgumentOutOfRangeException(nameof(terrainType), terrainType, null)
         };
-        return new(coords, color);
-    }
-
-    private static Vector3 NormalizeColor(Color color)
-    {
-        return new Vector3(color.R / 255f, color.G / 255f, color.B / 255f);
+        return new(positions, new(color));
     }
 }
