@@ -24,6 +24,6 @@ public sealed class Chunk : GameObject
         var diffuse = new Texture2DHandler(gl, source1, TextureType.Diffuse, 0);
         // texture = ImageResult.FromStream(source2, ColorComponents.RedGreenBlueAlpha);
         var specular = new Texture2DHandler(gl, source2, TextureType.Specular, 1);
-        Textures.AddRange([diffuse, specular]);
+        SetTextures(diffuse, specular);
     }
 }

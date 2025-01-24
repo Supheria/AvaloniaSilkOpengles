@@ -22,7 +22,8 @@ void main()
 {
     mat4 transform = model * translation * rotation * scale;
     currentPos = vec3(transform * vec4(aPos, 1.0f));
-    normal = normalize(aNormal);
+    normal = normalize((transform * vec4(aNormal, 0.0f)).xyz);
+//    normal = normalize(aNormal);
     color = aColor;
     uv = aUv;
 

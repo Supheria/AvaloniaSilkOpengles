@@ -8,7 +8,7 @@ namespace AvaloniaSilkOpengles.Graphics;
 public class GameObject
 {
     RenderableObject? ModelToRender { get; set; }
-    protected List<Texture2DHandler> Textures { get; } = [];
+    List<Texture2DHandler> Textures { get; } = [];
     public Vector3 Scale { get; set; } = Vector3.One;
     public Quaternion Rotation { get; set; } = Quaternion.Identity;
     public Vector3 RotationDegrees
@@ -29,10 +29,16 @@ public class GameObject
     public Matrix4x4 Matrix { get; set; } = Matrix4x4.Identity;
     public PrimitiveType RenderMode { get; set; } = PrimitiveType.Triangles;
     
-    protected void SetCurrentModel(GL gl, RenderableObject model)
+    public void SetCurrentModel(GL gl, RenderableObject model)
     {
         ModelToRender?.Delete(gl);
         ModelToRender = model;
+    }
+    
+    public void SetTextures(params Texture2DHandler[] textures)
+    {
+        Textures.Clear();
+        Textures.AddRange(textures);
     }
 
     public void Render(GL gl, ShaderHandler shader, Camera3D camera)
@@ -53,5 +59,7 @@ public class GameObject
     public void Delete(GL gl)
     {
         ModelToRender?.Delete(gl);
+        foreach (var texture in Textures)
+            texture.Delete(gl);
     }
 }

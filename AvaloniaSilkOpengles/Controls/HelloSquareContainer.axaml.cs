@@ -18,7 +18,7 @@ public partial class HelloSquareContainer : UserControl
     public HelloSquareContainer()
     {
         InitializeComponent();
-        ChunkLoader.FrameInfoUpdated += FrameInfoUpdated;
+        HelloSquare.FrameInfoUpdated += FrameInfoUpdated;
         // Timer.Interval = TimeSpan.FromMilliseconds(10);
         // Timer.Tick += TimerOnTick;
         // Timer.Start();

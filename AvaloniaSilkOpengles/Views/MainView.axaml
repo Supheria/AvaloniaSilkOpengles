@@ -24,5 +24,5 @@
     <!--     <controls:TerrainLoader Grid.Column="1" Grid.Row="0" /> -->
     <!--     <controls:HelloSphere Grid.Column="0" Grid.Row="1" /> -->
     <!-- </Grid> -->
-    <controls:ChunkLoader Grid.Column="1" Grid.Row="0" />
+    <controls:HelloSphere Grid.Column="1" Grid.Row="0" />
 </UserControl>

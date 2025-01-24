@@ -21,8 +21,14 @@ vec4 direct_light();
 
 void main()
 {
-//    FragColor = point_light();
-    FragColor = direct_light();
+    FragColor = point_light();
+//    FragColor = direct_light();
+
+//    vec3 lightDirection = normalize(vec3(1.0f, 1.0f, 0.0f));
+//    float diffuse = max(dot(normal, lightDirection), 0.0f);
+//    float ambient = 0.3f;
+//    float lighting = max(diffuse, ambient);
+//    FragColor = vec4(lighting * texture(diffuse0, uv).rgb, 1.0f);
 }
 
 vec4 direct_light()

@@ -11,21 +11,23 @@ namespace AvaloniaSilkOpengles.Sphere;
 
 public class SelectableSphere : GameObject
 {
-    Texture2DHandler Texture1 { get; set; }
-    Texture2DHandler Texture2 { get; set; }
-
-    public SelectableSphere(GL gl, int recursionLevel)
+    public double? IntersectsRay(Vector3 rayDirection, Vector3 rayOrigin)
     {
-        SetModelRecursionLevel(gl, recursionLevel);
-        using var stream1 = TextureRead.Read("wood");
-        Texture1 = new(gl, stream1, TextureType.Diffuse, 0);
-        using var stream2 = TextureRead.Read("moon");
-        Texture2 = new(gl, stream2, TextureType.Diffuse, 0);
-        Textures.Add(Texture1);
-    }
-
-    public void SetModelRecursionLevel(GL gl, int recursionLevel)
-    {
-        SetCurrentModel(gl, new IcoSphereModel(gl, recursionLevel));
+        var radius = Scale.X;
+        var difference = Position - (rayOrigin - rayDirection);
+        var differenceLengthSquared = difference.LengthSquared();
+        var sphereRadiusSquared = radius * radius;
+        if (differenceLengthSquared < sphereRadiusSquared)
+        {
+            return 0d;
+        }
+        var distanceAlongRay = Vector3.Dot(rayDirection, difference);
+        if (distanceAlongRay < 0)
+        {
+            return null;
+        }
+        var dist = sphereRadiusSquared + distanceAlongRay * distanceAlongRay - differenceLengthSquared;
+        var result = (dist < 0) ? null : distanceAlongRay - (double?)Math.Sqrt(dist);
+        return result;
     }
 }
