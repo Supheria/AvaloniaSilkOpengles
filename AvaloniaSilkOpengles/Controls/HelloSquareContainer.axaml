@@ -11,6 +11,6 @@
     <Grid RowDefinitions="Auto Auto *">
         <TextBlock x:Name="Fps" />
         <TextBlock Grid.Row="1" x:Name="Mspf" />
-        <controls:HelloSquare Grid.Row="2" x:Name="HelloSquare" />
+        <controls:ChunkLoader Grid.Row="2" x:Name="HelloSquare" />
     </Grid>
 </UserControl>

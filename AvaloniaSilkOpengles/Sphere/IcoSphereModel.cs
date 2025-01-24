@@ -1,31 +1,21 @@
 using System;
 using System.Collections.Generic;
-using System.Drawing;
-using System.Numerics;
-using AvaloniaSilkOpengles.Assets.Textures;
 using AvaloniaSilkOpengles.Graphics;
-using AvaloniaSilkOpengles.Graphics.Resources;
 using Silk.NET.OpenGLES;
 
 namespace AvaloniaSilkOpengles.Sphere;
 
-public class IcoSphere : RenderableObject
+public class IcoSphereModel : RenderableObject
 {
     List<Position> Positions { get; } = [];
     uint IndexHead { get; set; }
-    Texture2DHandler Texture { get; set; }
-
-    public IcoSphere(GL gl, int recursionLevel = 3)
-        : base(gl)
+    
+    public IcoSphereModel(GL gl, int recursionLevel)
     {
         GeneratePostitions();
         GenerateFaces(recursionLevel);
-        using var stream = TextureRead.Read("wood");
-        Texture = new(gl, stream, TextureType.Diffuse, 0);
-        Textures.Add(Texture);
-        CreateMesh();
+        CreateMesh(gl);
     }
-
     private void GeneratePostitions()
     {
         var t = (1 + MathF.Sqrt(5)) / 2;

@@ -25,10 +25,10 @@ public class TerrainLoader : SilkNetOpenGlControl
         gl.CullFace(TriangleFace.Back);
     }
 
-    protected override void OnGlDeinit()
+    protected override void OnGlDeinit(GL gl)
     {
-        TestTerrain?.Delete();
-        TerrainShader?.Delete();
+        TestTerrain?.Delete(gl);
+        TerrainShader?.Delete(gl);
     }
 
     protected override void OnGlRender(GL gl)
@@ -42,8 +42,8 @@ public class TerrainLoader : SilkNetOpenGlControl
         var scale = new Vector3(0.1f, 0.1f, 0.1f);
         TestTerrain.Scale = scale;
         
-        TerrainShader.Use();
-        TestTerrain.Render(TerrainShader, Camera);
+        TerrainShader.Use(gl);
+        TestTerrain.Render(gl, TerrainShader, Camera);
     }
 
     protected override void OnPointerEntered(PointerEventArgs e) { }

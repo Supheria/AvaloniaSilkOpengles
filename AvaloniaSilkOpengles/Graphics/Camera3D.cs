@@ -15,14 +15,14 @@ public sealed class Camera3D
     Vector3 Up { get; set; } = Vector3.UnitY;
     Vector3 Front { get; set; } = -Vector3.UnitZ;
     Vector3 Right { get; set; } = Vector3.UnitX;
-    public Vector3 Position { get; set; }
+    public Vector3 Position { get; private set; } = Vector3.Zero;
     float PitchDegrees { get; set; }
     float YawDegrees { get; set; } = -90.0f;
     
-
-    public Camera3D(Vector3 position)
+    public void SetPosition(Vector3 position)
     {
         Position = position;
+        UpdateViewMatrix();
     }
 
     public void SetSize(Size size, float fovDegrees, float nearClipPlane, float farClipPlane)

@@ -8,64 +8,33 @@ namespace AvaloniaSilkOpengles.Graphics;
 
 public abstract class RenderableObject
 {
-    GL Gl { get; }
     Mesh Mesh { get; set; } = new();
     List<Vertex> Vertices { get; } = [];
     List<uint> Indices { get; } = [];
-    protected List<Texture2DHandler> Textures { get; } = [];
-    public Vector3 Scale
+
+    public void Render(
+        GL gl,
+        PrimitiveType renderMode,
+        Vector3 scale,
+        Quaternion rotation,
+        Vector3 translation,
+        Matrix4x4 matrix,
+        List<Texture2DHandler> textures,
+        ShaderHandler shader,
+        Camera3D camera
+    )
     {
-        get => Mesh.Scale;
-        set => Mesh.Scale = value;
-    }
-    public Vector3 RotationDegrees
-    {
-        get => _rotationDegrees;
-        set
-        {
-            _rotationDegrees = value;
-            var rX = Matrix4x4.CreateRotationX(_rotationDegrees.X);
-            var rY = Matrix4x4.CreateRotationY(_rotationDegrees.Y);
-            var rZ = Matrix4x4.CreateRotationZ(_rotationDegrees.Z);
-            var matrix = rX * rY * rZ;
-            Mesh.Rotation = Quaternion.CreateFromRotationMatrix(matrix);
-        }
-    }
-    Vector3 _rotationDegrees;
-    public Vector3 Translation
-    {
-        get => Mesh.Translation;
-        set => Mesh.Translation = value;
-    }
-    public Matrix4x4 Matrix
-    {
-        get => Mesh.Matrix;
-        set => Mesh.Matrix = value;
-    }
-    public PrimitiveType RenderMode
-    {
-        get => Mesh.RenderMode;
-        set => Mesh.RenderMode = value;
+        Mesh.Render(gl, renderMode, scale, rotation, translation, matrix, textures, shader, camera);
     }
 
-    protected RenderableObject(GL gl)
+    public void Delete(GL gl)
     {
-        Gl = gl;
+        Mesh.Delete(gl);
     }
 
-    public void Render(ShaderHandler shader, Camera3D camera)
+    protected void CreateMesh(GL gl)
     {
-        Mesh.Render(shader, camera);
-    }
-
-    public void Delete()
-    {
-        Mesh.Delete();
-    }
-
-    protected void CreateMesh()
-    {
-        Mesh.Create(Gl, Vertices, Indices, Textures);
+        Mesh.Create(gl, Vertices, Indices);
     }
 
     protected void AddTriangleIndices(uint v1, uint v2, uint v3)

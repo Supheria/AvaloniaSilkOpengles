@@ -19,8 +19,10 @@
         <vm:MainViewModel />
     </Design.DataContext>
 
-    <!-- <avaloniaSilkOpengles:HelloTriangle /> -->
-    <!-- <controls:HelloSquareContainer /> -->
-    <!-- <controls:TerrainLoader /> -->
-    <controls:HelloSphere />
+    <!-- <Grid ColumnDefinitions="* *" RowDefinitions="* *"> -->
+    <!--     <controls:HelloSquareContainer Grid.Column="0" Grid.Row="0" /> -->
+    <!--     <controls:TerrainLoader Grid.Column="1" Grid.Row="0" /> -->
+    <!--     <controls:HelloSphere Grid.Column="0" Grid.Row="1" /> -->
+    <!-- </Grid> -->
+    <controls:ChunkLoader Grid.Column="1" Grid.Row="0" />
 </UserControl>

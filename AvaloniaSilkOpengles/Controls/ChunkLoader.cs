@@ -20,13 +20,10 @@ using Vector = Avalonia.Vector;
 
 namespace AvaloniaSilkOpengles.Controls;
 
-public class HelloSquare : SilkNetOpenGlControl
+public class ChunkLoader : SilkNetOpenGlControl
 {
     LightCube? LightCube { get; set; }
     Chunk? Chunk { get; set; }
-    Model? Model1 { get; set; }
-    Model? Model2 { get; set; }
-    Model? Crow { get; set; }
     ShaderHandler? LightShader { get; set; }
     ShaderHandler? SimpleShader { get; set; }
     ShaderHandler? OutlineShader { get; set; }
@@ -35,9 +32,6 @@ public class HelloSquare : SilkNetOpenGlControl
     {
         LightCube = new(gl);
         Chunk = new(gl);
-        Model1 = new(gl, new ModelRead("trees"));
-        Model2 = new(gl, new ModelRead("ground"));
-        Crow = new(gl, new ModelRead("crow"));
 
         LightShader = new(gl, "light");
         SimpleShader = new(gl, "simple");
@@ -49,19 +43,17 @@ public class HelloSquare : SilkNetOpenGlControl
         gl.FrontFace(FrontFaceDirection.Ccw);
         gl.Enable(EnableCap.CullFace);
         gl.CullFace(TriangleFace.Back);
+        
+        Camera.SetPosition(new(5.0f, 9.0f, 7.0f));
     }
 
-    protected override void OnGlDeinit()
+    protected override void OnGlDeinit(GL gl)
     {
-        Model1?.Delete();
-        Model2?.Delete();
-        Crow?.Delete();
+        LightCube?.Delete(gl);
+        Chunk?.Delete(gl);
 
-        LightCube?.Delete();
-        Chunk?.Delete();
-
-        SimpleShader?.Delete();
-        LightShader?.Delete();
+        SimpleShader?.Delete(gl);
+        LightShader?.Delete(gl);
     }
 
     protected override void OnGlRender(GL gl)
@@ -76,23 +68,18 @@ public class HelloSquare : SilkNetOpenGlControl
                 | ClearBufferMask.StencilBufferBit
         );
         var lightColor = new Vector4(1.0f, 1.0f, 1.0f, 1.0f);
-        // var lightPos = new Vector3(3.0f, 4.0f, -3.0f);
         var lightPos = new Vector3(5.0f, 9.0f, 5.0f);
-        LightCube.Translation = lightPos;
+        LightCube.Position = lightPos;
         LightCube.Scale = new(0.05f, 0.05f, 0.05f);
 
-        LightShader.Use();
-        LightShader.SetVector4("lightColor", lightColor);
+        LightShader.Use(gl);
+        LightShader.SetVector4(gl, "lightColor", lightColor);
+        LightCube?.Render(gl, LightShader, Camera);
 
-        LightCube?.Render(LightShader, Camera);
-
-        SimpleShader.Use();
-        SimpleShader.SetVector4("lightColor", lightColor);
-        SimpleShader.SetVector3("lightPos", lightPos);
-        SimpleShader.SetVector4("backGround", backGround);
-        // Model1?.Render(SimpleShader, Camera);
-        // Model2?.Render(SimpleShader, Camera);
-        // Crow?.Render(SimpleShader, Camera);
-        Chunk?.Render(SimpleShader, Camera);
+        SimpleShader.Use(gl);
+        SimpleShader.SetVector4(gl, "lightColor", lightColor);
+        SimpleShader.SetVector3(gl, "lightPos", lightPos);
+        SimpleShader.SetVector4(gl, "backGround", backGround);
+        Chunk?.Render(gl, SimpleShader, Camera);
     }
 }

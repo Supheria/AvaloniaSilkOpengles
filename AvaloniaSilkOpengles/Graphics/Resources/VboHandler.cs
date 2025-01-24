@@ -12,10 +12,9 @@ public sealed unsafe class VboHandler : ResourceHandler
         BufferUsageARB usage = BufferUsageARB.StaticDraw,
         bool doUnbind = false
     )
-        : base(gl)
     {
         Handle = gl.GenBuffer();
-        Bind();
+        Bind(gl);
         var array = data.ToArray();
         gl.BufferData<Vertex>(
             BufferTargetARB.ArrayBuffer,
@@ -24,21 +23,21 @@ public sealed unsafe class VboHandler : ResourceHandler
             usage
         );
         if (doUnbind)
-            Unbind();
+            Unbind(gl);
     }
 
-    public void Bind()
+    public void Bind(GL gl)
     {
-        Gl.BindBuffer(BufferTargetARB.ArrayBuffer, Handle);
+        gl.BindBuffer(BufferTargetARB.ArrayBuffer, Handle);
     }
 
-    public void Unbind()
+    public void Unbind(GL gl)
     {
-        Gl.BindBuffer(BufferTargetARB.ArrayBuffer, 0);
+        gl.BindBuffer(BufferTargetARB.ArrayBuffer, 0);
     }
 
-    public void Delete()
+    public void Delete(GL gl)
     {
-        Gl.DeleteBuffer(Handle);
+        gl.DeleteBuffer(Handle);
     }
 }

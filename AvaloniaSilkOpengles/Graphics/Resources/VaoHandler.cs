@@ -7,7 +7,6 @@ namespace AvaloniaSilkOpengles.Graphics.Resources;
 public sealed unsafe class VaoHandler : ResourceHandler
 {
     public VaoHandler(GL gl, bool doUnbind = false)
-        : base(gl)
     {
         Handle = gl.GenVertexArray();
         if (!doUnbind)
@@ -32,9 +31,9 @@ public sealed unsafe class VaoHandler : ResourceHandler
     //     Gl.EnableVertexAttribArray(element.Plot);
     // }
     
-    public void Link(VboHandler vbo)
+    public void Link(GL gl, VboHandler vbo)
     {
-        vbo.Bind();
+        vbo.Bind(gl);
         LinkItem(VertexElement.Position);
         LinkItem(VertexElement.Normal);
         LinkItem(VertexElement.Color);
@@ -43,7 +42,7 @@ public sealed unsafe class VaoHandler : ResourceHandler
 
         void LinkItem(VertexElement element)
         {
-            Gl.VertexAttribPointer(
+            gl.VertexAttribPointer(
                 element.Plot,
                 element.Count,
                 VertexAttribPointerType.Float,
@@ -51,22 +50,22 @@ public sealed unsafe class VaoHandler : ResourceHandler
                 (uint)sizeof(Vertex),
                 element.StartPointer
             );
-            Gl.EnableVertexAttribArray(element.Plot);
+            gl.EnableVertexAttribArray(element.Plot);
         }
     }
 
-    public void Bind()
+    public void Bind(GL gl)
     {
-        Gl.BindVertexArray(Handle);
+        gl.BindVertexArray(Handle);
     }
 
-    public void Unbind()
+    public void Unbind(GL gl)
     {
-        Gl.BindVertexArray(0);
+        gl.BindVertexArray(0);
     }
 
-    public void Delete()
+    public void Delete(GL gl)
     {
-        Gl.DeleteVertexArray(Handle);
+        gl.DeleteVertexArray(Handle);
     }
 }

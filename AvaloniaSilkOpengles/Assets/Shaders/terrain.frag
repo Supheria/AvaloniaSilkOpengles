@@ -15,7 +15,8 @@ uniform sampler2D specular0;
 
 void main()
 {
-    vec4 texColor = texture(diffuse0, uv);
+//    vec4 texColor = texture(diffuse0, uv);
 //    FragColor = texColor;
-    FragColor = normalize(vec4(color * texColor.rgb, 1.0f));
+    FragColor = vec4(color, 1.0f);
+//    FragColor = normalize(vec4(color * texColor.rgb, 1.0f));
 }

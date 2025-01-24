@@ -15,7 +15,6 @@ namespace AvaloniaSilkOpengles.Graphics;
 
 public class Model
 {
-    GL Gl { get; }
     ModelRead ModelRead { get; }
     JsonNode JSON { get; }
     byte[] Data { get; }
@@ -25,10 +24,10 @@ public class Model
     List<Quaternion> Rotations { get; } = [];
     List<Vector3> Scales { get; } = [];
     List<Matrix4x4> Matrices { get; } = [];
+    List<List<Texture2DHandler>> TextureGroups { get; } = [];
 
     public Model(GL gl, ModelRead modelRead)
     {
-        Gl = gl;
         ModelRead = modelRead;
         var json = modelRead.ReadFile("scene.gltf");
         var array = JsonSerializer.Deserialize<JsonNode>(json);
@@ -37,30 +36,34 @@ public class Model
         Data = GetData();
 
         // LoadMesh(0);
-        TraverseNode(0, Matrix4x4.Identity);
+        TraverseNode(gl, 0, Matrix4x4.Identity);
     }
 
-    public void Render(ShaderHandler? shader, Camera3D? camera)
+    public void Render(GL gl, ShaderHandler? shader, Camera3D? camera)
     {
         if (shader is null || camera is null)
             return;
         for (var i = 0; i < Meshes.Count; i++)
         {
             var mesh = Meshes[i];
-            mesh.RenderMode = PrimitiveType.Triangles;
-            mesh.Scale = Scales[i];
-            mesh.Rotation = Rotations[i];
-            mesh.Translation = Translations[i];
-            mesh.Matrix = Matrices[i];
-
-            mesh.Render(shader, camera);
+            mesh.Render(
+                gl,
+                PrimitiveType.Triangles,
+                Scales[i],
+                Rotations[i],
+                Translations[i],
+                Matrices[i],
+                TextureGroups[i],
+                shader,
+                camera
+            );
         }
     }
 
-    public void Delete()
+    public void Delete(GL gl)
     {
         foreach (var mesh in Meshes)
-            mesh.Delete();
+            mesh.Delete(gl);
     }
 
     private byte[] GetData()
@@ -72,7 +75,7 @@ public class Model
         return buffer.ToArray();
     }
 
-    private void TraverseNode(int nextNode, Matrix4x4 matrix)
+    private void TraverseNode(GL gl, int nextNode, Matrix4x4 matrix)
     {
         var node = JSON["nodes"]?[nextNode];
         var translation = Vector3.Zero;
@@ -129,8 +132,11 @@ public class Model
             Scales.Add(scale);
             Matrices.Add(matrix);
 
+            var textures = GetTextures(gl);
+            TextureGroups.Add(textures);
+
             var meshIndex = (int)(node?["mesh"] ?? 0);
-            LoadMesh(meshIndex);
+            LoadMesh(gl, meshIndex);
         }
         var childrenNode = node?["children"];
         if (childrenNode is not null)
@@ -139,12 +145,12 @@ public class Model
             for (var i = 0; i < count; i++)
             {
                 nextNode = (int)(node?["children"]?[i] ?? 0);
-                TraverseNode(nextNode, childMatrix);
+                TraverseNode(gl, nextNode, childMatrix);
             }
         }
     }
 
-    private void LoadMesh(int index)
+    private void LoadMesh(GL gl, int index)
     {
         var coordsIndex = (int)(
             JSON["meshes"]?[index]?["primitives"]?[0]?["attributes"]?["POSITION"] ?? 0
@@ -166,10 +172,9 @@ public class Model
         var vertices = GetVertices(positions, normals, uvs);
         var indicesIndex = (int)(JSON["meshes"]?[index]?["primitives"]?[0]?["indices"] ?? 0);
         var indices = GetIndices(JSON["accessors"]?[indicesIndex]);
-        var textures = GetTextures();
 
         var mesh = new Mesh();
-        mesh.Create(Gl, vertices, indices, textures);
+        mesh.Create(gl, vertices, indices);
         Meshes.Add(mesh);
     }
 
@@ -288,7 +293,7 @@ public class Model
         return indices;
     }
 
-    private List<Texture2DHandler> GetTextures()
+    private List<Texture2DHandler> GetTextures(GL gl)
     {
         var textures = new List<Texture2DHandler>();
 
@@ -306,7 +311,7 @@ public class Model
             if (name.Contains("baseColor") || name.Contains("diffuse"))
             {
                 var diffuse = new Texture2DHandler(
-                    Gl,
+                    gl,
                     source,
                     TextureType.Diffuse,
                     LoadedTextures.Count
@@ -317,7 +322,7 @@ public class Model
             else if (name.Contains("metallicRoughness") || name.Contains("specular"))
             {
                 var specular = new Texture2DHandler(
-                    Gl,
+                    gl,
                     source,
                     TextureType.Specular,
                     LoadedTextures.Count

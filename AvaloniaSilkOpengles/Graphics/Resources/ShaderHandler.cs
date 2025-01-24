@@ -9,8 +9,7 @@ namespace AvaloniaSilkOpengles.Graphics.Resources;
 
 public sealed unsafe class ShaderHandler : ResourceHandler
 {
-
-    public ShaderHandler(GL gl, string shaderName) : base(gl)
+    public ShaderHandler(GL gl, string shaderName)
     {
         var vertexCode = ShaderRead.ReadVertex(shaderName);
         var fragmentCode = ShaderRead.ReadFragment(shaderName);
@@ -48,9 +47,9 @@ public sealed unsafe class ShaderHandler : ResourceHandler
         return handle;
     }
 
-    public void Use()
+    public void Use(GL gl)
     {
-        Gl.UseProgram(Handle);
+        gl.UseProgram(Handle);
     }
 
     // public void Unbind()
@@ -58,18 +57,18 @@ public sealed unsafe class ShaderHandler : ResourceHandler
     //     Gl.UseProgram(0);
     // }
 
-    public void Delete()
+    public void Delete(GL gl)
     {
-        Gl.DeleteProgram(Handle);
+        gl.DeleteProgram(Handle);
     }
 
-    public void SetMatrix(string uniformName, Matrix4x4 matrix)
+    public void SetMatrix(GL gl, string uniformName, Matrix4x4 matrix)
     {
-        var location = Gl.GetUniformLocation(Handle, uniformName);
+        var location = gl.GetUniformLocation(Handle, uniformName);
         var values = GetMatrix4X4Values(matrix);
         fixed (float* ptr = values)
         {
-            Gl.UniformMatrix4(location, 1, false, ptr);
+            gl.UniformMatrix4(location, 1, false, ptr);
         }
     }
 
@@ -83,30 +82,30 @@ public sealed unsafe class ShaderHandler : ResourceHandler
             matrix.M41, matrix.M42, matrix.M43, matrix.M44
         ];
     }
-    
-    public void SetValue(string uniformName, float value)
+
+    public void SetValue(GL gl, string uniformName, float value)
     {
-        var location = Gl.GetUniformLocation(Handle, uniformName);
-        Gl.Uniform1(location, value);
+        var location = gl.GetUniformLocation(Handle, uniformName);
+        gl.Uniform1(location, value);
     }
 
-    public void SetTexture(Texture2DHandler? texture, string uniformName)
+    public void SetTexture(GL gl, Texture2DHandler? texture, string uniformName)
     {
         if (texture is null)
             return;
-        var location = Gl.GetUniformLocation(Handle, uniformName);
-        Gl.Uniform1(location, texture.Plot);
+        var location = gl.GetUniformLocation(Handle, uniformName);
+        gl.Uniform1(location, texture.Plot);
     }
-    
-    public void SetVector3(string uniformName, Vector3 value)
+
+    public void SetVector3(GL gl, string uniformName, Vector3 value)
     {
-        var location = Gl.GetUniformLocation(Handle, uniformName);
-        Gl.Uniform3(location, value);
+        var location = gl.GetUniformLocation(Handle, uniformName);
+        gl.Uniform3(location, value);
     }
-    
-    public void SetVector4(string uniformName, Vector4 value)
+
+    public void SetVector4(GL gl, string uniformName, Vector4 value)
     {
-        var location = Gl.GetUniformLocation(Handle, uniformName);
-        Gl.Uniform4(location, value);
+        var location = gl.GetUniformLocation(Handle, uniformName);
+        gl.Uniform4(location, value);
     }
 }

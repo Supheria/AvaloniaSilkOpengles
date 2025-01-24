@@ -16,10 +16,10 @@ public sealed class EboHandler : ResourceHandler
         ICollection<uint> data,
         BufferUsageARB usage = BufferUsageARB.StaticDraw,
         bool doUnbind = false
-    ) : base(gl)
+    )
     {
         Handle = gl.GenBuffer();
-        Bind();
+        Bind(gl);
         var array = data.ToArray();
         gl.BufferData<uint>(
             BufferTargetARB.ElementArrayBuffer,
@@ -29,26 +29,26 @@ public sealed class EboHandler : ResourceHandler
         );
         ElementCount = (uint)array.Length;
         if (doUnbind)
-            Unbind();
+            Unbind(gl);
     }
 
-    public void Bind()
+    public void Bind(GL gl)
     {
-        Gl.BindBuffer(BufferTargetARB.ElementArrayBuffer, Handle);
+        gl.BindBuffer(BufferTargetARB.ElementArrayBuffer, Handle);
     }
 
-    public void Unbind()
+    public void Unbind(GL gl)
     {
-        Gl.BindBuffer(BufferTargetARB.ElementArrayBuffer, 0);
+        gl.BindBuffer(BufferTargetARB.ElementArrayBuffer, 0);
     }
 
-    public void Delete()
+    public void Delete(GL gl)
     {
-        Gl.DeleteBuffer(Handle);
+        gl.DeleteBuffer(Handle);
     }
-    
-    public unsafe void DrawElements(PrimitiveType renderMode)
+
+    public unsafe void DrawElements(GL gl, PrimitiveType renderMode)
     {
-        Gl.DrawElements(renderMode, ElementCount, DrawElementsType.UnsignedInt, null);
+        gl.DrawElements(renderMode, ElementCount, DrawElementsType.UnsignedInt, null);
     }
 }

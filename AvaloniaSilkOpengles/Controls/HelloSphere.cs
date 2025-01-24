@@ -9,8 +9,8 @@ namespace AvaloniaSilkOpengles.Controls;
 
 public class HelloSphere : SilkNetOpenGlControl
 {
-    IcoSphere? Sun { get; set; }
-    IcoSphere? Sphere { get; set; }
+    SelectableSphere? Sun { get; set; }
+    SelectableSphere? Sphere { get; set; }
     ShaderHandler? LightShader { get; set; }
     ShaderHandler? SphereShader { get; set; }
 
@@ -29,10 +29,10 @@ public class HelloSphere : SilkNetOpenGlControl
         gl.CullFace(TriangleFace.Back);
     }
 
-    protected override void OnGlDeinit()
+    protected override void OnGlDeinit(GL gl)
     {
-        Sphere?.Delete();
-        SphereShader?.Delete();
+        Sphere?.Delete(gl);
+        SphereShader?.Delete(gl);
     }
 
     protected override void OnGlRender(GL gl)
@@ -47,16 +47,16 @@ public class HelloSphere : SilkNetOpenGlControl
         var lightPos = new Vector3(1, 1, 1);
         var lightColor = new Vector4(1.0f, 1.0f, 1.0f, 1.0f);
 
-        LightShader.Use();
-        LightShader.SetVector4("lightColor", lightColor);
+        LightShader.Use(gl);
+        LightShader.SetVector4(gl, "lightColor", lightColor);
         Sun.Scale = new(0.05f, 0.05f, 0.05f);
-        Sun.Translation = lightPos;
-        Sun.Render(LightShader, Camera);
+        Sun.Position = lightPos;
+        Sun.Render(gl, LightShader, Camera);
 
-        SphereShader.Use();
-        SphereShader.SetVector4("lightColor", lightColor);
-        SphereShader.SetVector3("lightPos", lightPos);
-        Sphere.Render(SphereShader, Camera);
+        SphereShader.Use(gl);
+        SphereShader.SetVector4(gl, "lightColor", lightColor);
+        SphereShader.SetVector3(gl, "lightPos", lightPos);
+        Sphere.Render(gl, SphereShader, Camera);
     }
 
     private void PickObjectOnScreen(float mouseX, float mouseY)

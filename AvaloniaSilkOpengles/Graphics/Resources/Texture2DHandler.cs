@@ -17,7 +17,6 @@ public class Texture2DHandler : ResourceHandler
     public int Plot { get; }
 
     public Texture2DHandler(GL gl, Stream stream, TextureType type, int plot)
-        : base(gl)
     {
         Type = type;
         Plot = plot;
@@ -120,21 +119,21 @@ public class Texture2DHandler : ResourceHandler
         return handle;
     }
 
-    public void Bind()
+    public void Bind(GL gl)
     {
-        Gl.ActiveTexture(TextureUnit.Texture0 + Plot);
-        Gl.BindTexture(TextureTarget.Texture2D, Handle);
+        gl.ActiveTexture(TextureUnit.Texture0 + Plot);
+        gl.BindTexture(TextureTarget.Texture2D, Handle);
     }
 
-    public void Unbind()
+    public void Unbind(GL gl)
     {
-        Gl.ActiveTexture(TextureUnit.Texture0 + Plot);
-        Gl.BindTexture(TextureTarget.Texture2D, 0);
+        gl.ActiveTexture(TextureUnit.Texture0 + Plot);
+        gl.BindTexture(TextureTarget.Texture2D, 0);
     }
 
-    public void Delete()
+    public void Delete(GL gl)
     {
-        Gl.DeleteTexture(Handle);
-        Gl.Dispose();
+        gl.DeleteTexture(Handle);
+        gl.Dispose();
     }
 }
