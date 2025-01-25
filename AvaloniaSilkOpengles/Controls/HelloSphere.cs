@@ -140,7 +140,7 @@ public class HelloSphere : SilkNetOpenGlControl
     private void FindClosestAsteroidHitByRay(Vector3 rayWorldCoordinates)
     {
         SelectableSphere? bestCandidate = null;
-        double? bestDistance = null;
+        float? bestDistance = null;
         foreach (var gameObject in Spheres)
         {
             var candidateDistance = gameObject.IntersectsRay(rayWorldCoordinates, Camera.Position);
@@ -148,7 +148,7 @@ public class HelloSphere : SilkNetOpenGlControl
                 continue;
             if (!bestDistance.HasValue)
             {
-                if (candidateDistance < 1.1)
+                if (candidateDistance < 1.1f)
                     continue;
                 bestDistance = candidateDistance;
                 bestCandidate = gameObject;

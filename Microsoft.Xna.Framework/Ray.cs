@@ -1,300 +1,365 @@
-#region License
-/* FNA - XNA4 Reimplementation for Desktop Platforms
- * Copyright 2009-2024 Ethan Lee and the MonoGame Team
- *
- * Released under the Microsoft Public License.
- * See LICENSE for details.
- */
+﻿// MIT License - Copyright (C) The Mono.Xna Team
+// This file is subject to the terms and conditions defined in
+// file 'LICENSE.txt', which is part of this source code package.
 
-/* Derived from code by the Mono.Xna Team (Copyright 2006).
- * Released under the MIT License. See monoxna.LICENSE for details.
- */
-#endregion
-
-#region Using Statements
 using System;
-using System.ComponentModel;
 using System.Diagnostics;
-
-using Microsoft.Xna.Framework.Design;
-#endregion
+using System.Runtime.Serialization;
 
 namespace Microsoft.Xna.Framework
 {
-	[Serializable]
-	[TypeConverter(typeof(RayConverter))]
-	[DebuggerDisplay("{DebugDisplayString,nq}")]
-	public struct Ray : IEquatable<Ray>
-	{
-		#region Internal Properties
+    /// <summary>
+    /// Represents a ray with an origin and a direction in 3D space.
+    /// </summary>
+    [DataContract]
+    [DebuggerDisplay("{DebugDisplayString,nq}")]
+    public struct Ray : IEquatable<Ray>
+    {
+        #region Public Fields
 
-		internal string DebugDisplayString
-		{
-			get
-			{
-				return string.Concat(
-					"Pos( ", Position.DebugDisplayString, " ) \r\n",
-					"Dir( ", Direction.DebugDisplayString, " )"
-				);
-			}
-		}
+        /// <summary>
+        /// The direction of this <see cref="Ray"/>.
+        /// </summary>
+        [DataMember]
+        public Vector3 Direction;
+      
+        /// <summary>
+        /// The origin of this <see cref="Ray"/>.
+        /// </summary>
+        [DataMember]
+        public Vector3 Position;
 
-		#endregion
-
-		#region Public Fields
-
-		public Vector3 Position;
-		public Vector3 Direction;
-
-		#endregion
+        #endregion
 
 
-		#region Public Constructors
+        #region Public Constructors
 
-		public Ray(Vector3 position, Vector3 direction)
-		{
-			Position = position;
-			Direction = direction;
-		}
+        /// <summary>
+        /// Create a <see cref="Ray"/>.
+        /// </summary>
+        /// <param name="position">The origin of the <see cref="Ray"/>.</param>
+        /// <param name="direction">The direction of the <see cref="Ray"/>.</param>
+        public Ray(Vector3 position, Vector3 direction)
+        {
+            this.Position = position;
+            this.Direction = direction;
+        }
 
-		#endregion
-
-
-		#region Public Methods
-
-		public override bool Equals(object obj)
-		{
-			return (obj is Ray) && Equals((Ray) obj);
-		}
+        #endregion
 
 
-		public bool Equals(Ray other)
-		{
-			return (	this.Position.Equals(other.Position) &&
-					this.Direction.Equals(other.Direction)	);
-		}
+        #region Public Methods
 
+        /// <summary>
+        /// Check if the specified <see cref="Object"/> is equal to this <see cref="Ray"/>.
+        /// </summary>
+        /// <param name="obj">The <see cref="Object"/> to test for equality with this <see cref="Ray"/>.</param>
+        /// <returns>
+        /// <code>true</code> if the specified <see cref="Object"/> is equal to this <see cref="Ray"/>,
+        /// <code>false</code> if it is not.
+        /// </returns>
+        public override bool Equals(object obj)
+        {
+            return (obj is Ray) && this.Equals((Ray)obj);
+        }
 
-		public override int GetHashCode()
-		{
-			return Position.GetHashCode() ^ Direction.GetHashCode();
-		}
+        /// <summary>
+        /// Check if the specified <see cref="Ray"/> is equal to this <see cref="Ray"/>.
+        /// </summary>
+        /// <param name="other">The <see cref="Ray"/> to test for equality with this <see cref="Ray"/>.</param>
+        /// <returns>
+        /// <code>true</code> if the specified <see cref="Ray"/> is equal to this <see cref="Ray"/>,
+        /// <code>false</code> if it is not.
+        /// </returns>
+        public bool Equals(Ray other)
+        {
+            return this.Position.Equals(other.Position) && this.Direction.Equals(other.Direction);
+        }
 
-		// Adapted from http://www.scratchapixel.com/lessons/3d-basic-lessons/lesson-7-intersecting-simple-shapes/ray-box-intersection/
-		public float? Intersects(BoundingBox box)
-		{
-			float? tMin = null, tMax = null;
+        /// <summary>
+        /// Get a hash code for this <see cref="Ray"/>.
+        /// </summary>
+        /// <returns>A hash code for this <see cref="Ray"/>.</returns>
+        public override int GetHashCode()
+        {
+            return Position.GetHashCode() ^ Direction.GetHashCode();
+        }
 
-			if (MathHelper.WithinEpsilon(Direction.X, 0.0f))
-			{
-				if (Position.X < box.Min.X || Position.X > box.Max.X)
-				{
-					return null;
-				}
-			}
-			else
-			{
-				tMin = (box.Min.X - Position.X) / Direction.X;
-				tMax = (box.Max.X - Position.X) / Direction.X;
+        // adapted from http://www.scratchapixel.com/lessons/3d-basic-lessons/lesson-7-intersecting-simple-shapes/ray-box-intersection/
+        /// <summary>
+        /// Check if this <see cref="Ray"/> intersects the specified <see cref="BoundingBox"/>.
+        /// </summary>
+        /// <param name="box">The <see cref="BoundingBox"/> to test for intersection.</param>
+        /// <returns>
+        /// The distance along the ray of the intersection or <code>null</code> if this
+        /// <see cref="Ray"/> does not intersect the <see cref="BoundingBox"/>.
+        /// </returns>
+        public float? Intersects(BoundingBox box)
+        {
+            const float Epsilon = 1e-6f;
 
-				if (tMin > tMax)
-				{
-					float? temp = tMin;
-					tMin = tMax;
-					tMax = temp;
-				}
-			}
+            float? tMin = null, tMax = null;
 
-			if (MathHelper.WithinEpsilon(Direction.Y, 0.0f))
-			{
-				if (Position.Y < box.Min.Y || Position.Y > box.Max.Y)
-				{
-					return null;
-				}
-			}
-			else
-			{
-				float tMinY = (box.Min.Y - Position.Y) / Direction.Y;
-				float tMaxY = (box.Max.Y - Position.Y) / Direction.Y;
+            if (Math.Abs(Direction.X) < Epsilon)
+            {
+                if (Position.X < box.Min.X || Position.X > box.Max.X)
+                    return null;
+            }
+            else
+            {
+                tMin = (box.Min.X - Position.X) / Direction.X;
+                tMax = (box.Max.X - Position.X) / Direction.X;
 
-				if (tMinY > tMaxY)
-				{
-					float temp = tMinY;
-					tMinY = tMaxY;
-					tMaxY = temp;
-				}
+                if (tMin > tMax)
+                {
+                    var temp = tMin;
+                    tMin = tMax;
+                    tMax = temp;
+                }
+            }
 
-				if (	(tMin.HasValue && tMin > tMaxY) ||
-					(tMax.HasValue && tMinY > tMax)	)
-				{
-					return null;
-				}
+            if (Math.Abs(Direction.Y) < Epsilon)
+            {
+                if (Position.Y < box.Min.Y || Position.Y > box.Max.Y)
+                    return null;
+            }
+            else
+            {
+                var tMinY = (box.Min.Y - Position.Y) / Direction.Y;
+                var tMaxY = (box.Max.Y - Position.Y) / Direction.Y;
 
-				if (!tMin.HasValue || tMinY > tMin) tMin = tMinY;
-				if (!tMax.HasValue || tMaxY < tMax) tMax = tMaxY;
-			}
+                if (tMinY > tMaxY)
+                {
+                    var temp = tMinY;
+                    tMinY = tMaxY;
+                    tMaxY = temp;
+                }
 
-			if (MathHelper.WithinEpsilon(Direction.Z, 0.0f))
-			{
-				if (Position.Z < box.Min.Z || Position.Z > box.Max.Z)
-				{
-					return null;
-				}
-			}
-			else
-			{
-				float tMinZ = (box.Min.Z - Position.Z) / Direction.Z;
-				float tMaxZ = (box.Max.Z - Position.Z) / Direction.Z;
+                if ((tMin.HasValue && tMin > tMaxY) || (tMax.HasValue && tMinY > tMax))
+                    return null;
 
-				if (tMinZ > tMaxZ)
-				{
-					float temp = tMinZ;
-					tMinZ = tMaxZ;
-					tMaxZ = temp;
-				}
+                if (!tMin.HasValue || tMinY > tMin) tMin = tMinY;
+                if (!tMax.HasValue || tMaxY < tMax) tMax = tMaxY;
+            }
 
-				if (	(tMin.HasValue && tMin > tMaxZ) ||
-					(tMax.HasValue && tMinZ > tMax)	)
-				{
-					return null;
-				}
+            if (Math.Abs(Direction.Z) < Epsilon)
+            {
+                if (Position.Z < box.Min.Z || Position.Z > box.Max.Z)
+                    return null;
+            }
+            else
+            {
+                var tMinZ = (box.Min.Z - Position.Z) / Direction.Z;
+                var tMaxZ = (box.Max.Z - Position.Z) / Direction.Z;
 
-				if (!tMin.HasValue || tMinZ > tMin) tMin = tMinZ;
-				if (!tMax.HasValue || tMaxZ < tMax) tMax = tMaxZ;
-			}
+                if (tMinZ > tMaxZ)
+                {
+                    var temp = tMinZ;
+                    tMinZ = tMaxZ;
+                    tMaxZ = temp;
+                }
 
-			/* Having a positive tMin and a negative tMax means the ray is inside the
-			 * box we expect the intesection distance to be 0 in that case.
-			 */
-			if ((tMin.HasValue && tMin < 0) && tMax > 0) return 0;
+                if ((tMin.HasValue && tMin > tMaxZ) || (tMax.HasValue && tMinZ > tMax))
+                    return null;
 
-			/* A negative tMin means that the intersection point is behind the ray's
-			 * origin. We discard these as not hitting the AABB.
-			 */
-			if (tMin < 0) return null;
+                if (!tMin.HasValue || tMinZ > tMin) tMin = tMinZ;
+                if (!tMax.HasValue || tMaxZ < tMax) tMax = tMaxZ;
+            }
 
-			return tMin;
-		}
+            // having a positive tMax and a negative tMin means the ray is inside the box
+            // we expect the intesection distance to be 0 in that case
+            if ((tMin.HasValue && tMin < 0) && tMax > 0) return 0;
 
+            // a negative tMin means that the intersection point is behind the ray's origin
+            // we discard these as not hitting the AABB
+            if (tMin < 0) return null;
 
-		public void Intersects(ref BoundingBox box, out float? result)
-		{
+            return tMin;
+        }
+
+        /// <summary>
+        /// Check if this <see cref="Ray"/> intersects the specified <see cref="BoundingBox"/>.
+        /// </summary>
+        /// <param name="box">The <see cref="BoundingBox"/> to test for intersection.</param>
+        /// <param name="result">
+        /// The distance along the ray of the intersection or <code>null</code> if this
+        /// <see cref="Ray"/> does not intersect the <see cref="BoundingBox"/>.
+        /// </param>
+        public void Intersects(ref BoundingBox box, out float? result)
+        {
 			result = Intersects(box);
-		}
+        }
 
-		public float? Intersects(BoundingSphere sphere)
-		{
-			float? result;
-			Intersects(ref sphere, out result);
-			return result;
-		}
-
-		public float? Intersects(Plane plane)
-		{
-			float? result;
-			Intersects(ref plane, out result);
-			return result;
-		}
-
-		public float? Intersects(BoundingFrustum frustum)
-		{
-			float? result;
-			frustum.Intersects(ref this, out result);
-			return result;
-		}
-
-		public void Intersects(ref Plane plane, out float? result)
-		{
-			float den = Vector3.Dot(Direction, plane.Normal);
-			if (Math.Abs(den) < 0.00001f)
+        /*
+        public float? Intersects(BoundingFrustum frustum)
+        {
+            if (frustum == null)
 			{
-				result = null;
-				return;
+				throw new ArgumentNullException("frustum");
 			}
+			
+			return frustum.Intersects(this);			
+        }
+        */
 
-			result = (-plane.D - Vector3.Dot(plane.Normal, Position)) / den;
+        /// <summary>
+        /// Check if this <see cref="Ray"/> intersects the specified <see cref="BoundingSphere"/>.
+        /// </summary>
+        /// <param name="sphere">The <see cref="BoundingBox"/> to test for intersection.</param>
+        /// <returns>
+        /// The distance along the ray of the intersection or <code>null</code> if this
+        /// <see cref="Ray"/> does not intersect the <see cref="BoundingSphere"/>.
+        /// </returns>
+        public float? Intersects(BoundingSphere sphere)
+        {
+            float? result;
+            Intersects(ref sphere, out result);
+            return result;
+        }
 
-			if (result < 0.0f)
-			{
-				if (result < -0.00001f)
-				{
-					result = null;
-					return;
-				}
+        /// <summary>
+        /// Check if this <see cref="Ray"/> intersects the specified <see cref="Plane"/>.
+        /// </summary>
+        /// <param name="plane">The <see cref="Plane"/> to test for intersection.</param>
+        /// <returns>
+        /// The distance along the ray of the intersection or <code>null</code> if this
+        /// <see cref="Ray"/> does not intersect the <see cref="Plane"/>.
+        /// </returns>
+        public float? Intersects(Plane plane)
+        {
+            float? result;
+            Intersects(ref plane, out result);
+            return result;
+        }
 
-				result = 0.0f;
-			}
-		}
+        /// <summary>
+        /// Check if this <see cref="Ray"/> intersects the specified <see cref="Plane"/>.
+        /// </summary>
+        /// <param name="plane">The <see cref="Plane"/> to test for intersection.</param>
+        /// <param name="result">
+        /// The distance along the ray of the intersection or <code>null</code> if this
+        /// <see cref="Ray"/> does not intersect the <see cref="Plane"/>.
+        /// </param>
+        public void Intersects(ref Plane plane, out float? result)
+        {
+            var den = Vector3.Dot(Direction, plane.Normal);
+            if (Math.Abs(den) < 0.00001f)
+            {
+                result = null;
+                return;
+            }
 
-		public void Intersects(ref BoundingSphere sphere, out float? result)
-		{
-			// Find the vector between where the ray starts the the sphere's center.
-			Vector3 difference = sphere.Center - this.Position;
+            result = (-plane.D - Vector3.Dot(plane.Normal, Position)) / den;
 
-			float differenceLengthSquared = difference.LengthSquared();
-			float sphereRadiusSquared = sphere.Radius * sphere.Radius;
+            if (result < 0.0f)
+            {
+                if (result < -0.00001f)
+                {
+                    result = null;
+                    return;
+                }
 
-			float distanceAlongRay;
+                result = 0.0f;
+            }
+        }
 
-			/* If the distance between the ray start and the sphere's center is less than
-			 * the radius of the sphere, it means we've intersected. Checking the
-			 * LengthSquared is faster.
-			 */
-			if (differenceLengthSquared < sphereRadiusSquared)
-			{
-				result = 0.0f;
-				return;
-			}
+        /// <summary>
+        /// Check if this <see cref="Ray"/> intersects the specified <see cref="BoundingSphere"/>.
+        /// </summary>
+        /// <param name="sphere">The <see cref="BoundingBox"/> to test for intersection.</param>
+        /// <param name="result">
+        /// The distance along the ray of the intersection or <code>null</code> if this
+        /// <see cref="Ray"/> does not intersect the <see cref="BoundingSphere"/>.
+        /// </param>
+        public void Intersects(ref BoundingSphere sphere, out float? result)
+        {
+            // Find the vector between where the ray starts the the sphere's centre
+            Vector3 difference = sphere.Center - this.Position;
 
-			Vector3.Dot(ref this.Direction, ref difference, out distanceAlongRay);
-			// If the ray is pointing away from the sphere then we don't ever intersect.
-			if (distanceAlongRay < 0)
-			{
-				result = null;
-				return;
-			}
+            float differenceLengthSquared = difference.LengthSquared();
+            float sphereRadiusSquared = sphere.Radius * sphere.Radius;
 
-			/* Next we kinda use Pythagoras to check if we are within the bounds of the
-			 * sphere.
-			 * if x = radius of sphere
-			 * if y = distance between ray position and sphere centre
-			 * if z = the distance we've travelled along the ray
-			 * if x^2 + z^2 - y^2 < 0, we do not intersect
-			 */
-			float dist = (
-				sphereRadiusSquared +
-				(distanceAlongRay * distanceAlongRay) -
-				differenceLengthSquared
-			);
+            float distanceAlongRay;
 
-			result = (dist < 0) ? null : distanceAlongRay - (float?) Math.Sqrt(dist);
-		}
+            // If the distance between the ray start and the sphere's centre is less than
+            // the radius of the sphere, it means we've intersected. N.B. checking the LengthSquared is faster.
+            if (differenceLengthSquared < sphereRadiusSquared)
+            {
+                result = 0.0f;
+                return;
+            }
 
-		#endregion
+            Vector3.Dot(ref this.Direction, ref difference, out distanceAlongRay);
+            // If the ray is pointing away from the sphere then we don't ever intersect
+            if (distanceAlongRay < 0)
+            {
+                result = null;
+                return;
+            }
 
-		#region Public Static Methods
+            // Next we kinda use Pythagoras to check if we are within the bounds of the sphere
+            // if x = radius of sphere
+            // if y = distance between ray position and sphere centre
+            // if z = the distance we've travelled along the ray
+            // if x^2 + z^2 - y^2 < 0, we do not intersect
+            float dist = sphereRadiusSquared + distanceAlongRay * distanceAlongRay - differenceLengthSquared;
 
-		public static bool operator !=(Ray a, Ray b)
-		{
-			return !a.Equals(b);
-		}
+            result = (dist < 0) ? null : distanceAlongRay - (float?)MathF.Sqrt(dist);
+        }
 
+        /// <summary>
+        /// Check if two rays are not equal.
+        /// </summary>
+        /// <param name="a">A ray to check for inequality.</param>
+        /// <param name="b">A ray to check for inequality.</param>
+        /// <returns><code>true</code> if the two rays are not equal, <code>false</code> if they are.</returns>
+        public static bool operator !=(Ray a, Ray b)
+        {
+            return !a.Equals(b);
+        }
 
-		public static bool operator ==(Ray a, Ray b)
-		{
-			return a.Equals(b);
-		}
+        /// <summary>
+        /// Check if two rays are equal.
+        /// </summary>
+        /// <param name="a">A ray to check for equality.</param>
+        /// <param name="b">A ray to check for equality.</param>
+        /// <returns><code>true</code> if the two rays are equals, <code>false</code> if they are not.</returns>
+        public static bool operator ==(Ray a, Ray b)
+        {
+            return a.Equals(b);
+        }
 
+        internal string DebugDisplayString
+        {
+            get
+            {
+                return string.Concat(
+                    "Pos( ", this.Position.DebugDisplayString, " )  \r\n",
+                    "Dir( ", this.Direction.DebugDisplayString, " )"
+                );
+            }
+        }
 
-		public override string ToString()
-		{
-			return (
-				"{{Position:" + Position.ToString() +
-				" Direction:" + Direction.ToString() +
-				"}}"
-			);
-		}
+        /// <summary>
+        /// Get a <see cref="String"/> representation of this <see cref="Ray"/>.
+        /// </summary>
+        /// <returns>A <see cref="String"/> representation of this <see cref="Ray"/>.</returns>
+        public override string ToString()
+        {
+            return "{{Position:" + Position.ToString() + " Direction:" + Direction.ToString() + "}}";
+        }
 
-		#endregion
-	}
+        /// <summary>
+        /// Deconstruction method for <see cref="Ray"/>.
+        /// </summary>
+        /// <param name="position">Receives the start position of the ray.</param>
+        /// <param name="direction">Receives the direction of the ray.</param>
+        public void Deconstruct(out Vector3 position, out Vector3 direction)
+        {
+            position = Position;
+            direction = Direction;
+        }
+
+        #endregion
+    }
 }
