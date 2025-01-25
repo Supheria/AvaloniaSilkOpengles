@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Numerics;
 using AvaloniaSilkOpengles.Assets.Textures;
 using AvaloniaSilkOpengles.Graphics;
 using AvaloniaSilkOpengles.Graphics.Resources;
+using Microsoft.Xna.Framework;
 using Silk.NET.OpenGLES;
 
 namespace AvaloniaSilkOpengles.Sphere;

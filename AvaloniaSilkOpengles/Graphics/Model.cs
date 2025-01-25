@@ -2,11 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Numerics;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using AvaloniaSilkOpengles.Assets.Models;
 using AvaloniaSilkOpengles.Graphics.Resources;
+using Microsoft.Xna.Framework;
 using Silk.NET.Maths;
 using Silk.NET.OpenGLES;
 using StbImageSharp;
@@ -23,7 +23,7 @@ public class Model
     List<Vector3> Translations { get; } = [];
     List<Quaternion> Rotations { get; } = [];
     List<Vector3> Scales { get; } = [];
-    List<Matrix4x4> Matrices { get; } = [];
+    List<Matrix4> Matrices { get; } = [];
     List<List<Texture2DHandler>> TextureGroups { get; } = [];
 
     public Model(GL gl, ModelRead modelRead)
@@ -36,7 +36,7 @@ public class Model
         Data = GetData();
 
         // LoadMesh(0);
-        TraverseNode(gl, 0, Matrix4x4.Identity);
+        TraverseNode(gl, 0, Matrix4.Identity);
     }
 
     public void Render(GL gl, ShaderHandler? shader, Camera3D? camera)
@@ -75,53 +75,58 @@ public class Model
         return buffer.ToArray();
     }
 
-    private void TraverseNode(GL gl, int nextNode, Matrix4x4 matrix)
+    private void TraverseNode(GL gl, int nextNode, Matrix4 matrix)
     {
         var node = JSON["nodes"]?[nextNode];
         var translation = Vector3.Zero;
         var transNode = node?["translation"];
         if (transNode is not null)
         {
-            var count = node?["translation"]?.AsArray().Count ?? 0;
-            for (var i = 0; i < count; i++)
-                translation[i] = (float)(node?["translation"]?[i] ?? 0f);
+            translation.X = (float)(node?["translation"]?[0] ?? 0f);
+            translation.Y = (float)(node?["translation"]?[1] ?? 0f);
+            translation.Z = (float)(node?["translation"]?[2] ?? 0f);
         }
         var rotation = Quaternion.Identity;
         var rotationNode = node?["rotation"];
         if (rotationNode is not null)
         {
-            var count = node?["rotation"]?.AsArray().Count ?? 0;
-            for (var i = 0; i < count; i++)
-                rotation[i] = (float)(node?["rotation"]?[i] ?? 0f);
+            rotation.X = (float)(node?["rotation"]?[0] ?? 0f);
+            rotation.Y = (float)(node?["rotation"]?[1] ?? 0f);
+            rotation.Z = (float)(node?["rotation"]?[2] ?? 0f);
+            rotation.W = (float)(node?["rotation"]?[3] ?? 0f);
         }
         var scale = Vector3.One;
         var scaleNode = node?["scale"];
         if (scaleNode is not null)
         {
-            var count = node?["scale"]?.AsArray().Count ?? 0;
-            for (var i = 0; i < count; i++)
-                scale[i] = (float)(node?["scale"]?[i] ?? 0f);
+            scale.X = (float)(node?["scale"]?[0] ?? 0f);
+            scale.Y = (float)(node?["scale"]?[1] ?? 0f);
+            scale.Z = (float)(node?["scale"]?[2] ?? 0f);
         }
-        var mat = Matrix4x4.Identity;
+        var mat = Matrix4.Identity;
         var matNode = node?["matrix"];
         if (matNode is not null)
         {
-            var count = node?["matrix"]?.AsArray().Count ?? 0;
-            var index = 0;
-            for (int i = 0; i < count / 4; i++)
-            {
-                for (var j = 0; j < 4; j++)
-                {
-                    // gltf matrix is row-mojor
-                    var value = (float)(node?["matrix"]?[index] ?? 0f);
-                    mat[i, j] = value;
-                    index++;
-                }
-            }
+            mat.M11 = (float)(node?["matrix"]?[0] ?? 0f);
+            mat.M12 = (float)(node?["matrix"]?[1] ?? 0f);
+            mat.M13 = (float)(node?["matrix"]?[2] ?? 0f);
+            mat.M14 = (float)(node?["matrix"]?[3] ?? 0f);
+            mat.M21 = (float)(node?["matrix"]?[4] ?? 0f);
+            mat.M22 = (float)(node?["matrix"]?[5] ?? 0f);
+            mat.M23 = (float)(node?["matrix"]?[6] ?? 0f);
+            mat.M24 = (float)(node?["matrix"]?[7] ?? 0f);
+            mat.M31 = (float)(node?["matrix"]?[8] ?? 0f);
+            mat.M32 = (float)(node?["matrix"]?[9] ?? 0f);
+            mat.M33 = (float)(node?["matrix"]?[10] ?? 0f);
+            mat.M34 = (float)(node?["matrix"]?[11] ?? 0f);
+            mat.M41 = (float)(node?["matrix"]?[12] ?? 0f);
+            mat.M42 = (float)(node?["matrix"]?[13] ?? 0f);
+            mat.M43 = (float)(node?["matrix"]?[14] ?? 0f);
+            mat.M44 = (float)(node?["matrix"]?[15] ?? 0f);
         }
-        var translationMatrix = Matrix4x4.CreateTranslation(translation);
-        var rotationMatrix = Matrix4x4.CreateFromQuaternion(rotation);
-        var scaleMatrix = Matrix4x4.CreateScale(scale);
+        var translationMatrix = Matrix4.CreateTranslation(translation);
+        var rotationMatrix = Matrix4.CreateFromQuaternion(rotation);
+        var scaleMatrix = Matrix4.CreateScale(scale);
         // var childMatrix = matrix * mat * transMatrix * rotationMatrix * scaleMatrix;
         var childMatrix = scaleMatrix * rotationMatrix * translationMatrix * mat * matrix;
         var meshNode = node?["mesh"];
@@ -338,12 +343,13 @@ public class Model
     private List<Vector2> GroupToVector2(List<float> floats)
     {
         var vectors = new List<Vector2>();
-        var elementCount = 2;
-        for (var i = 0; i < floats.Count; i += elementCount)
+        for (var i = 0; i < floats.Count; i += 2)
         {
-            var vector = new Vector2();
-            for (var j = 0; j < elementCount; j++)
-                vector[j] = floats[i + j];
+            var vector = new Vector2
+            {
+                X = floats[i],
+                Y = floats[i + 1]
+            };
             vectors.Add(vector);
         }
         return vectors;
@@ -352,12 +358,14 @@ public class Model
     private List<Vector3> GroupToVector3(List<float> floats)
     {
         var vectors = new List<Vector3>();
-        var elementCount = 3;
-        for (var i = 0; i < floats.Count; i += elementCount)
+        for (var i = 0; i < floats.Count; i += 3)
         {
-            var vector = new Vector3();
-            for (var j = 0; j < elementCount; j++)
-                vector[j] = floats[i + j];
+            var vector = new Vector3
+            {
+                X = floats[i],
+                Y = floats[i + 1],
+                Z = floats[i + 2]
+            };
             vectors.Add(vector);
         }
         return vectors;

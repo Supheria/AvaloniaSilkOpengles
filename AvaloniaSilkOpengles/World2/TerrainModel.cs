@@ -1,14 +1,15 @@
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using AltitudeMapGenerator;
 using Avalonia;
+using Avalonia.Media;
 using Avalonia.Platform;
 using AvaloniaSilkOpengles.Assets;
 using AvaloniaSilkOpengles.Graphics;
 using LocalUtilities.SimpleScript;
+using Microsoft.Xna.Framework;
 using Silk.NET.OpenGLES;
 
 namespace AvaloniaSilkOpengles.World2;
@@ -180,11 +181,11 @@ public class TerrainModel : RenderableObject
         };
         var color = terrainType switch
         {
-            TerrainType.None => Color.Black,
-            TerrainType.Plain => Color.LightYellow,
-            TerrainType.Stream => Color.SkyBlue,
-            TerrainType.Wood => Color.LimeGreen,
-            TerrainType.Hill => Color.DarkSlateGray,
+            TerrainType.None => Colors.Black,
+            TerrainType.Plain => Colors.LightYellow,
+            TerrainType.Stream => Colors.SkyBlue,
+            TerrainType.Wood => Colors.LimeGreen,
+            TerrainType.Hill => Colors.DarkSlateGray,
             _ => throw new ArgumentOutOfRangeException(nameof(terrainType), terrainType, null)
         };
         return new(positions, new(color));

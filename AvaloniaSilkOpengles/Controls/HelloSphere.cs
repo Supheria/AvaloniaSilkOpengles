@@ -1,11 +1,11 @@
 using System.Collections.Generic;
-using System.Drawing;
-using System.Numerics;
 using Avalonia.Input;
+using Avalonia.Media;
 using AvaloniaSilkOpengles.Assets.Textures;
 using AvaloniaSilkOpengles.Graphics;
 using AvaloniaSilkOpengles.Graphics.Resources;
 using AvaloniaSilkOpengles.Sphere;
+using Microsoft.Xna.Framework;
 using Silk.NET.OpenGLES;
 
 namespace AvaloniaSilkOpengles.Controls;
@@ -66,7 +66,7 @@ public class HelloSphere : SilkNetOpenGlControl
         if (LightShader is null || SphereShader is null)
             return;
 
-        var color = new RenderColor(Color.SkyBlue);
+        var color = new RenderColor(Colors.SkyBlue);
         gl.ClearColor(color.R, color.G, color.B, 1);
         gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
@@ -124,14 +124,14 @@ public class HelloSphere : SilkNetOpenGlControl
         );
 
         // 4D eye (camera) coordinates
-        if (!Matrix4x4.Invert(Camera.ProjectionMatrix, out var projectionInvert))
-            return;
+        var projection = Camera.ProjectionMatrix;
+        Matrix4.Invert(ref projection, out var projectionInvert);
         var rayEye = Vector4.Transform(rayClip, projectionInvert);
         rayEye = new Vector4(rayEye.X, rayEye.Y, -1f, 0f);
 
         // 4D world coordinates
-        if (!Matrix4x4.Invert(Camera.ViewMatrix, out var viewInvert))
-            return;
+        var view = Camera.ViewMatrix;
+        Matrix4.Invert(ref view, out var viewInvert);
         var r = Vector4.Transform(rayEye, viewInvert);
         var ray = Vector3.Normalize(new(r.X, r.Y, r.Z));
         FindClosestAsteroidHitByRay(ray);

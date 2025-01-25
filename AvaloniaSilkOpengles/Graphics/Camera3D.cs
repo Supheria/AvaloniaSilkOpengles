@@ -1,7 +1,7 @@
 using System;
 using System.Diagnostics;
-using System.Numerics;
 using Avalonia;
+using Microsoft.Xna.Framework;
 using Avalonia.Input;
 
 namespace AvaloniaSilkOpengles.Graphics;
@@ -10,8 +10,8 @@ public sealed class Camera3D
 {
     float Speed { get; set; } = 2.0f;
     float Sensitivity { get; set; } = 20.0f;
-    public Matrix4x4 ProjectionMatrix { get; private set; } = Matrix4x4.Identity;
-    public Matrix4x4 ViewMatrix { get; private set; } = Matrix4x4.Identity;
+    public Matrix4 ProjectionMatrix { get; private set; } = Matrix4.Identity;
+    public Matrix4 ViewMatrix { get; private set; } = Matrix4.Identity;
     Vector3 Up { get; set; } = Vector3.UnitY;
     Vector3 Front { get; set; } = -Vector3.UnitZ;
     Vector3 Right { get; set; } = Vector3.UnitX;
@@ -27,7 +27,7 @@ public sealed class Camera3D
 
     public void SetSize(Size size, float fovDegrees, float nearClipPlane, float farClipPlane)
     {
-        ProjectionMatrix = Matrix4x4.CreatePerspectiveFieldOfView(
+        ProjectionMatrix = Matrix4.CreatePerspectiveFieldOfView(
             float.DegreesToRadians(fovDegrees),
             (float)(size.Width / size.Height),
             nearClipPlane,
@@ -37,10 +37,10 @@ public sealed class Camera3D
 
     private void UpdateViewMatrix()
     {
-        ViewMatrix = Matrix4x4.CreateLookAt(Position, Position + Front, Up);
+        ViewMatrix = Matrix4.CreateLookAt(Position, Position + Front, Up);
     }
 
-    public Matrix4x4 GetMatrix()
+    public Matrix4 GetMatrix()
     {
         return ViewMatrix * ProjectionMatrix;
     }

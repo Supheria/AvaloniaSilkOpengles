@@ -1,5 +1,6 @@
-using System.Drawing;
+using Avalonia.Media;
 using AvaloniaSilkOpengles.Graphics;
+using Microsoft.Xna.Framework;
 using Silk.NET.OpenGLES;
 
 namespace AvaloniaSilkOpengles.World;
@@ -31,16 +32,16 @@ public class LightCubeModel : RenderableObject
         switch (faceType)
         {
             case FaceType.Front:
-                face = new LightCubeFace(positions, new(Color.Red));
+                face = new LightCubeFace(positions, new(Colors.Red));
                 break;
             case FaceType.Right:
-                face = new LightCubeFace(positions, new(Color.Green));
+                face = new LightCubeFace(positions, new(Colors.Green));
                 break;
             case FaceType.Top:
-                face = new LightCubeFace(positions, new(Color.Blue));
+                face = new LightCubeFace(positions, new(Colors.Blue));
                 break;
             default:
-                face = new LightCubeFace(positions, new(Color.White));
+                face = new LightCubeFace(positions, new(Colors.White));
                 break;
         }
         AddVertices(face);

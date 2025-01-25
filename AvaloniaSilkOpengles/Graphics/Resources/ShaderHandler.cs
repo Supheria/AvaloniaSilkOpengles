@@ -1,7 +1,7 @@
 using System;
-using System.Numerics;
 using Avalonia.OpenGL;
 using AvaloniaSilkOpengles.Assets.Shaders;
+using Microsoft.Xna.Framework;
 using Silk.NET.OpenGLES;
 using static Avalonia.OpenGL.GlConsts;
 
@@ -62,7 +62,7 @@ public sealed unsafe class ShaderHandler : ResourceHandler
         gl.DeleteProgram(Handle);
     }
 
-    public void SetMatrix(GL gl, string uniformName, Matrix4x4 matrix)
+    public void SetMatrix(GL gl, string uniformName, Matrix4 matrix)
     {
         var location = gl.GetUniformLocation(Handle, uniformName);
         var values = GetMatrix4X4Values(matrix);
@@ -73,7 +73,7 @@ public sealed unsafe class ShaderHandler : ResourceHandler
     }
 
     // csharpier-ignore
-    private float[] GetMatrix4X4Values(Matrix4x4 matrix)
+    private float[] GetMatrix4X4Values(Matrix4 matrix)
     {
         return [
             matrix.M11, matrix.M12, matrix.M13, matrix.M14,
@@ -100,12 +100,12 @@ public sealed unsafe class ShaderHandler : ResourceHandler
     public void SetVector3(GL gl, string uniformName, Vector3 value)
     {
         var location = gl.GetUniformLocation(Handle, uniformName);
-        gl.Uniform3(location, value);
+        gl.Uniform3(location, [value.X, value.Y, value.Z]);
     }
 
     public void SetVector4(GL gl, string uniformName, Vector4 value)
     {
         var location = gl.GetUniformLocation(Handle, uniformName);
-        gl.Uniform4(location, value);
+        gl.Uniform4(location, [value.X, value.Y, value.Z, value.W]);
     }
 }

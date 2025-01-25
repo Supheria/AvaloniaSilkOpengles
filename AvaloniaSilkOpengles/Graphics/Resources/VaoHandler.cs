@@ -12,24 +12,6 @@ public sealed unsafe class VaoHandler : ResourceHandler
         if (!doUnbind)
             gl.BindVertexArray(Handle);
     }
-
-    // public void Link(
-    //     VboHandler vbo,
-    //     VertexElement element,
-    //     bool normalized = false
-    // )
-    // {
-    //     vbo.Bind();
-    //     Gl.VertexAttribPointer(
-    //         element.Plot,
-    //         element.Count,
-    //         VertexAttribPointerType.Float,
-    //         normalized,
-    //         (uint)sizeof(Vertex),
-    //         element.StartPointer
-    //     );
-    //     Gl.EnableVertexAttribArray(element.Plot);
-    // }
     
     public void Link(GL gl, VboHandler vbo)
     {

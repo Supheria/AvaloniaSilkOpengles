@@ -1,4 +1,4 @@
-using System.Numerics;
+using Microsoft.Xna.Framework;
 
 namespace AvaloniaSilkOpengles.Graphics;
 
@@ -15,8 +15,8 @@ public readonly record struct Position(Vector3 Value)
     public Position(float x, float y, float z)
         : this(new(x, y, z)) { }
 
-    public Position Normalize()
+    public static Position Normalize(float x, float y, float z)
     {
-        return new(Vector3.Normalize(Value));
+        return new(Vector3.Normalize(new(x, y, z)));
     }
 }

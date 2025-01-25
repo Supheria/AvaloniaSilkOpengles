@@ -1,7 +1,6 @@
 using System.Collections.Generic;
-using System.Drawing;
-using System.Numerics;
 using AvaloniaSilkOpengles.Graphics.Resources;
+using Microsoft.Xna.Framework;
 using Silk.NET.OpenGLES;
 
 namespace AvaloniaSilkOpengles.Graphics;
@@ -18,7 +17,7 @@ public abstract class RenderableObject
         Vector3 scale,
         Quaternion rotation,
         Vector3 translation,
-        Matrix4x4 matrix,
+        Matrix4 matrix,
         List<Texture2DHandler> textures,
         ShaderHandler shader,
         Camera3D camera

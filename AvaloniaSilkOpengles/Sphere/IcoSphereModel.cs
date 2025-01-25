@@ -9,32 +9,33 @@ public class IcoSphereModel : RenderableObject
 {
     List<Position> Positions { get; } = [];
     uint IndexHead { get; set; }
-    
+
     public IcoSphereModel(GL gl, int recursionLevel)
     {
         GeneratePostitions();
         GenerateFaces(recursionLevel);
         CreateMesh(gl);
     }
+
     private void GeneratePostitions()
     {
         var t = (1 + MathF.Sqrt(5)) / 2;
-        Positions.AddRange([
-            new Position(-1, t, 0).Normalize(),
-            new Position(1, t, 0).Normalize(),
-            new Position(-1, -t, 0).Normalize(),
-            new Position(1, -t, 0).Normalize(),
-
-            new Position(0, -1, t).Normalize(),
-            new Position(0, 1, t).Normalize(),
-            new Position(0, -1, -t).Normalize(),
-            new Position(0, 1, -t).Normalize(),
-
-            new Position(t, 0, -1).Normalize(),
-            new Position(t, 0, 1).Normalize(),
-            new Position(-t, 0, -1).Normalize(),
-            new Position(-t, 0, 1).Normalize(),
-        ]);
+        Positions.AddRange(
+            [
+                Position.Normalize(-1, t, 0),
+                Position.Normalize(1, t, 0),
+                Position.Normalize(-1, -t, 0),
+                Position.Normalize(1, -t, 0),
+                Position.Normalize(0, -1, t),
+                Position.Normalize(0, 1, t),
+                Position.Normalize(0, -1, -t),
+                Position.Normalize(0, 1, -t),
+                Position.Normalize(t, 0, -1),
+                Position.Normalize(t, 0, 1),
+                Position.Normalize(-t, 0, -1),
+                Position.Normalize(-t, 0, 1),
+            ]
+        );
     }
 
     private void GenerateFaces(int recursionLevel)
@@ -94,11 +95,11 @@ public class IcoSphereModel : RenderableObject
 
     private Position GetMiddlePosition(Position pos1, Position pos2)
     {
-        return new Position(
+        return Position.Normalize(
             (pos1.X + pos2.X) / 2f,
             (pos1.Y + pos2.Y) / 2f,
             (pos1.Z + pos2.Z) / 2f
-        ).Normalize();
+        );
     }
 
     private void AddFace(SphereFace face)

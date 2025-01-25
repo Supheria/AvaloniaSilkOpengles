@@ -44,7 +44,7 @@ namespace Microsoft.Xna.Framework.Design
 			ITypeDescriptorContext context,
 			IDictionary propertyValues
 		) {
-			return (object) new Matrix(
+			return (object) new Matrix4(
 				(float) propertyValues["M11"],
 				(float) propertyValues["M12"],
 				(float) propertyValues["M13"],

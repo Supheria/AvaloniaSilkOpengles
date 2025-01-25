@@ -1,5 +1,4 @@
 using System;
-using System.Numerics;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
@@ -8,7 +7,9 @@ using Avalonia.OpenGL.Controls;
 using Avalonia.Rendering;
 using Avalonia.Threading;
 using AvaloniaSilkOpengles.Graphics;
+using Microsoft.Xna.Framework;
 using Silk.NET.OpenGLES;
+using Point = Avalonia.Point;
 
 namespace AvaloniaSilkOpengles.Controls;
 

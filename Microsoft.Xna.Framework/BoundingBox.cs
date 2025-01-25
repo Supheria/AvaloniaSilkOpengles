@@ -22,6 +22,9 @@ using Microsoft.Xna.Framework.Design;
 
 namespace Microsoft.Xna.Framework
 {
+    /// <summary>
+    /// Represents an axis-aligned bounding box (AABB) in 3D space.
+    /// </summary>
 	[Serializable]
 	[TypeConverter(typeof(BoundingBoxConverter))]
 	[DebuggerDisplay("{DebugDisplayString,nq}")]

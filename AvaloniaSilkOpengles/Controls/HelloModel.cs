@@ -1,8 +1,8 @@
-using System.Numerics;
 using AvaloniaSilkOpengles.Assets.Models;
 using AvaloniaSilkOpengles.Graphics;
 using AvaloniaSilkOpengles.Graphics.Resources;
 using AvaloniaSilkOpengles.World;
+using Microsoft.Xna.Framework;
 using Silk.NET.OpenGLES;
 
 namespace AvaloniaSilkOpengles.Controls;

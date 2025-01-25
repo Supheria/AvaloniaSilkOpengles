@@ -1,5 +1,5 @@
-using System.Drawing;
-using System.Numerics;
+using Avalonia.Media;
+using Microsoft.Xna.Framework;
 
 namespace AvaloniaSilkOpengles.Graphics;
 
@@ -8,6 +8,7 @@ public readonly record struct RenderColor(Vector3 Value)
     public float R => Value.X;
     public float G => Value.Y;
     public float B => Value.Z;
+
     /// <summary>
     /// 1, 1, 1
     /// </summary>
@@ -17,7 +18,7 @@ public readonly record struct RenderColor(Vector3 Value)
         : this(Normalize(color)) { }
 
     public RenderColor()
-        : this(Color.Transparent) { }
+        : this(new Vector3(1, 1, 1)) { }
 
     private static Vector3 Normalize(Color color)
     {

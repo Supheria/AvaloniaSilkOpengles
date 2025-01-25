@@ -1,22 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Numerics;
-using Avalonia;
-using Avalonia.Controls;
-using Avalonia.Input;
-using Avalonia.OpenGL;
-using Avalonia.OpenGL.Controls;
-using Avalonia.Rendering;
-using Avalonia.Threading;
-using AvaloniaSilkOpengles.Assets.Models;
-using AvaloniaSilkOpengles.Graphics;
 using AvaloniaSilkOpengles.Graphics.Resources;
 using AvaloniaSilkOpengles.World;
+using Microsoft.Xna.Framework;
 using Silk.NET.OpenGLES;
-using static Avalonia.OpenGL.GlConsts;
-using Vector = Avalonia.Vector;
 
 namespace AvaloniaSilkOpengles.Controls;
 

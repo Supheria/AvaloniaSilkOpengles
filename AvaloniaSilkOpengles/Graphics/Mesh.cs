@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Numerics;
+using Microsoft.Xna.Framework;
 using AvaloniaSilkOpengles.Graphics.Resources;
 using AvaloniaSilkOpengles.World;
 using Silk.NET.OpenGLES;
@@ -42,7 +42,7 @@ public class Mesh
         Vector3 scale,
         Quaternion rotation,
         Vector3 translation,
-        Matrix4x4 matrix,
+        Matrix4 matrix,
         List<Texture2DHandler> textures,
         ShaderHandler shader,
         Camera3D camera)
@@ -73,9 +73,9 @@ public class Mesh
         shader.SetVector3(gl, "camPos", camera.Position);
         shader.SetMatrix(gl, "camMatrix", camera.GetMatrix());
 
-        var scaleMatrix = Matrix4x4.CreateScale(scale);
-        var rotationMatrix = Matrix4x4.CreateFromQuaternion(rotation);
-        var translationMatrix = Matrix4x4.CreateTranslation(translation);
+        var scaleMatrix = Matrix4.CreateScale(scale);
+        var rotationMatrix = Matrix4.CreateFromQuaternion(rotation);
+        var translationMatrix = Matrix4.CreateTranslation(translation);
 
         shader.SetMatrix(gl, "scale", scaleMatrix);
         shader.SetMatrix(gl, "rotation", rotationMatrix);

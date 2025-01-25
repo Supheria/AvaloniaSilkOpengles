@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using System.Numerics;
+using Microsoft.Xna.Framework;
 using AvaloniaSilkOpengles.Graphics.Resources;
 using Silk.NET.OpenGLES;
 
@@ -17,16 +17,16 @@ public class GameObject
         set
         {
             _rotationDegrees = value;
-            var rX = Matrix4x4.CreateRotationX(_rotationDegrees.X);
-            var rY = Matrix4x4.CreateRotationY(_rotationDegrees.Y);
-            var rZ = Matrix4x4.CreateRotationZ(_rotationDegrees.Z);
+            var rX = Matrix4.CreateRotationX(_rotationDegrees.X);
+            var rY = Matrix4.CreateRotationY(_rotationDegrees.Y);
+            var rZ = Matrix4.CreateRotationZ(_rotationDegrees.Z);
             var matrix = rX * rY * rZ;
             Rotation = Quaternion.CreateFromRotationMatrix(matrix);
         }
     }
     Vector3 _rotationDegrees = Vector3.Zero;
     public Vector3 Position { get; set; } = Vector3.Zero;
-    public Matrix4x4 Matrix { get; set; } = Matrix4x4.Identity;
+    public Matrix4 Matrix { get; set; } = Matrix4.Identity;
     public PrimitiveType RenderMode { get; set; } = PrimitiveType.Triangles;
     
     public void SetCurrentModel(GL gl, RenderableObject model)

@@ -815,12 +815,12 @@ namespace Microsoft.Xna.Framework
 		}
 
 		/// <summary>
-		/// Creates a new <see cref="Vector2"/> that contains a transformation of 2d-vector by the specified <see cref="Matrix"/>.
+		/// Creates a new <see cref="Vector2"/> that contains a transformation of 2d-vector by the specified <see cref="Matrix4"/>.
 		/// </summary>
 		/// <param name="position">Source <see cref="Vector2"/>.</param>
-		/// <param name="matrix">The transformation <see cref="Matrix"/>.</param>
+		/// <param name="matrix">The transformation <see cref="Matrix4"/>.</param>
 		/// <returns>Transformed <see cref="Vector2"/>.</returns>
-		public static Vector2 Transform(Vector2 position, Matrix matrix)
+		public static Vector2 Transform(Vector2 position, Matrix4 matrix)
 		{
 			return new Vector2(
 				(position.X * matrix.M11) + (position.Y * matrix.M21) + matrix.M41,
@@ -829,14 +829,14 @@ namespace Microsoft.Xna.Framework
 		}
 
 		/// <summary>
-		/// Creates a new <see cref="Vector2"/> that contains a transformation of 2d-vector by the specified <see cref="Matrix"/>.
+		/// Creates a new <see cref="Vector2"/> that contains a transformation of 2d-vector by the specified <see cref="Matrix4"/>.
 		/// </summary>
 		/// <param name="position">Source <see cref="Vector2"/>.</param>
-		/// <param name="matrix">The transformation <see cref="Matrix"/>.</param>
+		/// <param name="matrix">The transformation <see cref="Matrix4"/>.</param>
 		/// <param name="result">Transformed <see cref="Vector2"/> as an output parameter.</param>
 		public static void Transform(
 			ref Vector2 position,
-			ref Matrix matrix,
+			ref Matrix4 matrix,
 			out Vector2 result
 		) {
 			float x = (position.X * matrix.M11) + (position.Y * matrix.M21) + matrix.M41;
@@ -877,32 +877,32 @@ namespace Microsoft.Xna.Framework
 		}
 
 		/// <summary>
-		/// Apply transformation on all vectors within array of <see cref="Vector2"/> by the specified <see cref="Matrix"/> and places the results in an another array.
+		/// Apply transformation on all vectors within array of <see cref="Vector2"/> by the specified <see cref="Matrix4"/> and places the results in an another array.
 		/// </summary>
 		/// <param name="sourceArray">Source array.</param>
-		/// <param name="matrix">The transformation <see cref="Matrix"/>.</param>
+		/// <param name="matrix">The transformation <see cref="Matrix4"/>.</param>
 		/// <param name="destinationArray">Destination array.</param>
 		public static void Transform(
 			Vector2[] sourceArray,
-			ref Matrix matrix,
+			ref Matrix4 matrix,
 			Vector2[] destinationArray
 		) {
 			Transform(sourceArray, 0, ref matrix, destinationArray, 0, sourceArray.Length);
 		}
 
 		/// <summary>
-		/// Apply transformation on vectors within array of <see cref="Vector2"/> by the specified <see cref="Matrix"/> and places the results in an another array.
+		/// Apply transformation on vectors within array of <see cref="Vector2"/> by the specified <see cref="Matrix4"/> and places the results in an another array.
 		/// </summary>
 		/// <param name="sourceArray">Source array.</param>
 		/// <param name="sourceIndex">The starting index of transformation in the source array.</param>
-		/// <param name="matrix">The transformation <see cref="Matrix"/>.</param>
+		/// <param name="matrix">The transformation <see cref="Matrix4"/>.</param>
 		/// <param name="destinationArray">Destination array.</param>
 		/// <param name="destinationIndex">The starting index in the destination array, where the first <see cref="Vector2"/> should be written.</param>
 		/// <param name="length">The number of vectors to be transformed.</param>
 		public static void Transform(
 			Vector2[] sourceArray,
 			int sourceIndex,
-			ref Matrix matrix,
+			ref Matrix4 matrix,
 			Vector2[] destinationArray,
 			int destinationIndex,
 			int length
@@ -967,12 +967,12 @@ namespace Microsoft.Xna.Framework
 		}
 
 		/// <summary>
-		/// Creates a new <see cref="Vector2"/> that contains a transformation of the specified normal by the specified <see cref="Matrix"/>.
+		/// Creates a new <see cref="Vector2"/> that contains a transformation of the specified normal by the specified <see cref="Matrix4"/>.
 		/// </summary>
 		/// <param name="normal">Source <see cref="Vector2"/> which represents a normal vector.</param>
-		/// <param name="matrix">The transformation <see cref="Matrix"/>.</param>
+		/// <param name="matrix">The transformation <see cref="Matrix4"/>.</param>
 		/// <returns>Transformed normal.</returns>
-		public static Vector2 TransformNormal(Vector2 normal, Matrix matrix)
+		public static Vector2 TransformNormal(Vector2 normal, Matrix4 matrix)
 		{
 			return new Vector2(
 				(normal.X * matrix.M11) + (normal.Y * matrix.M21),
@@ -981,14 +981,14 @@ namespace Microsoft.Xna.Framework
 		}
 
 		/// <summary>
-		/// Creates a new <see cref="Vector2"/> that contains a transformation of the specified normal by the specified <see cref="Matrix"/>.
+		/// Creates a new <see cref="Vector2"/> that contains a transformation of the specified normal by the specified <see cref="Matrix4"/>.
 		/// </summary>
 		/// <param name="normal">Source <see cref="Vector2"/> which represents a normal vector.</param>
-		/// <param name="matrix">The transformation <see cref="Matrix"/>.</param>
+		/// <param name="matrix">The transformation <see cref="Matrix4"/>.</param>
 		/// <param name="result">Transformed normal as an output parameter.</param>
 		public static void TransformNormal(
 			ref Vector2 normal,
-			ref Matrix matrix,
+			ref Matrix4 matrix,
 			out Vector2 result
 		) {
 			float x = (normal.X * matrix.M11) + (normal.Y * matrix.M21);
@@ -998,14 +998,14 @@ namespace Microsoft.Xna.Framework
 		}
 
 		/// <summary>
-		/// Apply transformation on all normals within array of <see cref="Vector2"/> by the specified <see cref="Matrix"/> and places the results in an another array.
+		/// Apply transformation on all normals within array of <see cref="Vector2"/> by the specified <see cref="Matrix4"/> and places the results in an another array.
 		/// </summary>
 		/// <param name="sourceArray">Source array.</param>
-		/// <param name="matrix">The transformation <see cref="Matrix"/>.</param>
+		/// <param name="matrix">The transformation <see cref="Matrix4"/>.</param>
 		/// <param name="destinationArray">Destination array.</param>
 		public static void TransformNormal(
 			Vector2[] sourceArray,
-			ref Matrix matrix,
+			ref Matrix4 matrix,
 			Vector2[] destinationArray
 		) {
 			TransformNormal(
@@ -1019,18 +1019,18 @@ namespace Microsoft.Xna.Framework
 		}
 
 		/// <summary>
-		/// Apply transformation on normals within array of <see cref="Vector2"/> by the specified <see cref="Matrix"/> and places the results in an another array.
+		/// Apply transformation on normals within array of <see cref="Vector2"/> by the specified <see cref="Matrix4"/> and places the results in an another array.
 		/// </summary>
 		/// <param name="sourceArray">Source array.</param>
 		/// <param name="sourceIndex">The starting index of transformation in the source array.</param>
-		/// <param name="matrix">The transformation <see cref="Matrix"/>.</param>
+		/// <param name="matrix">The transformation <see cref="Matrix4"/>.</param>
 		/// <param name="destinationArray">Destination array.</param>
 		/// <param name="destinationIndex">The starting index in the destination array, where the first <see cref="Vector2"/> should be written.</param>
 		/// <param name="length">The number of normals to be transformed.</param>
 		public static void TransformNormal(
 			Vector2[] sourceArray,
 			int sourceIndex,
-			ref Matrix matrix,
+			ref Matrix4 matrix,
 			Vector2[] destinationArray,
 			int destinationIndex,
 			int length
