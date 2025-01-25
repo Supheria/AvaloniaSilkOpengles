@@ -162,7 +162,11 @@ public class HelloSphere : SilkNetOpenGlControl
         }
         if (bestCandidate != null)
         {
-            bestCandidate.SetTextures(TextureMoon);
+            if (bestCandidate.Selected)
+                bestCandidate.SetTextures(TextureWood);
+            else
+                bestCandidate.SetTextures(TextureMoon);
+            bestCandidate.Selected = !bestCandidate.Selected;
         }
     }
 }

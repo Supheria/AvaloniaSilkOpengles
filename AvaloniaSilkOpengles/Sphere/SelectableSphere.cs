@@ -11,8 +11,13 @@ namespace AvaloniaSilkOpengles.Sphere;
 
 public class SelectableSphere : GameObject
 {
+    public bool Selected { get; set; }
     public double? IntersectsRay(Vector3 rayDirection, Vector3 rayOrigin)
     {
+        var bounds = new BoundingSphere(Position, Scale.X);
+        var ray = new Ray(rayOrigin, rayDirection);
+        return ray.Intersects(bounds);
+        
         var radius = Scale.X;
         var difference = Position - (rayOrigin - rayDirection);
         var differenceLengthSquared = difference.LengthSquared();
