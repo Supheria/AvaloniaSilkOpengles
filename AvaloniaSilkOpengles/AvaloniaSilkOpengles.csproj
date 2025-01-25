@@ -36,5 +36,6 @@
 
     <ItemGroup>
       <ProjectReference Include="..\AltitudeMapGenerator\AltitudeMapGenerator.csproj" />
+      <ProjectReference Include="..\Microsoft.Xna.Framework\Microsoft.Xna.Framework.csproj" />
     </ItemGroup>
 </Project>
