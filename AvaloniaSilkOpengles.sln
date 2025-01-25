@@ -22,6 +22,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AltitudeMapGenerator", "Alt
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LocalUtilities", "LocalUtilities\LocalUtilities.csproj", "{684CFF2B-653C-447F-A0C7-D9C4E13B7BB9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Xna.Framework", "Microsoft.Xna.Framework\Microsoft.Xna.Framework.csproj", "{088CCF16-78F6-4671-A013-71A15003663B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -56,6 +58,10 @@ Global
 		{684CFF2B-653C-447F-A0C7-D9C4E13B7BB9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{684CFF2B-653C-447F-A0C7-D9C4E13B7BB9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{684CFF2B-653C-447F-A0C7-D9C4E13B7BB9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{088CCF16-78F6-4671-A013-71A15003663B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{088CCF16-78F6-4671-A013-71A15003663B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{088CCF16-78F6-4671-A013-71A15003663B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{088CCF16-78F6-4671-A013-71A15003663B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
