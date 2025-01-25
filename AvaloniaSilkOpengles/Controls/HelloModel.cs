@@ -32,7 +32,7 @@ public class HelloModel : SilkNetOpenGlControl
         gl.DepthFunc(DepthFunction.Less);
 
         gl.FrontFace(FrontFaceDirection.Ccw);
-        gl.Enable(EnableCap.CullFace);
+        // gl.Enable(EnableCap.CullFace);
         gl.CullFace(TriangleFace.Back);
         
         Camera.SetPosition(new(0, 2, 0));
@@ -78,6 +78,9 @@ public class HelloModel : SilkNetOpenGlControl
         FrogShader.SetVector4(gl, "backGround", backGround);
         Model1?.Render(gl, FrogShader, Camera);
         Model2?.Render(gl, FrogShader, Camera);
+        
+        gl.Disable(EnableCap.CullFace);
         Crow?.Render(gl, FrogShader, Camera);
+        gl.Enable(EnableCap.CullFace);
     }
 }

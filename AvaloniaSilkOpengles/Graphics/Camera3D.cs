@@ -24,6 +24,14 @@ public sealed class Camera3D
         Position = position;
         UpdateViewMatrix();
     }
+    
+    public void SetRotation(float pitchDegrees, float yawDegrees)
+    {
+        PitchDegrees = pitchDegrees;
+        YawDegrees = yawDegrees;
+        UpdateVectors();
+        UpdateViewMatrix();
+    }
 
     public void SetSize(Size size, float fovDegrees, float nearClipPlane, float farClipPlane)
     {

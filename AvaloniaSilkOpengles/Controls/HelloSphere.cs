@@ -18,6 +18,7 @@ public class HelloSphere : SilkNetOpenGlControl
     ShaderHandler? SphereShader { get; set; }
     Texture2DHandler? TextureWood { get; set; }
     Texture2DHandler? TextureMoon { get; set; }
+    bool DoDrag { get; set; }
 
     private Texture2DHandler LoadTexture(GL gl, string name)
     {
@@ -91,16 +92,25 @@ public class HelloSphere : SilkNetOpenGlControl
             sphere.Render(gl, SphereShader, Camera);
     }
 
-    protected override void OnPointerMoved(PointerEventArgs e)
-    {
-        base.OnPointerMoved(e);
-    }
-
     protected override void OnPointerPressed(PointerPressedEventArgs e)
     {
         base.OnPointerPressed(e);
+        DoDrag = true;
         var position = e.GetPosition(this);
+        LastPointerPostion = position;
         PickObjectOnScreen((float)position.X, (float)position.Y);
+    }
+
+    protected override void OnPointerMoved(PointerEventArgs e)
+    {
+        if (DoDrag)
+            base.OnPointerMoved(e);
+    }
+
+    protected override void OnPointerReleased(PointerReleasedEventArgs e)
+    {
+        base.OnPointerReleased(e);
+        DoDrag = false;
     }
 
     private void PickObjectOnScreen(float mouseX, float mouseY)

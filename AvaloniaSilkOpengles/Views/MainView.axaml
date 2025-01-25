@@ -19,10 +19,23 @@
         <vm:MainViewModel />
     </Design.DataContext>
 
-    <!-- <Grid ColumnDefinitions="* *" RowDefinitions="* *"> -->
-    <!--     <controls:HelloSquareContainer Grid.Column="0" Grid.Row="0" /> -->
-    <!--     <controls:TerrainLoader Grid.Column="1" Grid.Row="0" /> -->
-    <!--     <controls:HelloSphere Grid.Column="0" Grid.Row="1" /> -->
-    <!-- </Grid> -->
-    <controls:HelloSphere Grid.Column="1" Grid.Row="0" />
+    <Grid ColumnDefinitions="* *" RowDefinitions="* *">
+        <controls:GlControlContainer
+            Grid.Column="0"
+            Grid.Row="0"
+            x:Name="Gl1" />
+        <controls:GlControlContainer
+            Grid.Column="1"
+            Grid.Row="0"
+            x:Name="Gl2" />
+        <controls:GlControlContainer
+            Grid.Column="0"
+            Grid.Row="1"
+            x:Name="Gl3" />
+        <controls:GlControlContainer
+            Grid.Column="1"
+            Grid.Row="1"
+            x:Name="Gl4" />
+    </Grid>
+    <!-- <controls:HelloModel Grid.Column="1" Grid.Row="0" /> -->
 </UserControl>

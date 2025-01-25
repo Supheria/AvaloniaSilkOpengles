@@ -2,7 +2,7 @@
     d:DesignHeight="450"
     d:DesignWidth="800"
     mc:Ignorable="d"
-    x:Class="AvaloniaSilkOpengles.Controls.HelloSquareContainer"
+    x:Class="AvaloniaSilkOpengles.Controls.GlControlContainer"
     xmlns="https://github.com/avaloniaui"
     xmlns:controls="clr-namespace:AvaloniaSilkOpengles.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -11,6 +11,6 @@
     <Grid RowDefinitions="Auto Auto *">
         <TextBlock x:Name="Fps" />
         <TextBlock Grid.Row="1" x:Name="Mspf" />
-        <controls:ChunkLoader Grid.Row="2" x:Name="HelloSquare" />
+        <ContentControl Grid.Row="2" x:Name="GlControl" />
     </Grid>
 </UserControl>
