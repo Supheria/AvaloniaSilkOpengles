@@ -4,47 +4,76 @@ using System.Runtime.InteropServices;
 using Avalonia.Media.Imaging;
 using Avalonia.OpenGL;
 using Avalonia.Skia;
-using AvaloniaSilkOpengles.Assets.Textures;
+using AvaloniaSilkOpengles.Assets;
+using Microsoft.Xna.Framework;
 using Silk.NET.OpenGLES;
 using SkiaSharp;
 using StbImageSharp;
 
 namespace AvaloniaSilkOpengles.Graphics.Resources;
 
-public class Texture2DHandler : ResourceHandler
+public unsafe class Texture2D : Resource
 {
-    public TextureType Type { get; }
     public int Plot { get; }
+    public Vector2 Size { get; }
+    public TextureType Type { get; }
 
-    public Texture2DHandler(GL gl, Stream stream, TextureType type, int plot)
+    public record struct ImageInfo(byte[] Pixels, int Width, int Height, int ColumnNumber);
+
+    private Texture2D(uint handle, int plot, float width, float height, TextureType type)
+        : base(handle)
     {
-        Type = type;
         Plot = plot;
-        Handle = Load(gl, stream, plot);
+        Size = new(width, height);
+        Type = type;
     }
 
-    record ImageData(byte[] Data, int Width, int Height, int ColumnNumber);
+    public static Texture2D Create(GL gl, string textureName, int plot, TextureType type)
+    {
+        using var stream = AssetsRead.ReadTexture(textureName);
+        return Create(gl, stream, plot, type);
+    }
 
-    static unsafe ImageData LoadFromStream(Stream stream)
+    public static Texture2D Create(GL gl, Stream stream, int plot, TextureType type)
+    {
+        var image = LoadImage(stream);
+        return Create(gl, plot, image.Pixels, image.Width, image.Height, image.ColumnNumber, type);
+    }
+
+    public static Texture2D Create(
+        GL gl,
+        int plot,
+        byte[] pixels,
+        int width,
+        int height,
+        int columnNumber,
+        TextureType type
+    )
+    {
+        var handle = GetHandle(gl, plot, pixels, width, height, columnNumber);
+        return new(handle, plot, width, height, type);
+    }
+
+    public static ImageInfo LoadImage(Stream stream)
     {
         var ptr = (void*)null;
         try
         {
             int width;
             int height;
-            int comp;
-            var info = new StbImage.stbi__result_info();
+            int column;
+            // TODO: may remove flip
+            StbImage.stbi_set_flip_vertically_on_load(1);
             ptr = StbImage.stbi__load_and_postprocess_8bit(
                 new StbImage.stbi__context(stream),
                 &width,
                 &height,
-                &comp,
+                &column,
                 0
             );
-            var data = new byte[width * height * comp];
+            var data = new byte[width * height * column];
             Marshal.Copy(new IntPtr(ptr), data, 0, data.Length);
-            return new ImageData(data, width, height, comp);
-            // return ImageResult.FromResult(ptr, width, height, (ColorComponents) comp, requiredComponents);
+            return new ImageInfo(data, width, height, column);
         }
         finally
         {
@@ -53,10 +82,17 @@ public class Texture2DHandler : ResourceHandler
         }
     }
 
-    private static uint Load(GL gl, Stream stream, int unit)
+    private static uint GetHandle(
+        GL gl,
+        int plot,
+        byte[] pixels,
+        int width,
+        int height,
+        int columnNumber
+    )
     {
         // ImageResult.FromStream()
-        gl.ActiveTexture(TextureUnit.Texture0 + unit);
+        gl.ActiveTexture(TextureUnit.Texture0 + plot);
 
         var handle = gl.GenTexture();
         gl.BindTexture(TextureTarget.Texture2D, handle);
@@ -82,10 +118,9 @@ public class Texture2DHandler : ResourceHandler
             (int)TextureMinFilter.Nearest
         );
 
-        var image = LoadFromStream(stream);
         InternalFormat internalFormat;
         PixelFormat pixelFormat;
-        switch (image.ColumnNumber)
+        switch (columnNumber)
         {
             case 4:
                 internalFormat = InternalFormat.Rgba;
@@ -106,12 +141,12 @@ public class Texture2DHandler : ResourceHandler
             TextureTarget.Texture2D,
             0,
             internalFormat,
-            (uint)image.Width,
-            (uint)image.Height,
+            (uint)width,
+            (uint)height,
             0,
             pixelFormat,
             PixelType.UnsignedByte,
-            image.Data
+            pixels
         );
 
         gl.BindTexture(TextureTarget.Texture2D, 0);
@@ -121,19 +156,16 @@ public class Texture2DHandler : ResourceHandler
 
     public void Bind(GL gl)
     {
-        gl.ActiveTexture(TextureUnit.Texture0 + Plot);
         gl.BindTexture(TextureTarget.Texture2D, Handle);
     }
 
     public void Unbind(GL gl)
     {
-        gl.ActiveTexture(TextureUnit.Texture0 + Plot);
         gl.BindTexture(TextureTarget.Texture2D, 0);
     }
 
     public void Delete(GL gl)
     {
         gl.DeleteTexture(Handle);
-        gl.Dispose();
     }
 }

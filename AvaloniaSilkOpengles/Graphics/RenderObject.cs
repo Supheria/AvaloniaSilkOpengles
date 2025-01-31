@@ -18,9 +18,9 @@ public abstract class RenderableObject
         Quaternion rotation,
         Vector3 translation,
         Matrix4 matrix,
-        List<Texture2DHandler> textures,
+        List<Texture2D> textures,
         ShaderHandler shader,
-        Camera3D camera
+        PerspectiveCamera camera
     )
     {
         Mesh.Render(gl, renderMode, scale, rotation, translation, matrix, textures, shader, camera);

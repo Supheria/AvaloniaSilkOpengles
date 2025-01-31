@@ -8,7 +8,7 @@ namespace AvaloniaSilkOpengles.Graphics;
 public class GameObject
 {
     RenderableObject? ModelToRender { get; set; }
-    List<Texture2DHandler> Textures { get; } = [];
+    List<Texture2D> Textures { get; } = [];
     public Vector3 Scale { get; set; } = Vector3.One;
     public Quaternion Rotation { get; set; } = Quaternion.Identity;
     public Vector3 RotationDegrees
@@ -35,13 +35,13 @@ public class GameObject
         ModelToRender = model;
     }
     
-    public void SetTextures(params Texture2DHandler[] textures)
+    public void SetTextures(params Texture2D[] textures)
     {
         Textures.Clear();
         Textures.AddRange(textures);
     }
 
-    public void Render(GL gl, ShaderHandler shader, Camera3D camera)
+    public void Render(GL gl, ShaderHandler shader, PerspectiveCamera camera)
     {
         ModelToRender?.Render(
             gl,

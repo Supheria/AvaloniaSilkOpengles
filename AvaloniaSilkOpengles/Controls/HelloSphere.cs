@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using Avalonia.Input;
 using Avalonia.Media;
-using AvaloniaSilkOpengles.Assets.Textures;
 using AvaloniaSilkOpengles.Graphics;
 using AvaloniaSilkOpengles.Graphics.Resources;
 using AvaloniaSilkOpengles.Sphere;
@@ -16,20 +15,20 @@ public class HelloSphere : SilkNetOpenGlControl
     List<SelectableSphere> Spheres { get; } = [];
     ShaderHandler? LightShader { get; set; }
     ShaderHandler? SphereShader { get; set; }
-    Texture2DHandler? TextureWood { get; set; }
-    Texture2DHandler? TextureMoon { get; set; }
+    Texture2D? TextureWood { get; set; }
+    Texture2D? TextureMoon { get; set; }
     bool DoDrag { get; set; }
 
-    private Texture2DHandler LoadTexture(GL gl, string name)
-    {
-        using var stream = TextureRead.Read(name);
-        return new(gl, stream, TextureType.Diffuse, 0);
-    }
+    // private Texture2D LoadTexture(GL gl, string name)
+    // {
+    //     using var stream = TextureRead.Read(name);
+    //     return new(gl, stream, TextureType.Diffuse, 0);
+    // }
 
     protected override void OnGlInit(GL gl)
     {
-        TextureWood = LoadTexture(gl, "wood");
-        TextureMoon = LoadTexture(gl, "moon");
+        TextureWood = Texture2D.Create(gl, "wood", 0, TextureType.Diffuse);
+        TextureMoon = Texture2D.Create(gl, "moon", 0, TextureType.Diffuse);
 
         var sphereModel = new IcoSphereModel(gl, 3);
         Sun.SetCurrentModel(gl, sphereModel);
@@ -44,8 +43,8 @@ public class HelloSphere : SilkNetOpenGlControl
             }
         }
 
-        LightShader = new(gl, "light");
-        SphereShader = new(gl, "sphere");
+        LightShader = ShaderHandler.Create(gl, "light", []);
+        SphereShader = ShaderHandler.Create(gl, "sphere", []);
 
         gl.Enable(EnableCap.DepthTest);
 
@@ -80,14 +79,14 @@ public class HelloSphere : SilkNetOpenGlControl
         var lightColor = new Vector4(1.0f, 1.0f, 1.0f, 1.0f);
 
         LightShader.Use(gl);
-        LightShader.SetVector4(gl, "lightColor", lightColor);
+        LightShader.UniformVector4(gl, "lightColor", lightColor);
         Sun.Scale = new(0.05f, 0.05f, 0.05f);
         Sun.Position = lightPos;
         Sun.Render(gl, LightShader, Camera);
 
         SphereShader.Use(gl);
-        SphereShader.SetVector4(gl, "lightColor", lightColor);
-        SphereShader.SetVector3(gl, "lightPos", lightPos);
+        SphereShader.UniformVector4(gl, "lightColor", lightColor);
+        SphereShader.UniformVector3(gl, "lightPos", lightPos);
         foreach (var sphere in Spheres)
             sphere.Render(gl, SphereShader, Camera);
     }
@@ -134,13 +133,13 @@ public class HelloSphere : SilkNetOpenGlControl
         );
 
         // 4D eye (camera) coordinates
-        var projection = Camera.ProjectionMatrix;
+        var projection = Camera.Project;
         Matrix4.Invert(ref projection, out var projectionInvert);
         var rayEye = Vector4.Transform(rayClip, projectionInvert);
         rayEye = new Vector4(rayEye.X, rayEye.Y, -1f, 0f);
 
         // 4D world coordinates
-        var view = Camera.ViewMatrix;
+        var view = Camera.View;
         Matrix4.Invert(ref view, out var viewInvert);
         var r = Vector4.Transform(rayEye, viewInvert);
         var ray = Vector3.Normalize(new(r.X, r.Y, r.Z));

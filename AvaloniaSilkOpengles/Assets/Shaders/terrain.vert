@@ -12,7 +12,7 @@ out vec3 normal;
 out vec3 color;
 out vec2 uv;
 
-uniform mat4 camMatrix;
+uniform mat4 v, p;
 uniform mat4 model;
 uniform mat4 translation;
 uniform mat4 rotation;
@@ -26,5 +26,5 @@ void main()
     color = aColor;
     uv = aUv;
 
-    gl_Position = camMatrix * vec4(currentPos, 1.0f);
+    gl_Position = p * v * vec4(currentPos, 1.0f);
 }

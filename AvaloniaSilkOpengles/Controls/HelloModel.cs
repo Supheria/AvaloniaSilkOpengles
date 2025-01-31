@@ -24,9 +24,9 @@ public class HelloModel : SilkNetOpenGlControl
         Model2 = new(gl, new ModelRead("ground"));
         Crow = new(gl, new ModelRead("crow"));
 
-        LightShader = new(gl, "light");
-        FrogShader = new(gl, "frog");
-        OutlineShader = new(gl, "outline");
+        LightShader = ShaderHandler.Create(gl, "light", []);
+        FrogShader = ShaderHandler.Create(gl, "frog", []);
+        OutlineShader = ShaderHandler.Create(gl, "outline", []);
 
         gl.Enable(EnableCap.DepthTest);
         gl.DepthFunc(DepthFunction.Less);
@@ -68,14 +68,14 @@ public class HelloModel : SilkNetOpenGlControl
         LightCube.Scale = new(0.05f, 0.05f, 0.05f);
 
         LightShader.Use(gl);
-        LightShader.SetVector4(gl, "lightColor", lightColor);
+        LightShader.UniformVector4(gl, "lightColor", lightColor);
 
         LightCube?.Render(gl, LightShader, Camera);
 
         FrogShader.Use(gl);
-        FrogShader.SetVector4(gl, "lightColor", lightColor);
-        FrogShader.SetVector3(gl, "lightPos", lightPos);
-        FrogShader.SetVector4(gl, "backGround", backGround);
+        FrogShader.UniformVector4(gl, "lightColor", lightColor);
+        FrogShader.UniformVector3(gl, "lightPos", lightPos);
+        FrogShader.UniformVector4(gl, "backGround", backGround);
         Model1?.Render(gl, FrogShader, Camera);
         Model2?.Render(gl, FrogShader, Camera);
         

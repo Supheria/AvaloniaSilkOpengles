@@ -17,7 +17,7 @@ public abstract class SilkNetOpenGlControl : OpenGlControlBase, ICustomHitTest
 {
     public EventHandler<FrameInfo>? FrameInfoUpdated;
     GL? Gl { get; set; }
-    protected Camera3D Camera { get; } = new();
+    protected PerspectiveCamera Camera { get; } = new();
     protected float FovDegrees { get; private set; } = 45.0f;
     protected float NearClipPlane { get; private set; } = 0.1f;
     protected float FarClipPlane { get; private set; } = 75.0f;

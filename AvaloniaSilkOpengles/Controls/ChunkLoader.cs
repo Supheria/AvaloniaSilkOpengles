@@ -18,9 +18,9 @@ public class ChunkLoader : SilkNetOpenGlControl
         LightCube = new(gl);
         Chunk = new(gl);
 
-        LightShader = new(gl, "light");
-        SimpleShader = new(gl, "simple");
-        OutlineShader = new(gl, "outline");
+        LightShader = ShaderHandler.Create(gl, "light", []);
+        SimpleShader = ShaderHandler.Create(gl, "simple", []);
+        OutlineShader = ShaderHandler.Create(gl, "outline", []);
 
         gl.Enable(EnableCap.DepthTest);
         gl.DepthFunc(DepthFunction.Less);
@@ -58,13 +58,13 @@ public class ChunkLoader : SilkNetOpenGlControl
         LightCube.Scale = new(0.05f, 0.05f, 0.05f);
 
         LightShader.Use(gl);
-        LightShader.SetVector4(gl, "lightColor", lightColor);
+        LightShader.UniformVector4(gl, "lightColor", lightColor);
         LightCube?.Render(gl, LightShader, Camera);
 
         SimpleShader.Use(gl);
-        SimpleShader.SetVector4(gl, "lightColor", lightColor);
-        SimpleShader.SetVector3(gl, "lightPos", lightPos);
-        SimpleShader.SetVector4(gl, "backGround", backGround);
+        SimpleShader.UniformVector4(gl, "lightColor", lightColor);
+        SimpleShader.UniformVector3(gl, "lightPos", lightPos);
+        SimpleShader.UniformVector4(gl, "backGround", backGround);
         Chunk?.Render(gl, SimpleShader, Camera);
     }
 }

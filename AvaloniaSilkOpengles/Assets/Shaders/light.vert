@@ -9,7 +9,7 @@ out vec4 color;
 
 //uniform mat4 projection;
 //uniform mat4 view;
-uniform mat4 camMatrix;
+uniform mat4 v, p;
 uniform mat4 model;
 uniform mat4 translation;
 uniform mat4 rotation;
@@ -19,5 +19,5 @@ void main()
 {
     color = vec4(aColor, 1.0f);
 //    gl_Position = projection * view * model * vec4(aPos, 1.0f);
-    gl_Position = camMatrix * model * translation * rotation * scale * vec4(aPos, 1.0f);
+    gl_Position = p * v * model * translation * rotation * scale * vec4(aPos, 1.0f);
 }

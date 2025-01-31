@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using AvaloniaSilkOpengles.Assets.Textures;
 using AvaloniaSilkOpengles.Graphics;
 using AvaloniaSilkOpengles.Graphics.Resources;
 using Microsoft.Xna.Framework;

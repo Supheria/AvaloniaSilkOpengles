@@ -7,29 +7,35 @@ using static Avalonia.OpenGL.GlConsts;
 
 namespace AvaloniaSilkOpengles.Graphics.Resources;
 
-public sealed class EboHandler : ResourceHandler
+public sealed unsafe class IboHandler : Resource
 {
-    uint ElementCount { get; }
+    bool Dynamic { get; }
+    uint ElementCount { get; set; }
 
-    public EboHandler(
-        GL gl,
-        ICollection<uint> data,
-        BufferUsageARB usage = BufferUsageARB.StaticDraw,
-        bool doUnbind = false
-    )
+    private IboHandler(uint handle, bool dynamic)
+        : base(handle)
     {
-        Handle = gl.GenBuffer();
+        Dynamic = dynamic;
+    }
+
+    public static IboHandler Create(GL gl, bool dynamic)
+    {
+        var handle = gl.GenBuffer();
+        var ibo = new IboHandler(handle, dynamic);
+        return ibo;
+    }
+
+    public void Buffer(GL gl, ICollection<uint> data)
+    {
         Bind(gl);
         var array = data.ToArray();
+        ElementCount = (uint)array.Length;
         gl.BufferData<uint>(
             BufferTargetARB.ElementArrayBuffer,
             (uint)(sizeof(uint) * array.Length),
             data.ToArray(),
-            usage
+            Dynamic ? BufferUsageARB.DynamicDraw : BufferUsageARB.StaticDraw
         );
-        ElementCount = (uint)array.Length;
-        if (doUnbind)
-            Unbind(gl);
     }
 
     public void Bind(GL gl)
@@ -47,8 +53,14 @@ public sealed class EboHandler : ResourceHandler
         gl.DeleteBuffer(Handle);
     }
 
-    public unsafe void DrawElements(GL gl, PrimitiveType renderMode)
+    public void DrawElements(GL gl, bool wireframe)
     {
-        gl.DrawElements(renderMode, ElementCount, DrawElementsType.UnsignedInt, null);
+        Bind(gl);
+        gl.DrawElements(
+            wireframe ? PrimitiveType.Lines : PrimitiveType.Triangles,
+            ElementCount,
+            DrawElementsType.UnsignedInt,
+            null
+        );
     }
 }

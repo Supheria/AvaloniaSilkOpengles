@@ -12,7 +12,7 @@ out vec3 currentPos;
 out vec3 normal;
 out vec2 texCoord;
 
-uniform mat4 camMatrix;
+uniform mat4 v, p;
 uniform mat4 model;
 uniform mat4 translation;
 uniform mat4 rotation;
@@ -27,5 +27,5 @@ void main()
     texCoord = aTex;
     
 //    gl_Position = projection * view * vec4(currentPos, 1.0f);
-    gl_Position = camMatrix * vec4(currentPos, 1.0f);
+    gl_Position = p * v * vec4(currentPos, 1.0f);
 }

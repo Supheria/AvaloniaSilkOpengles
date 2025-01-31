@@ -11,7 +11,7 @@ public class Mesh
 {
     VaoHandler? Vao { get; set; }
     VboHandler? Vbo { get; set; }
-    EboHandler? Ebo { get; set; }
+    IboHandler? Ibo { get; set; }
 
     public void Create(
         GL gl,
@@ -19,22 +19,28 @@ public class Mesh
         List<uint> indices
     )
     {
-        Vao = new(gl);
-        Vbo = new(gl, vertices);
-        Ebo = new(gl, indices);
+        Vao = VaoHandler.Create(gl);
+        Vbo = VboHandler.Create(gl, false);
+        Ibo = IboHandler.Create(gl, false);
+        
+        Vbo.Buffer(gl, vertices);
+        Ibo.Buffer(gl, indices);
 
-        Vao.Link(gl, Vbo);
+        Vao.Link(gl, Vbo, 0, 3, VertexAttribPointerType.Float, 0);
+        Vao.Link(gl, Vbo, 1, 3, VertexAttribPointerType.Float, sizeof(float) * 3);
+        Vao.Link(gl, Vbo, 2, 3, VertexAttribPointerType.Float, sizeof(float) * 6);
+        Vao.Link(gl, Vbo, 3, 2, VertexAttribPointerType.Float, sizeof(float) * 9);
 
         Vao.Unbind(gl);
         Vbo.Unbind(gl);
-        Ebo.Unbind(gl);
+        Ibo.Unbind(gl);
     }
 
     public void Delete(GL gl)
     {
         Vao?.Delete(gl);
         Vbo?.Delete(gl);
-        Ebo?.Delete(gl);
+        Ibo?.Delete(gl);
     }
 
     public void Render(GL gl,
@@ -43,15 +49,17 @@ public class Mesh
         Quaternion rotation,
         Vector3 translation,
         Matrix4 matrix,
-        List<Texture2DHandler> textures,
+        List<Texture2D> textures,
         ShaderHandler shader,
-        Camera3D camera)
+        PerspectiveCamera camera)
     {
-        if (Vao is null || Vbo is null || Ebo is null)
+        if (Vao is null || Vbo is null || Ibo is null)
             throw new ArgumentException("Mesh is not created yet");
         
+        shader.Use(gl);
+        
         Vao.Bind(gl);
-        Ebo.Bind(gl);
+        Ibo.Bind(gl);
 
         var diffuseCount = 0;
         var specularCount = 0;
@@ -60,29 +68,29 @@ public class Mesh
             switch (texture.Type)
             {
                 case TextureType.Diffuse:
-                    shader.SetTexture(gl, texture, $"diffuse{diffuseCount++}");
+                    shader.UniformTexture(gl, $"diffuse{diffuseCount++}", texture);
                     break;
                 case TextureType.Specular:
-                    shader.SetTexture(gl, texture, $"specular{specularCount++}");
+                    shader.UniformTexture(gl, $"specular{specularCount++}", texture);
                     break;
                 default:
                     continue;
             }
             texture.Bind(gl);
         }
-        shader.SetVector3(gl, "camPos", camera.Position);
-        shader.SetMatrix(gl, "camMatrix", camera.GetMatrix());
+        shader.UniformVector3(gl, "camPos", camera.Position);
+        shader.UniformCamera(gl, camera);
 
         var scaleMatrix = Matrix4.CreateScale(scale);
         var rotationMatrix = Matrix4.CreateFromQuaternion(rotation);
         var translationMatrix = Matrix4.CreateTranslation(translation);
 
-        shader.SetMatrix(gl, "scale", scaleMatrix);
-        shader.SetMatrix(gl, "rotation", rotationMatrix);
-        shader.SetMatrix(gl, "translation", translationMatrix);
-        shader.SetMatrix(gl, "model", matrix);
+        shader.UniformMatrix4(gl, "scale", scaleMatrix);
+        shader.UniformMatrix4(gl, "rotation", rotationMatrix);
+        shader.UniformMatrix4(gl, "translation", translationMatrix);
+        shader.UniformMatrix4(gl, "model", matrix);
         
-        Ebo.DrawElements(gl, renderMode);
+        Ibo.DrawElements(gl, false);
 
         // Vao.Unbind();
         // Ebo.Unbind();

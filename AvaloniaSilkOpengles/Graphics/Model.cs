@@ -18,13 +18,13 @@ public class Model
     ModelRead ModelRead { get; }
     JsonNode JSON { get; }
     byte[] Data { get; }
-    Dictionary<string, Texture2DHandler> LoadedTextures { get; } = [];
+    Dictionary<string, Texture2D> LoadedTextures { get; } = [];
     List<Mesh> Meshes { get; } = [];
     List<Vector3> Translations { get; } = [];
     List<Quaternion> Rotations { get; } = [];
     List<Vector3> Scales { get; } = [];
     List<Matrix4> Matrices { get; } = [];
-    List<List<Texture2DHandler>> TextureGroups { get; } = [];
+    List<List<Texture2D>> TextureGroups { get; } = [];
 
     public Model(GL gl, ModelRead modelRead)
     {
@@ -39,7 +39,7 @@ public class Model
         TraverseNode(gl, 0, Matrix4.Identity);
     }
 
-    public void Render(GL gl, ShaderHandler? shader, Camera3D? camera)
+    public void Render(GL gl, ShaderHandler? shader, PerspectiveCamera? camera)
     {
         if (shader is null || camera is null)
             return;
@@ -298,9 +298,9 @@ public class Model
         return indices;
     }
 
-    private List<Texture2DHandler> GetTextures(GL gl)
+    private List<Texture2D> GetTextures(GL gl)
     {
-        var textures = new List<Texture2DHandler>();
+        var textures = new List<Texture2D>();
 
         var count = JSON["images"]?.AsArray().Count ?? 0;
         for (var i = 0; i < count; i++)
@@ -315,22 +315,22 @@ public class Model
             // var texture = ImageResult.FromStream(source, ColorComponents.RedGreenBlueAlpha);
             if (name.Contains("baseColor") || name.Contains("diffuse"))
             {
-                var diffuse = new Texture2DHandler(
+                var diffuse = Texture2D.Create(
                     gl,
                     source,
-                    TextureType.Diffuse,
-                    LoadedTextures.Count
+                    LoadedTextures.Count,
+                    TextureType.Diffuse
                 );
                 textures.Add(diffuse);
                 LoadedTextures.Add(name, diffuse);
             }
             else if (name.Contains("metallicRoughness") || name.Contains("specular"))
             {
-                var specular = new Texture2DHandler(
+                var specular = Texture2D.Create(
                     gl,
                     source,
-                    TextureType.Specular,
-                    LoadedTextures.Count
+                    LoadedTextures.Count,
+                    TextureType.Specular
                 );
                 textures.Add(specular);
                 LoadedTextures.Add(name, specular);

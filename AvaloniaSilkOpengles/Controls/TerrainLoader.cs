@@ -15,7 +15,7 @@ public class TerrainLoader : SilkNetOpenGlControl
     protected override void OnGlInit(GL gl)
     {
         TestTerrain = new(gl);
-        TerrainShader = new(gl, "terrain");
+        TerrainShader = ShaderHandler.Create(gl, "terrain", []);
 
         gl.Enable(EnableCap.DepthTest);
 

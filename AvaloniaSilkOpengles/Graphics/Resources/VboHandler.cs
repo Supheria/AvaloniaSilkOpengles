@@ -4,26 +4,37 @@ using Silk.NET.OpenGLES;
 
 namespace AvaloniaSilkOpengles.Graphics.Resources;
 
-public sealed unsafe class VboHandler : ResourceHandler
+public sealed unsafe class VboHandler : Resource
 {
-    public VboHandler(
-        GL gl,
-        ICollection<Vertex> data,
-        BufferUsageARB usage = BufferUsageARB.StaticDraw,
-        bool doUnbind = false
-    )
+    bool Dynamic { get; }
+    public uint Stride { get; private set; }
+
+    private VboHandler(uint handle, bool dynamic)
+        : base(handle)
     {
-        Handle = gl.GenBuffer();
+        Dynamic = dynamic;
+    }
+
+    public static VboHandler Create(GL gl, bool dynamic)
+    {
+        var handle = gl.GenBuffer();
+        var vbo = new VboHandler(handle, dynamic);
+        return vbo;
+    }
+
+    public void Buffer<T>(GL gl, ICollection<T> data)
+        where T : unmanaged
+    {
         Bind(gl);
         var array = data.ToArray();
-        gl.BufferData<Vertex>(
+        var stride = sizeof(T);
+        gl.BufferData<T>(
             BufferTargetARB.ArrayBuffer,
-            (uint)(sizeof(Vertex) * array.Length),
+            (uint)(stride * array.Length),
             data.ToArray(),
-            usage
+            Dynamic ? BufferUsageARB.DynamicDraw : BufferUsageARB.StaticDraw
         );
-        if (doUnbind)
-            Unbind(gl);
+        Stride = (uint)stride;
     }
 
     public void Bind(GL gl)

@@ -4,36 +4,49 @@ using Silk.NET.OpenGLES;
 
 namespace AvaloniaSilkOpengles.Graphics.Resources;
 
-public sealed unsafe class VaoHandler : ResourceHandler
+public sealed class VaoHandler : Resource
 {
-    public VaoHandler(GL gl, bool doUnbind = false)
-    {
-        Handle = gl.GenVertexArray();
-        if (!doUnbind)
-            gl.BindVertexArray(Handle);
-    }
-    
-    public void Link(GL gl, VboHandler vbo)
-    {
-        vbo.Bind(gl);
-        LinkItem(VertexElement.Position);
-        LinkItem(VertexElement.Normal);
-        LinkItem(VertexElement.Color);
-        LinkItem(VertexElement.Uv);
-        return;
+    private VaoHandler(uint handle)
+        : base(handle) { }
 
-        void LinkItem(VertexElement element)
-        {
-            gl.VertexAttribPointer(
-                element.Plot,
-                element.Count,
-                VertexAttribPointerType.Float,
-                false,
-                (uint)sizeof(Vertex),
-                element.StartPointer
-            );
-            gl.EnableVertexAttribArray(element.Plot);
-        }
+    public static VaoHandler Create(GL gl)
+    {
+        var handle = gl.GenVertexArray();
+        return new(handle);
+    }
+
+    public void Link(
+        GL gl,
+        VboHandler vbo,
+        uint slot,
+        int count,
+        VertexAttribPointerType type,
+        int offset
+    )
+    {
+        Bind(gl);
+        vbo.Bind(gl);
+        if (type is not VertexAttribPointerType.Float)
+            throw new ArgumentOutOfRangeException($"unsupported vertex attribute type");
+        gl.VertexAttribPointer(slot, count, type, false, vbo.Stride, offset);
+        gl.EnableVertexAttribArray(slot);
+    }
+
+    public void Link(
+        GL gl,
+        VboHandler vbo,
+        uint slot,
+        int count,
+        VertexAttribIType type,
+        int offset
+    )
+    {
+        Bind(gl);
+        vbo.Bind(gl);
+        if (type is not VertexAttribIType.UnsignedInt)
+            throw new ArgumentOutOfRangeException($"unsupported vertex attribute type");
+        gl.VertexAttribIPointer(slot, count, type, vbo.Stride, offset);
+        gl.EnableVertexAttribArray(slot);
     }
 
     public void Bind(GL gl)

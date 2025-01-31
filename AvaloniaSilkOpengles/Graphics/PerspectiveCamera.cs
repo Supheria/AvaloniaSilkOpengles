@@ -6,12 +6,10 @@ using Avalonia.Input;
 
 namespace AvaloniaSilkOpengles.Graphics;
 
-public sealed class Camera3D
+public sealed class PerspectiveCamera : Camera
 {
     float Speed { get; set; } = 2.0f;
     float Sensitivity { get; set; } = 20.0f;
-    public Matrix4 ProjectionMatrix { get; private set; } = Matrix4.Identity;
-    public Matrix4 ViewMatrix { get; private set; } = Matrix4.Identity;
     Vector3 Up { get; set; } = Vector3.UnitY;
     Vector3 Front { get; set; } = -Vector3.UnitZ;
     Vector3 Right { get; set; } = Vector3.UnitX;
@@ -35,7 +33,7 @@ public sealed class Camera3D
 
     public void SetSize(Size size, float fovDegrees, float nearClipPlane, float farClipPlane)
     {
-        ProjectionMatrix = Matrix4.CreatePerspectiveFieldOfView(
+        Project = Matrix4.CreatePerspectiveFieldOfView(
             float.DegreesToRadians(fovDegrees),
             (float)(size.Width / size.Height),
             nearClipPlane,
@@ -45,12 +43,7 @@ public sealed class Camera3D
 
     private void UpdateViewMatrix()
     {
-        ViewMatrix = Matrix4.CreateLookAt(Position, Position + Front, Up);
-    }
-
-    public Matrix4 GetMatrix()
-    {
-        return ViewMatrix * ProjectionMatrix;
+        View = Matrix4.CreateLookAt(Position, Position + Front, Up);
     }
 
     public void UpdateControl(KeyEventArgs? keyState, Vector2 pointerPostionDiff, float timeDelta)
